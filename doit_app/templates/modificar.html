@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Configuración de Usuario{% endblock %}
+{% load static %} 
+{% block extra_css %}
+<style>
+
+    .container-perfil {
+        background-color: #eae7b1; /* Fondo suave y claro */
+        padding: 20px;
+        margin: 20px auto; /* Centra el contenedor horizontalmente con márgenes automáticos */
+        border-radius: 8px; /* Bordes ligeramente redondeados */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
+        width: 90%; /* Ocupa el 90% del ancho disponible */
+        max-width: 600px; /* Pero no excede los 600px para pantallas grandes */
+        position: relative; /* Para posicionamiento de elementos internos si es necesario */
+    }
+
+    .container-perfil h2 {
+        color: #333; /* Color de texto oscuro para el título */
+        margin-top: 0;
+        border-bottom: 2px solid #557c5c; /* Línea divisoria bajo el título */
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    /* Estilos para las etiquetas y campos de entrada del formulario de Django */
+    .container-perfil p {
+        margin-bottom: 15px; /* Espacio entre cada párrafo de campo (label + input) */
+    }
+
+    .container-perfil p label {
+        display: block; /* Hace que la etiqueta ocupe su propia línea */
+        margin-bottom: 5px; /* Espacio entre la etiqueta y el campo de entrada */
+        font-weight: bold; /* Texto de etiqueta en negrita */
+        color: #555; /* Color de texto para las etiquetas */
+    }
+
+    .container-perfil p input[type="text"],
+    .container-perfil p input[type="password"],
+    .container-perfil p input[type="tel"],
+    .container-perfil p input[type="email"],
+    .container-perfil p input[type="date"],
+    .container-perfil p select,
+    .container-perfil p textarea {
+        width: calc(100% - 12px); /* Ancho completo menos el padding */
+        padding: 8px;
+        border: 1px solid #ccc; /* Borde gris claro */
+        border-radius: 4px; /* Bordes ligeramente redondeados para los campos */
+        box-sizing: border-box; /* Asegura que padding y border se incluyan en el ancho */
+        font-size: 1rem; /* Tamaño de fuente legible */
+    }
+
+    /* Estilos para el grupo de botones */
+    .button-group {
+        display: flex; /* Para que los botones estén en la misma línea */
+        justify-content: flex-start; /* Alinea los botones al inicio */
+        gap: 10px; /* Espacio entre los botones */
+        margin-top: 20px; /* Margen superior para separarlos del formulario */
+    }
+
+    .button-group button[type="submit"],
+    .button-group .back-button { /* Aplica estilos base similares al enlace de volver */
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        text-decoration: none; /* Quita el subrayado del enlace */
+        display: inline-block; /* Para que se comporten como bloques y se les pueda aplicar padding */
+        text-align: center; /* Centra el texto en el botón */
+    }
+
+    /* Estilos específicos para el botón de "Guardar Cambios" */
+    .button-group button[type="submit"] {
+        background-color: #557c5c; /* Color de fondo del botón */
+        color: white; /* Color de texto del botón */
+    }
+
+    .button-group button[type="submit"]:hover {
+        background-color: #f5c6cb; /* Cambio de color al pasar el ratón */
+    }
+
+    /* Estilos específicos para el botón "Volver" */
+    .button-group .back-button {
+        background-color: #ccc; /* Un gris neutro */
+        color: #333; /* Texto oscuro */
+    }
+
+    .button-group .back-button:hover {
+        background-color: #bbb; /* Un gris un poco más oscuro al pasar el ratón */
+    }
+
+    /* Estilos para los mensajes de Django (success, error, info) */
+    .messages {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .messages li {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    .messages .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .messages .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .messages .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-perfil" id="editProfileContainer">
+        <h2>Editar Información de Perfil</h2>
+
+        {# Mostrar mensajes de Django (éxito, error, etc.) #}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %} {# ¡Siempre necesario para formularios POST en Django por seguridad! #}
+
+            {# Renderiza todos los campos de tu PerfilUsuarioForm. Esto incluye etiquetas, inputs, y errores. #}
+            {{ form.as_p }}
+
+            <div class="button-group">
+                <button type="submit">Guardar Cambios</button>
+                {# Botón de Volver a la pantalla principal #}
+                <a href="{% url 'principal' %}" class="back-button">Volver a Principal</a>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock content %}

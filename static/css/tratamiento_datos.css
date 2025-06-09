@@ -1,0 +1,15 @@
+header {
+    background-color: #93dc93; /* Color de fondo azul oscuro */
+    padding: 25px;
+    text-align: center; /* Opcional: Centra el texto dentro del header */
+}
+
+header h1 {
+    color: #131313; /* Color de texto blanco para contrastar bien con el azul oscuro */
+    margin-bottom: 10px; /* Espacio debajo del título */
+}
+
+header .lead {
+    color: #000000; /* Color de texto azul claro para contrastar suavemente */
+    font-weight: normal; /* Para que no sea tan bold como el estilo por defecto de Bootstrap */
+}

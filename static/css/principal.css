@@ -1,0 +1,545 @@
+/* --- Variables CSS --- */
+:root {
+    --blanco: #ffffff;
+    --azul: #01304a;
+    --naranja: #f27f00;
+    --claro: #e2d9af;
+    --amarillo: #f8bb49;
+    --verde: #93dc93;
+    --palorosa: #eae7b1;
+    --fondo: #f5f1dd;
+}
+
+/* --- Estilos Generales --- */
+body {
+    background-color: var(--fondo);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    color: var(--azul);
+    margin-bottom: 1rem; /* Reducido de 1.5rem */
+}
+
+button {
+    background-color: var(--azul);
+    color: var(--blanco);
+    padding: 10px 15px; /* Ligeramente reducido */
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px; /* Ligeramente reducido */
+    transition: background-color 0.3s ease;
+}
+
+button:disabled {
+    background-color: #bbb;
+    cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+    background-color: #015965;
+}
+
+/* --- Header y Perfil --- */
+.header-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 30px; /* Reducido de 50px */
+    padding: 15px 20px; /* Reducido el padding vertical */
+    background-color: var(--palorosa);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.perfil-header {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Reducido de 20px */
+    flex-shrink: 0;
+}
+
+.perfil-foto-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.perfil-foto {
+    width: 80px; /* Ligeramente reducido */
+    height: 80px; /* Ligeramente reducido */
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 3px; /* Reducido de 5px */
+}
+
+.perfil-nombre {
+    margin: 0;
+    color: var(--azul);
+    font-size: 16px; /* Ligeramente reducido */
+    text-align: center;
+}
+
+.modificar-perfil-btn {
+    background-color: var(--naranja);
+    color: var(--blanco);
+    padding: 7px 12px; /* Ligeramente reducido */
+    border-radius: 5px;
+    font-size: 13px; /* Ligeramente reducido */
+    width: auto;
+}
+
+.modificar-perfil-btn:hover {
+    background-color: #d16b00;
+}
+
+/* --- Banner de Bienvenida --- */
+.banner-bienvenida {
+    color: rgb(56, 69, 112);
+    text-align: center;
+    padding: 15px; /* Ligeramente reducido */
+    flex-grow: 1;
+    min-width: 280px; /* Ligeramente reducido */
+    margin: 0 auto;
+    max-width: 800px; /* Ligeramente reducido */
+}
+
+.banner-bienvenida .contenido-banner h1 {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Reducido de 10px */
+    font-size: 2em; /* Ligeramente reducido */
+}
+
+.banner-bienvenida .contenido-banner h1 img {
+    width: 60px; /* Ligeramente reducido */
+    height: auto;
+    vertical-align: middle;
+}
+
+/* Ajusta la barra de input del banner */
+.banner-bienvenida .contenido-banner input[type="text"] {
+    padding: 10px 15px; /* Ligeramente reducido */
+    width: 95%; /* Ligeramente aumentado para ocupar más */
+    max-width: 350px; /* Ligeramente reducido */
+    border: none;
+    box-shadow: 5px 5px 15px #ccae76;
+    font-size: 15px; /* Ligeramente reducido */
+    display: block;
+    margin: 15px auto 0; /* Reducido el margen superior */
+}
+
+/* --- Botón "Buscar experto" --- */
+.boton-experto {
+    display: block;
+    width: fit-content;
+    margin: 15px auto 25px; /* Reducido de 5px arriba y 30px abajo */
+    padding: 9px 15px; /* Ligeramente reducido */
+    font-size: 18px; /* Ligeramente reducido */
+    background-color: var(--azul);
+    color: var(--blanco);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.boton-experto:hover {
+    background-color: #b89556;
+}
+
+/* --- Sección de Reserva (la que quieres centrar) --- */
+.seccion-servicios {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--fondo);
+    padding: 30px 20px; /* Reducido de 60px */
+    /* min-height: 100vh; */ /* <-- COMENTAR O ELIMINAR ESTO SI NO QUIERES QUE LA SECCIÓN SIEMPRE OCUPE TODA LA PANTALLA */
+    /* Si lo eliminas, solo ocupará el espacio de su contenido + padding */
+    box-sizing: border-box;
+}
+
+/* Estilos de la tarjeta de reserva */
+.tarjeta-servicio {
+    background-color: var(--blanco);
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px 20px; /* Ligeramente reducido */
+    width: 100%;
+    max-width: 380px; /* Ligeramente reducido para una apariencia más compacta */
+    text-align: center;
+}
+
+/* Estilos específicos para la sección de reserva */
+.seccion-servicios .tarjeta-servicio h3 {
+    color: #003c47;
+    margin-bottom: 20px; /* Reducido de 25px */
+}
+
+.grupo-formulario {
+    margin-bottom: 15px; /* Reducido de 20px */
+    text-align: left;
+}
+
+.grupo-formulario label {
+    display: block;
+    margin-bottom: 5px; /* Reducido de 6px */
+    font-weight: 600;
+    color: #333;
+}
+
+.grupo-formulario select {
+    width: 100%;
+    padding: 8px; /* Ligeramente reducido */
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 13px; /* Ligeramente reducido */
+    background-color: var(--blanco);
+}
+
+.grupo-formulario select:disabled {
+    background-color: #eee;
+}
+
+
+/* --- Contenido Principal (Servicios Cerca y Categorías) --- */
+.contenido-principal {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* Reducido de 60px */
+    margin-top: 30px; /* Reducido de 50px */
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+.servicios-cerca {
+    width: 100%;
+    max-width: 400px; /* Reducido de 450px */
+    font-size: 16px; /* Ligeramente reducido */
+}
+
+.servicios-cerca .tarjeta-servicio {
+    padding: 1.5rem; /* Ligeramente reducido */
+    box-shadow: 5px 5px 15px #ccae76;
+    margin-bottom: 15px; /* Reducido de 20px */
+    color: #8a7012;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: var(--blanco);
+    text-align: left;
+}
+
+.info-izquierda h3 {
+    margin: 0;
+    color: var(--azul);
+    font-size: 20px; /* Ligeramente reducido */
+}
+
+.tarjeta-servicio .info-izquierda,
+.tarjeta-servicio .info-derecha {
+    flex-basis: 48%;
+}
+
+.tarjeta-servicio .info-derecha {
+    text-align: right;
+}
+
+/* --- Sección de Servicios (CUIDADO PERSONAL, HOGAR, LOCATIVOS) --- */
+.servicios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Reducido de 40px */
+    width: 100%;
+    max-width: 900px; /* Ligeramente reducido */
+}
+
+.servicio {
+    background-color: var(--fondo);
+    padding: 1.2rem; /* Ligeramente reducido */
+    box-shadow: 5px 5px 15px #ccae76;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px; /* Reducido de 30px */
+    flex: 1;
+    min-width: 250px; /* Ligeramente reducido */
+    max-width: 300px; /* Ligeramente reducido */
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.servicio img {
+    width: 100%;
+    height: auto;
+    max-height: 180px; /* Ligeramente reducido */
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 15px; /* Reducido de 20px */
+}
+
+.servicio p {
+    font-size: 18px; /* Ligeramente reducido */
+    color: #8a7012;
+    text-align: justify;
+}
+
+.servicio h2 {
+    font-size: 22px; /* Ligeramente reducido */
+    margin-top: 0;
+}
+
+/* --- Servicios Más Solicitados --- */
+.servicios-populares {
+    width: 100%;
+    max-width: 1000px; /* Ligeramente reducido */
+    margin: 40px auto; /* Reducido de 50px */
+    padding: 0 15px; /* Ligeramente reducido */
+}
+
+.servicios-mas-solicitados h2 {
+    font-size: 26px; /* Ligeramente reducido */
+    margin-bottom: 25px; /* Reducido de 30px */
+    color: var(--azul);
+    text-align: center;
+}
+
+.servicios-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px; /* Reducido de 40px */
+    margin-top: 10px;
+}
+
+.servicio-cuadro {
+    padding: 25px; /* Ligeramente reducido */
+    width: 180px; /* Ligeramente reducido */
+    box-shadow: 5px 5px 15px #ccae76;
+    text-align: center;
+    background-color: var(--blanco);
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.servicio-cuadro:hover {
+    transform: scale(1.05);
+    box-shadow: 8px 8px 20px #bba06a;
+}
+
+.servicio-cuadro img {
+    border-radius: 20px;
+    height: 130px; /* Ligeramente reducido */
+    width: 100%;
+    object-fit: cover;
+    margin-bottom: 10px; /* Reducido de 15px */
+}
+
+.servicio-cuadro h3 {
+    font-size: 20px; /* Ligeramente reducido */
+    margin: 0;
+    color: var(--azul);
+}
+
+/* --- Estados de Servicio (Aceptado, Pendiente, Finalizado) --- */
+.estado {
+    display: inline-block;
+    padding: 4px 12px; /* Ligeramente reducido */
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px; /* Ligeramente reducido */
+    text-align: center;
+    margin-top: 8px; /* Ligeramente reducido */
+}
+
+.estado.finalizado {
+    color: var(--blanco);
+    background-color: #28a745;
+}
+
+.estado.pendiente {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.estado.solicitar {
+    color: var(--blanco);
+    background-color: #007bff;
+}
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .perfil-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .perfil-foto {
+        width: 70px;
+        height: 70px;
+    }
+
+    .perfil-nombre {
+        font-size: 15px;
+    }
+
+    .modificar-perfil-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    .banner-bienvenida {
+        padding: 10px;
+        min-width: unset;
+        max-width: 100%;
+    }
+
+    .banner-bienvenida .contenido-banner h1 {
+        font-size: 1.8em;
+        gap: 5px;
+    }
+    .banner-bienvenida .contenido-banner h1 img {
+        width: 50px;
+    }
+
+    .banner-bienvenida .contenido-banner input[type="text"] {
+        padding: 8px 12px;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .boton-experto {
+        font-size: 16px;
+        padding: 8px 12px;
+        margin: 10px auto 20px;
+    }
+
+    .seccion-servicios {
+        padding: 20px 15px;
+        /* min-height: unset; */ /* Si eliminaste min-height: 100vh arriba, asegúrate de que aquí también se adapte */
+    }
+
+    .tarjeta-servicio {
+        padding: 20px 15px;
+        max-width: 350px; /* Ajusta según sea necesario */
+    }
+
+    .tarjeta-servicio h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .grupo-formulario {
+        margin-bottom: 12px;
+    }
+
+    .grupo-formulario label {
+        font-size: 14px;
+    }
+
+    .grupo-formulario select {
+        padding: 7px;
+        font-size: 12px;
+    }
+
+    button {
+        padding: 9px 12px;
+        font-size: 14px;
+    }
+
+    .contenido-principal {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+        padding: 15px;
+    }
+
+    .servicios-cerca,
+    .servicios {
+        width: 100%;
+        max-width: none;
+        padding: 0 10px;
+    }
+
+    .servicios-cerca .tarjeta-servicio {
+        padding: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .info-izquierda h3 {
+        font-size: 18px;
+    }
+
+    .servicio {
+        padding: 1rem;
+        margin-bottom: 15px;
+        min-width: unset;
+        max-width: 100%;
+    }
+
+    .servicio img {
+        max-height: 150px;
+        margin-bottom: 10px;
+    }
+
+    .servicio p {
+        font-size: 16px;
+    }
+
+    .servicio h2 {
+        font-size: 20px;
+    }
+
+    .servicios-populares {
+        margin: 30px auto;
+        padding: 0 10px;
+    }
+
+    .servicios-mas-solicitados h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .servicios-grid {
+        gap: 15px;
+    }
+
+    .servicio-cuadro {
+        padding: 20px;
+        width: 120px;
+    }
+
+    .servicio-cuadro img {
+        height: 100px;
+        margin-bottom: 8px;
+    }
+
+    .servicio-cuadro h3 {
+        font-size: 16px;
+    }
+
+    .estado {
+        font-size: 12px;
+        padding: 3px 10px;
+    }
+}
+

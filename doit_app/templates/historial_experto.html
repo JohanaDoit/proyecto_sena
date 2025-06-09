@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Servicios</title>
+    <link rel="stylesheet" href="{% static 'css/historial_experto.css' %}">
+    <script>
+        function mostrarDetalles(id) {
+            const detalles = document.getElementById('detalles-' + id);
+            if (detalles.style.display === 'none') {
+                detalles.style.display = 'block';
+            } else {
+                detalles.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Historial de Servicios</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Día de Realización</th>
+                <th>Calificación</th>
+                <th class="comentarios-col">Comentarios</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="nombre-con-boton">
+                        Juan Pérez
+                        <button class="mostrar-mas-btn" onclick="mostrarDetalles('1')">Mostrar más</button>
+                    </div>
+                    <div id="detalles-1" class="detalles-servicio">
+                        <p><strong>Tipo de Servicio:</strong> Instalación de Software</p>
+                        <p><strong>Hora de Servicio:</strong> 10:00 AM - 12:00 PM</p>
+                        <p><strong>Pago:</strong> \$ 80.000 COP</p>
+                    </div>
+                </td>
+                <td>Calle 123 # 45-67, Bogotá</td>
+                <td>2025-04-05</td>
+                <td>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">☆</span>
+                </td>
+                <td>
+                    <textarea rows="3" cols="30" placeholder="Excelente servicio y muy amable."></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="nombre-con-boton">
+                        María Gómez
+                        <button class="mostrar-mas-btn" onclick="mostrarDetalles('2')" tex-aling: rigth>Mostrar más</button>
+                    </div>
+                    <div id="detalles-2" class="detalles-servicio">
+                        <p><strong>Tipo de Servicio:</strong> Mantenimiento de Hardware</p>
+                        <p><strong>Hora de Servicio:</strong> 2:00 PM - 5:30 PM</p>
+                        <p><strong>Pago:</strong> \$ 120.000 COP</p>
+                    </div>
+                </td>
+                <td>Avenida Siempreviva 742, Springfield</td>
+                <td>2025-04-08</td>
+                <td>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                </td>
+                <td>
+                    <textarea rows="3" cols="30" placeholder="Todo perfecto, muy recomendado."></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="nombre-con-boton">
+                        Carlos López
+                        <button class="mostrar-mas-btn" onclick="mostrarDetalles('3')">Mostrar más</button>
+                    </div>
+                    <div id="detalles-3" class="detalles-servicio">
+                        <p><strong>Tipo de Servicio:</strong> Asesoría Técnica</p>
+                        <p><strong>Hora de Servicio:</strong> 9:00 AM - 10:00 AM</p>
+                        <p><strong>Pago:</strong> \$ 50.000 COP</p>
+                    </div>
+                </td>
+                <td>Carrera 5 # 10-20, Medellín</td>
+                <td>2025-04-10</td>
+                <td>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">☆</span>
+                    <span class="star">☆</span>
+                </td>
+                <td>
+                    <textarea rows="3" cols="30" placeholder="Podría mejorar la comunicación."></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="/experto/" class="volver-btn">Volver al inicio</a>
+
+</body>
+</html>
+{% endblock content %}  

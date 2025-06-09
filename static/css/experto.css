@@ -1,0 +1,170 @@
+:root {
+    --blanco: #ffffff;
+    --azul: #01304a;
+    --naranja: #f27f00;
+    --claro: #e2d9af;
+    --amarillo: #f8bb49;
+    --verde: #93dc93;
+    --palorosa: #eae7b1;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f1dd;
+}
+
+---------------------
+/* ajusta el tamaño de imagen del experto */
+.perfil .avatar img {
+    width: 100px;
+    height: 150px;
+    border-radius: 200%;
+    object-fit: cover;
+    top: 200px;
+    left: 200px;
+}
+
+/* ajusta la posicion de la imagen , la sombra */
+.avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 70%;
+    overflow: hidden; /* Esto recorta cualquier parte que se salga del círculo */
+    box-shadow: 10px 4px 10px rgba(0, 0, 0, 0.2); 
+    position: absolute;  
+    top: 150px;
+    left: 150px;
+}
+
+/*ajusta la imagen dentro del circulo */
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Esto asegura que la imagen se ajuste sin deformarse */
+    display: block;
+}
+
+/*ajusta la posicion y el tamaño de la letra */
+.info{
+    position: absolute;
+    top: 150px;
+    left: 380px;
+    width: 400px;
+    text-align: center;
+    font-size: 25px; /* Aumenta el tamaño de la letra */
+}
+
+/*ajusta el tamaño y los estilos del boton de modificar*/
+.btn.modificar {
+    background-color: #557c5c;
+    font-size: 20PX ;
+    color: white;
+    border: none;
+    padding: 20PX;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/*ajusta la posicion del boton de modificar*/
+.btn_posicion{
+    position: absolute;
+    top: 400px;
+    left: 170px;
+    width: 200
+}
+/*sirve para mover el cuadro y el titulo de lugar */
+.opciones-servicio {
+    position: absolute;
+    top: 200px;         /* Distancia desde arriba */
+    right: 250px;       /* Distancia desde la derecha */
+    text-align: center;
+}
+
+/* ajusta el color y los estilos del cuadro*/
+.cuadro-servicio {
+    background-color: #557c5c;
+    padding: 15px;
+    border-radius: 10px;
+    color: #d4ecdd;
+    margin-top: 10px;
+    width: 300px;       /* Ancho del cuadro */
+    height: 150px;
+}
+
+  /*ajusta el tamaño de letra del titulo */
+.opciones-servicio h2 {
+    font-size: 25px;
+    font-weight: bold;
+    color: #000;
+}
+
+
+
+
+  /* ajusta el titulo de cada cuadro de nueva solicitud color tipo de letra , tamaño */
+.notificacion h3 {
+    margin: 0;
+    font-size: 30px;
+    color: #d4ecdd;
+}
+
+/* ajusta la letra y el color dentro del cuadro de nueva solicitud */
+.notificacion p {
+    font-size: 16px;
+    color: #d4ecdd;
+    margin: 5px 0;
+}
+
+/* sirve para que los cuadros queden alineados */
+.contenedor-solicitudes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 650px; /* 🔽 Ajusta este valor según lo que necesites */
+}
+
+/* Estilo para la sección de notificación de solicitud */
+.notificacion-solicitud {
+    background-color: #557c5c;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    width: 15%; /* Cambia este valor para hacerlo más o menos ancho */
+    border-radius: 10px;
+    font-weight: bold;
+    animation: parpadeo 1.5s infinite;
+    margin-top: 20px;
+    width: 30%; /* Cambia este valor para hacerlo más o menos ancho */
+
+}
+
+/* Estilo para el botón de aceptar solicitud */
+.aceptar-solicitud {
+    background-color: #f8e79d;
+    color: rgb(9, 32, 16);
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Animación de parpadeo para la notificación */
+@keyframes parpadeo {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+
+
+

@@ -1,0 +1,54 @@
+.configuracion {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.configuracion h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+  color: #333;
+}
+
+.formulario-configuracion {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formulario-configuracion label {
+  font-weight: bold;
+  color: #555;
+}
+
+.formulario-configuracion input[type="text"],
+.formulario-configuracion input[type="email"],
+.formulario-configuracion select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+
+.formulario-configuracion input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.btn-guardar {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-guardar:hover {
+  background-color: #0056b3;
+}

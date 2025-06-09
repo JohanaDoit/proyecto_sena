@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados de la búsqueda</title>
+    <link rel="stylesheet" href="{% static 'css/busc_experto.css' %}">
+    <script>
+        function seleccionarExperto() {
+            const mensajeSeleccion = document.getElementById('mensaje-seleccion');
+            mensajeSeleccion.textContent = 'Experto seleccionado';
+            mensajeSeleccion.style.display = 'block'; // Mostrar el mensaje
+
+            // Redirigir a la página de chat.html
+            window.location.href = "{% url 'chat' %}";
+        }
+    </script>
+</head>
+<body>
+    <div class="contenedor-resultados">
+        <h1>Resultados de la búsqueda para "{{ searched_expert|default:'[Término de búsqueda]' }}"</h1>
+
+        <div id="mensaje-seleccion" style="display: none; text-align: center; margin-bottom: 20px; color: var(--verde); font-weight: bold;"></div>
+
+        <div class="experto-card">
+            <div class="experto-info">
+                <img src="{% static 'images/juan_p.jpg' %}" alt="Foto de Juan" class="experto-foto">
+                <h3>Juan Pérez</h3>
+                <p class="experto-servicio">Plomero</p>
+                <p class="experto-calificacion">⭐ ⭐ ⭐ ⭐ (4.5)</p>
+                <p class="experto-precio">Desde $80.000 / servicio</p>
+            </div>
+            <div class="experto-contacto">
+                <button class="boton-seleccionar" onclick="seleccionarExperto()">Seleccionar</button>
+            </div>
+        </div>
+
+        <div class="experto-card">
+            <div class="experto-info">
+                <img src="{% static 'images/ana_r.jpg' %}" alt="Foto de Ana" class="experto-foto">
+                <h3>Ana Rodríguez</h3>
+                <p class="experto-servicio">Manicurista Profesional</p>
+                <p class="experto-calificacion">⭐ ⭐ ⭐ ⭐ ⭐ (5.0)</p>
+                <p class="experto-precio">Desde $35.000 / servicio</p>
+            </div>
+            <div class="experto-contacto">
+                <button class="boton-seleccionar" onclick="seleccionarExperto()">Seleccionar</button>
+            </div>
+        </div>
+
+        <div class="experto-card">
+            <div class="experto-info">
+                <img src="{% static 'images/carlos_l.jpg' %}" alt="Foto de Carlos" class="experto-foto">
+                <h3>Carlos López</h3>
+                <p class="experto-servicio">Electricista Certificado</p>
+                <p class="experto-calificacion">⭐ ⭐ ⭐ (3.8)</p>
+                <p class="experto-precio">Desde $120.000 / servicio</p>
+            </div>
+            <div class="experto-contacto">
+                <button class="boton-seleccionar" onclick="seleccionarExperto()">Seleccionar</button>
+            </div>
+        </div>
+
+        <div class="experto-card">
+            <div class="experto-info">
+                <img src="{% static 'images/sofia_g.jpg' %}" alt="Foto de Sofía" class="experto-foto">
+                <h3>Sofía Gómez</h3>
+                <p class="experto-servicio">Aseo y Limpieza a Domicilio</p>
+                <p class="experto-calificacion">⭐ ⭐ ⭐ ⭐ (4.2)</p>
+                <p class="experto-precio">Desde $60.000 / servicio</p>
+            </div>
+            <div class="experto-contacto">
+                <button class="boton-seleccionar" onclick="seleccionarExperto()">Seleccionar</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+{% endblock content %}

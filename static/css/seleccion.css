@@ -1,0 +1,98 @@
+
+.seleccion-container {
+    height: 100vh;
+}
+
+.btn-custom {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 10px;
+}
+
+.titulo {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.btn-custom {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 15px;
+}
+
+/* Estilo para el botón de Cliente */
+.btn-custom.cliente {
+    background-color: #01304a; 
+    color: #f8bb49;
+}
+
+.btn-custom.cliente:hover {
+    background: linear-gradient(120deg, #01304a, #f8bb49);
+}
+
+/* Estilo para el botón de Experto */
+.btn-custom.experto {
+    background-color: #01304a; 
+    color: #f8bb49;
+}
+
+.btn-custom.experto:hover {
+    background: linear-gradient(120deg, #01304a, #f8bb49);
+}
+
+.descripcion {
+    font-size: 2rem; /* Texto descriptivo más grande */
+    color: #01304a;
+    margin-bottom: 2rem;    
+}
+
+/* Animación personalizada para fadeInDown suave */
+@keyframes fadeInSlideDown {
+    0% {
+    opacity: 0;
+    transform: translateY(-50px);
+    }
+    100% {
+    opacity: 1;
+    transform: translateY(0);
+    }
+}
+
+/* Este div envuelve todo y lo centra */
+.contenedor-central {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Asegura que todo dentro de la card esté en columnas, no en fila */
+.card-seleccion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: 0;
+    animation: fadeInSlideDown 1s ease-out forwards;
+
+    background-color: #f9f9f9;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;     
+}
+
+
+/* Estilo adicional para que el título no colapse */
+.titulo {
+    font-size: 2.5rem; /* Aumenta el tamaño del título */
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #01304a;
+}

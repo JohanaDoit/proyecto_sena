@@ -1,0 +1,122 @@
+/* --- reserva.css (el CSS de tu formulario específico) --- */
+
+/* --- Variables CSS (Personalización sencilla) --- */
+:root {
+    --blanco: #f9f9f9;
+    --azul-principal: #1e3a8a;
+    --azul-secundario: #3b82f6;
+    --gris-claro: #e5e7eb;
+    --gris-oscuro: #6b7280;
+    --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --borde-redondeado: 0.5rem;
+    --espaciado-pequeno: 0.75rem;
+    --espaciado-mediano: 1.25rem;
+    --espaciado-grande: 2rem;
+    --fuente-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*
+   *** ¡IMPORTANTE! Asegúrate de que NO haya estilos 'html' o 'body' aquí. ***
+   *** Esos estilos de layout global los maneja 'styles.css' ahora.      ***
+*/
+
+
+/* --- Estilos del Contenedor del Formulario (que ya es .container de Bootstrap) --- */
+/* El .container de Bootstrap ya tiene margen superior e inferior automático (mt-5) */
+.container {
+    background-color: var(--blanco);
+    border-radius: var(--borde-redondeado);
+    box-shadow: var(--sombra-suave);
+    padding: var(--espaciado-grande);
+    width: 100%;
+    max-width: 520px;
+    text-align: left;
+    /* margin: var(--espaciado-mediano) auto; // Ya mt-5 de Bootstrap maneja el margen superior */
+}
+
+/* --- Título del Formulario --- */
+.container h2 {
+    color: var(--azul-principal);
+    margin-bottom: var(--espaciado-grande);
+    font-size: 2rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--azul-secundario);
+    padding-bottom: var(--espaciado-pequeno);
+    text-align: center;
+}
+
+/* --- Estilos de los Grupos de Campos (Párrafos generados por form.as_p) --- */
+.container form p {
+    margin-bottom: var(--espaciado-mediano);
+}
+
+/* --- Estilos de las Etiquetas (Labels) --- */
+.container form p label {
+    display: block;
+    margin-bottom: var(--espaciado-pequeno);
+    font-weight: 600;
+    color: var(--azul-principal);
+    font-size: 0.95rem;
+}
+
+/* --- Estilos de los Campos de Entrada (Input, Textarea, Select) --- */
+.container form p input[type="text"],
+.container form p input[type="email"],
+.container form p input[type="password"],
+.container form p input[type="number"],
+.container form p textarea,
+.container form p select {
+    width: 100%;
+    padding: var(--espaciado-pequeno);
+    border-radius: var(--borde-redondeado);
+    border: 1px solid var(--gris-claro);
+    font-size: 1rem;
+    background-color: var(--blanco);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.container form p input[type="text"]:focus,
+.container form p input[type="email"]:focus,
+.container form p input[type="password"]:focus,
+.container form p input[type="number"]:focus,
+.container form p textarea:focus,
+.container form p select:focus {
+    outline: none;
+    border-color: var(--azul-secundario);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.container form p textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* --- Estilos del Botón de Envío (Sobrescribiendo Bootstrap) --- */
+.container .btn-primary {
+    background-color: var(--azul-principal) !important;
+    color: var(--blanco) !important;
+    padding: var(--espaciado-mediano) var(--espaciado-grande);
+    border: none !important;
+    border-radius: var(--borde-redondeado);
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.15rem;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
+    margin-top: var(--espaciado-grande);
+    box-shadow: var(--sombra-suave);
+    letter-spacing: 0.05em;
+}
+
+.container .btn-primary:hover {
+    background-color: var(--azul-secundario) !important;
+    box-shadow: var(--sombra-fuerte);
+    transform: translateY(-2px);
+}
+
+.container .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--sombra-suave);
+}

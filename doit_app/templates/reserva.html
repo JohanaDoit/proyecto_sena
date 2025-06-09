@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %} {# ¡Importante! Asegúrate de tener esta línea al principio del archivo si no está ya en tu base.html #}
+
+{% block extra_css %}
+    {# Esta línea es la que necesitas para enlazar a tu archivo reserva.css #}
+    <link rel="stylesheet" href="{% static 'css/reserva.css' %}">
+    {# Si tienes otros archivos CSS globales (como principal.css o modperf_cliente.css), #}
+    {# puedes dejarlos aquí también. #}
+    {# <link rel="stylesheet" href="{% static 'css/principal.css' %}"> #}
+    {# <link rel="stylesheet" href="{% static 'css/modperf_cliente.css' %}"> #}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>Formulario de Reserva</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Reservar</button>
+        </form>
+    </div>
+{% endblock %}

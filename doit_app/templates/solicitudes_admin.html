@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes de Servicio</title>
+    <link rel="stylesheet" href="{% static 'css/solicitudes_admin.css' %}">
+    <script>
+        function filtrarTabla() {
+            const tabla = document.getElementById('tabla-solicitudes');
+            const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            const filtros = {
+                nombre: document.getElementById('filtro-nombre').value.toLowerCase(),
+                fecha: document.getElementById('filtro-fecha').value,
+                estado: document.getElementById('filtro-estado').value.toLowerCase()
+            };
+
+            for (let i = 0; i < filas.length; i++) {
+                const celdas = filas[i].getElementsByTagName('td');
+                const nombreTexto = celdas[0].textContent.toLowerCase();
+                const fechaTexto = celdas[1].textContent;
+                const estadoTexto = celdas[2].textContent.toLowerCase();
+
+                const nombreCoincide = filtros.nombre === '' || nombreTexto.includes(filtros.nombre);
+                const fechaCoincide = filtros.fecha === '' || fechaTexto.includes(filtros.fecha);
+                const estadoCoincide = filtros.estado === '' || estadoTexto.includes(filtros.estado);
+
+                if (nombreCoincide && fechaCoincide && estadoCoincide) {
+                    filas[i].style.display = '';
+                } else {
+                    filas[i].style.display = 'none';
+                }
+            }
+        }
+
+        function sugerirServicio(nombreServicio) {
+            const confirmacion = confirm(`¿Desea sugerir el servicio "${nombreServicio}" que lleva mucho tiempo represado?`);
+            if (confirmacion) {
+                alert(`Se ha enviado una sugerencia para el servicio: ${nombreServicio}`);
+                // Aquí podrías agregar la lógica para enviar esta sugerencia al servidor,
+                // posiblemente enviando también el nombre del servicio.
+                console.log(`Sugerencia enviada para: ${nombreServicio}`);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Solicitudes de Servicio</h1>
+
+    <table id="tabla-solicitudes">
+        <thead>
+            <tr>
+                <th>
+                    Nombre del Servicio
+                    <input type="text" id="filtro-nombre" placeholder="Filtrar por nombre" onkeyup="filtrarTabla()" class="filtro-celda">
+                </th>
+                <th>
+                    Fecha del Servicio
+                    <input type="date" id="filtro-fecha" onchange="filtrarTabla()" class="filtro-celda">
+                </th>
+                <th>
+                    Estado del Servicio
+                    <select id="filtro-estado" onchange="filtrarTabla()" class="filtro-celda">
+                        <option value="">Todos</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="en progreso">En Progreso</option>
+                        <option value="completado">Completado</option>
+                        <option value="represado">Represado</option>
+                    </select>
+                </th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Instalación de Software</td>
+                <td>2025-04-15</td>
+                <td>Pendiente</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Reparación de Hardware</td>
+                <td>2025-04-10</td>
+                <td>En Progreso</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Asesoría Técnica</td>
+                <td>2025-04-01</td>
+                <td>Completado</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Configuración de Red</td>
+                <td>2025-03-20</td>
+                <td>Represado</td>
+                <td><button class="sugerir-individual-btn" onclick="sugerirServicio('Configuración de Red')">Sugerir</button></td>
+            </tr>
+            <tr>
+                <td>Mantenimiento Preventivo</td>
+                <td>2025-04-22</td>
+                <td>Pendiente</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Actualización de Sistemas</td>
+                <td>2025-04-05</td>
+                <td>Completado</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Soporte Remoto</td>
+                <td>2025-03-10</td>
+                <td>Represado</td>
+                <td><button class="sugerir-individual-btn" onclick="sugerirServicio('Soporte Remoto')">Sugerir</button></td>
+            </tr>
+            <tr>
+                <td>Implementación de VPN</td>
+                <td>2025-02-25</td>
+                <td>Represado</td>
+                <td><button class="sugerir-individual-btn" onclick="sugerirServicio('Implementación de VPN')">Sugerir</button></td>
+            </tr>
+            <tr>
+                <td>Optimización de Base de Datos</td>
+                <td>2025-03-01</td>
+                <td>Represado</td>
+                <td><button class="sugerir-individual-btn" onclick="sugerirServicio('Optimización de Base de Datos')">Sugerir</button></td>
+            </tr>
+            <tr>
+                <td>Capacitación de Usuarios</td>
+                <td>2025-04-01</td>
+                <td>Completado</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>
+{% endblock content %}

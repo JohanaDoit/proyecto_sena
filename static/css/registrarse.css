@@ -1,0 +1,53 @@
+/*  El h2 sirve para centrar título */
+h2 {
+    text-align: center; 
+}  
+
+/*  El color del titulo título */
+.titulo {
+    color: #01304a;
+    font-size: 35px;
+}
+
+/* El color y tamaño de la letra*/
+.form-label {
+    color: #01304a;
+    font-size: 20px;
+}
+
+/* Estilos generales del boton */
+.btn-custom {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 15px;
+}
+
+/* color */
+.btn-registrar {
+    background-color: #01304a; 
+    color: #ffffff;
+}
+
+/* Cambiar color de fondo y borde cuando el input/select está enfocado */
+.form-control:focus, 
+.form-select:focus {
+    border-color: #f8bb49 !important; 
+    box-shadow: 0 0 20px #f8bb49 !important; 
+}
+
+/* Cambiar el color cuando el checkbox está marcado */
+.form-check-input:checked {
+    background-color: #01304a !important;
+    border-color: #01304a !important;
+    width: 20px;
+    height: 20px;
+}
+
+/* Eliminar la sombra azul que aparece al hacer clic */
+.form-check-input:focus {
+    box-shadow: none !important;
+    border-color: #01304a !important; /* Mantener el borde del mismo color */
+}

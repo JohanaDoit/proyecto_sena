@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Doit</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+<body>
+    <div class="fondo" style="background-image: url('{% static 'images/fondoeje.jpg' %}'); background-size: cover; background-position: center; opacity: 0.7; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></div>
+    <div class="contenedor">
+        <div class="logo-principal">
+            <a href="/">
+                <img src="{% static 'images/Doit_logo.png' %}" alt="Logo de DOIT"style="filter: drop-shadow(2px 2px 5px white);">
+            </a>
+        </div>
+        <div class="frase-principal">
+            <h2>Conecta Expertos y Clientes a un solo clic de distancia.</h2>
+        </div>
+        <div id="explicacion-detallada">
+            <p>Encuentra al experto de confianza con el servicio que necesitas, sin complicaciones y cerca de ti.</p>
+            <h4>o si eres un experto.</h4>
+            <p>Haz que tu experiencia llegue a quienes la necesitan: amplía tu reconocimiento de la forma más fácil.</p><br>
+        </div>
+
+        <div class="botones-acceso">
+            <div class="boton-inicio-sesion">
+                <p class="texto-boton">¿Ya tienes cuenta?</p>
+                <a href="/login/" class="boton boton-desplegable-sesion link-as-button">
+                    Iniciar Sesión
+                </a>
+            </div>
+            <div class="boton-registro">
+                <p class="texto-boton">¿Eres nuevo?</p>
+                <a href="/registrarse/" class="boton secundario boton-desplegable-registro link-as-button">
+                    Registrarse
+                </a>
+            </div>
+        </div>
+
+        <a href="https://wa.me/573124534902" class="whatsapp-icono" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+</body>
+</html>

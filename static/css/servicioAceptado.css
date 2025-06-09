@@ -1,0 +1,118 @@
+
+body {
+    background-color: #f5f1dd   ;
+    font-family: Arial, sans-serif;
+}
+/* Notificación flotante */
+.notificacion {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #01304a;
+    color: #d3dbdf;
+    padding: 40px 10px;
+    border: 1px solid #c3e6cb;
+    border-radius: 20px;
+    z-index: 9999;
+    font-size: 35px;
+    font-family: 'Arial', sans-serif;
+
+    animation: bounceLoop 6s ease-in-out infinite;
+}
+
+/* Animación combinada */
+@keyframes bounceLoop {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.3);
+    }
+    10% {
+        opacity: 0;
+        transform: translateX(-50%) scale(1.1);
+    }
+    20% {
+        transform: translateX(-50%) scale(0.95);
+    }
+    30% {
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.5;
+        transform: translateX(-50%) scale(0.8);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.3);
+    }
+}
+
+/* Tarjeta de información del servicio */
+.card-servicio {
+    width: 100%;               /* Ocupa todo el ancho disponible */
+    max-width: 1200px;         /* Aumenta el ancho máximo */
+    min-height: 500px;         /* Altura mínima para que el cuadro sea más alto */
+    margin: 60px auto;         /* Centrado horizontal y más separación vertical */
+    padding: 40px;             /* Más espacio interior */
+    background-color: #f5f1dd;
+    box-shadow:  5px 5px 25px #ccae76;  /* Sombra más amplia */
+}
+
+/* sirve para quitar los puntos de la izquierda */
+.info ul {
+    list-style: none;
+    padding: 0;
+
+}
+
+/* sirve para arreglar la letra que esta dentro del cuadro */
+.info li {
+    margin-bottom: 12px;
+    color: #01304a;
+    font-size: 22px;
+    padding-left: 30px;
+
+}
+
+/* centrar botones*/
+.botones {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    font-family: 'Arial', sans-serif; /* Aquí cambias el estilo de la letra */
+}
+
+/*Detalles de la letra*/
+.btn {
+    padding: 20px 20px;
+    text-align: center;
+    color: rgb(255, 252, 252);
+    text-decoration: none;
+    font-size: 20px;
+}
+
+/*color del boton*/
+.cancelar {
+    background-color: #01304a;
+}
+
+/*color del boton*/
+.ayuda {
+    background-color: #01304a;
+}
+
+/*modificar la imagen*/
+.foto-perfil {
+    width: 200px;
+    height: 200px;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+
+

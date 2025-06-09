@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Doit{% endblock %}</title>
+
+    {# CSS general para todo el sitio #}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    {# Enlace a Font Awesome para iconos (siempre es bueno tenerlo) #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    {# Bloque para CSS adicionales de las plantillas hijas #}
+    {% block extra_css %}
+    {% endblock %}
+
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'principal' %}">
+                        <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="130">
+                    </a>
+                {% else %}
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="130">
+                    </a>
+                {% endif %}
+            </div>
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p> En Doit, conectamos a clientes con expertos independientes confiables. Nuestra misión es facilitar el acceso a servicios de calidad y apoyar a expertos locales. </p>
+    </footer>
+
+    {% block extra_js %}
+    {% endblock %}
+    
+</body>
+</html>

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experto</title>
+    <link rel="stylesheet" href="{% static 'css/experto.css' %}">
+</head>
+<body>
+        <section class="perfil">
+            <div class="avatar">
+                <img src="{% static 'images/ex2.png' %}" alt="Foto de perfil">
+            </div>
+            <div class="contenido">
+                <div class="texto-boton">
+                    <div class="info">
+                        <h2>Juan Pérez</h2>
+                        <p>Reparación de electrodomésticos</p>
+                        <p>Calificación: ⭐⭐⭐⭐⭐</p>
+                    </div>
+                    <a href="{% url 'modificar' %}" class="btn modificar btn_posicion">Modificar Perfil</a>
+                </div>
+            </div>
+        </section>
+        <div class="contenedor-solicitudes">
+            <section class="notificacion-solicitud">
+                <div class="notificacion posicion solicitud1">
+                    <h3>¡Nueva Solicitud de Servicio!</h3>
+                    <p><strong>Cliente:</strong> María García</p>
+                    <p><strong>Servicio:</strong> Reparación de aire acondicionado</p>
+                    <p><strong>Ubicación:</strong> Calle 170</p>
+                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
+                    <p><strong>Pago Ofrecido:</strong> $75.000</p>
+                    <p><strong>Descripción:</strong> El aire acondicionado no enfría correctamente y hace un ruido extraño al encenderlo.</p>
+                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
+                </div>
+            </section>
+
+            <section class="notificacion-solicitud">
+                <div class="notificacion posicion solicitud2">
+                    <h3>¡Nueva Solicitud de Servicio!</h3>
+                    <p><strong>Cliente:</strong> Fany Perez</p>
+                    <p><strong>Servicio:</strong> Nevera</p>
+                    <p><strong>Ubicación:</strong> Av. Central 45, Ciudad</p>
+                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
+                    <p><strong>Pago Ofrecido:</strong> $65.000 CLP</p>
+                    <p><strong>Descripción:</strong> La nevera no enfría correctamente y hace un ruido constante.</p>
+                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
+                </div>
+            </section>
+
+            <section class="notificacion-solicitud">
+                <div class="notificacion posicion solicitud3">
+                    <h3>¡Nueva Solicitud de Servicio!</h3>
+                    <p><strong>Cliente:</strong> María García</p>
+                    <p><strong>Servicio:</strong> Lavadora</p>
+                    <p><strong>Ubicación:</strong> Calle Los Álamos 102, Ciudad</p>
+                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
+                    <p><strong>Pago Ofrecido:</strong> $70.000 CLP</p>
+                    <p><strong>Descripción:</strong> La lavadora no hace el ciclo de centrifugado.</p>
+                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
+                </div>
+            </section>
+        </div>
+        <div class="opciones-servicio">
+            <h2>Opciones de Servicio</h2>
+            <div class="cuadro-servicio">
+                <h3><a href="{% url 'historial_experto' %}">Historial de Servicios</a></h3>
+                <p>Ver servicios completados.</p>
+            </div>
+        </div>
+    </body>
+</html>
+{% endblock content %}

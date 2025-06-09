@@ -1,0 +1,43 @@
+.bnn-custom {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 18px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 15px;
+}
+
+.boton {
+    display: flex;
+    justify-content: center;
+}
+
+.btn-enviar {
+    background-color: #01304a; 
+    color: #f8bb49;
+}
+.btn-enviar:hover {
+    background: linear-gradient(120deg, #01304a, #f8bb49);
+}
+.mb-3 {
+    color: #01304a;
+}
+.mb-4 {
+    color: #01304a;
+    font-size: 35px;
+}
+
+.mb-5 {
+    color: #01304a;
+    font-size: 35px;
+}
+
+
+.form-control:focus, 
+.form-select:focus {
+    border-color: #f8bb49 !important; 
+    outline: none !important; 
+    box-shadow: 0 0 30px #f8bb49!important; 
+}
+
+

@@ -1,0 +1,211 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}DOIT | Principal cliente{% endblock %} {# Título para la pestaña del navegador #}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/principal.css' %}">
+<link rel="stylesheet" href="{% static 'css/modperf_cliente.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="header-container">
+        <div class="perfil-header">
+            <div class="perfil-foto-container">
+                <img src="{% static 'images/fotoperfilMuj.jpg' %}" alt="Foto de perfil de Juliana" class="perfil-foto">
+                <p class="perfil-nombre">
+                    {# Lógica mejorada para mostrar el nombre del usuario logueado #}
+                    {% if user.is_authenticated %}
+                        {% if user.first_name and user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                        {% elif user.first_name %}
+                            {{ user.first_name }}
+                        {% elif user.username %} {# Si no hay nombre ni apellido, usa el nombre de usuario #}
+                            {{ user.username }}
+                        {% else %} {# Fallback para un caso muy improbable #}
+                            Usuario desconocido
+                        {% endif %}
+                    {% else %}
+                        Invitado {# Esto no debería verse, ya que la página está protegida #}
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                {# Asegúrate de que 'perfil' sea el nombre de la URL para la vista de edición #}
+                <a href="{% url 'perfil' %}">
+                    <button class="modificar-perfil-btn">Modificar perfil</button>
+                </a>
+            </div>
+        </div>
+
+        <div class="banner-bienvenida">
+            <div class="contenido-banner">
+                <h1>👋 ¡Bienvenid@
+                    {# También muestra el nombre (o username) en el saludo #}
+                    {% if user.is_authenticated %}
+                        {% if user.first_name %}
+                            {{ user.first_name }}
+                        {% elif user.username %}
+                            {{ user.username }}
+                        {% endif %}
+                    {% endif %}
+                    a
+                    <a href="{% url 'home' %}">
+                        <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
+                    </a>
+                </h1>
+                <input type="text" placeholder="Escribe el nombre del experto aquí...." style="margin-left: 60px;">
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'busc_experto' %}" class="boton-experto">Buscar experto</a>
+
+<section class="seccion-servicios">
+    <div class="tarjeta-servicio">
+        <h3>Reserva tu servicio</h3>
+
+        <div class="grupo-formulario">
+            <label for="categoria">Selecciona una categoría:</label>
+            <select id="categoria">
+                <option selected disabled>-- Elige una categoría --</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="grupo-formulario">
+            <label for="servicio">Selecciona un servicio:</label>
+            <select id="servicio" disabled>
+                <option selected>-- Elige un servicio --</option>
+            </select>
+        </div>
+
+        <a href="{% url 'reserva' %}">
+            <button id="reservarBtn" type="button" disabled>Reservar</button>
+        </a>
+    </div>
+</section>
+<script>
+    const categoriaSelect = document.getElementById('categoria');
+    const servicioSelect = document.getElementById('servicio');
+    const reservarBtn = document.getElementById('reservarBtn');
+
+    // Aquí pasamos desde Django los servicios agrupados por categoría
+    const serviciosPorCategoria = {
+        {% for categoria, servicios in servicios_por_categoria.items %}
+            "{{ categoria }}": [
+                {% for serv in servicios %}
+                    "{{ serv.NombreServicio }}",
+                {% endfor %}
+            ],
+        {% endfor %}
+    };
+
+    categoriaSelect.addEventListener('change', () => {
+        const seleccionada = categoriaSelect.value;
+        servicioSelect.innerHTML = '';
+        if(serviciosPorCategoria[seleccionada]) {
+            serviciosPorCategoria[seleccionada].forEach(serv => {
+                const option = document.createElement('option');
+                option.value = serv;
+                option.textContent = serv;
+                servicioSelect.appendChild(option);
+            });
+            servicioSelect.disabled = false;
+            reservarBtn.disabled = true;
+        }
+    });
+
+    servicioSelect.addEventListener('change', () => {
+        reservarBtn.disabled = false;
+    });
+</script>
+
+    <section class="contenido-principal">
+        <div class="servicios-cerca">
+        <h2>Servicios:</h2>
+            <div class="tarjeta-servicio">
+            <div class="info-izquierda">
+                <h3>Jaime</h3>
+                <span class="distancia">340 metros</span>
+                <p class="precio">$109.000</p>
+                <p class="oficio">Plomero</p>
+            </div>
+            <div class="info-derecha">
+                <p class="direccion">Cll 134 #14uB-58</p>
+                <p class="fecha-servicio">15 abril 2025</p>
+                <span class="estado solicitar">Aceptado</span>
+            </div>
+        </div>
+            <div class="tarjeta-servicio">
+            <div class="info-izquierda">
+                <h3>Cecilia</h3>
+                <span class="distancia">580 metros</span>
+                <p class="precio">$77.000</p>
+                <p class="oficio">Manicurista</p>
+            </div>
+            <div class="info-derecha">
+                <p class="direccion">Cll 126 #167-32</p>
+                <p class="fecha-servicio">20 abril 2025</p>
+                <span class="estado pendiente">Pendiente</span>
+            </div>
+        </div>
+
+            <div class="tarjeta-servicio finalizado">
+                <div class="info-izquierda">
+                    <h3>Pedro</h3>
+                    <span class="distancia">200 metros</span>
+                    <p class="precio">$25.000</p>
+                    <p class="oficio">Barbero</p>
+                </div>
+                <div class="info-derecha">
+                    <p class="direccion">C26 126 #167-32</p>
+                    <p class="fecha-servicio">10 abril 2025</p>
+                    <span class="estado finalizado">Finalizado</span>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="servicios">
+            <article class="servicio">
+            <h2>CUIDADO PERSONAL</h2>
+            <img src="{% static 'images/20.jpg' %}" alt="Foto 1">
+            <p>Ofrecemos contactos con expertos en proporcionar momentos de relajación, realzar la belleza natural y ayudar a enfrentar cada día con más confianza.</p>
+        </article>
+            <article class="servicio">
+            <h2>CUIDADO HOGAR</h2>
+            <img src="{% static 'images/21.png' %}" alt="Foto 2">
+            <p>Doit te conecta con un equipo de profesionales capacitados que trabaja con dedicación, utilizando técnicas innovadoras, asegurándose que cada rincón brille y transmita armonía.</p>
+        </article>
+        <article class="servicio">
+            <h2>LOCATIVOS</h2>
+            <img src="{% static 'images/22.png' %}" alt="Foto 3">
+            <p>Contactamos profesionales en servicios locativos para cubrir tus necesidades de mantenimiento, reparación y adecuación del hogar.</p>
+        </article>
+        </div>
+    </section>
+    <div class="servicios-populares">
+        <div class="servicios-mas-solicitados">
+            <h2>⭐ Servicios más solicitados</h2>
+                <div class="servicios-grid">
+            <div class="servicio-cuadro">
+                <img src="{% static 'images/22.png' %}" alt="Electricista">
+                <h3>Pintor</h3>
+            </div>
+            <div class="servicio-cuadro">
+                <img src="{% static 'images/ex5.png' %}" alt="Plomería">
+                <h3>Plomería</h3>
+            </div>
+            <div class="servicio-cuadro">
+                <img src="{% static 'images/21.png' %}" alt="Aseo">
+                <h3>Aseo</h3>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

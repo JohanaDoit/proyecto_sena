@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/admin_principal.css' %}">
+
+<div class="admin-principal-container">
+    <header class="admin-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Panel de Administración</h1>
+    </header>
+
+    <section class="dashboard-section expertos-section">
+        <div class="section-header">
+            <h2><i class="fas fa-users-cog"></i> Expertos</h2>
+            <p><i class="fas fa-exclamation-triangle"></i> Gestión de expertos con malas calificaciones.</p>
+        </div>
+        <div class="data-grid listado-expertos">
+            <div class="data-item experto-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user-tie"></i> Jaime</h3>
+                    <span class="status bad"><i class="fas fa-thumbs-down"></i> Malas Calificaciones</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star filled">★</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span> (2/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-experto"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-experto"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-experto"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-experto hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Experto #1 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Experto #1 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Experto #1 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Experto #1</h4>
+                    <p><strong>Nombre Completo:</strong> Armando Casas Fuentes</p>
+                    <p><strong>Especialidad Principal:</strong> Plomería General</p>
+                    <p><strong>Años de Experiencia:</strong> 7 años</p>
+                    <p><strong>Última Calificación Negativa:</strong> "El trabajo se demoró más de lo esperado y dejó un poco desordenado."</p>
+                </div>
+            </div>
+
+            <div class="data-item experto-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user-tie"></i> Pedro</h3>
+                    <span class="status bad"><i class="fas fa-thumbs-down"></i> Malas Calificaciones</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span> (1/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-experto"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-experto"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-experto"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-experto hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Experto #2 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Experto #2 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Experto #2 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Experto #2</h4>
+                    <p><strong>Nombre Completo:</strong> Elena Ríos Vargas</p>
+                    <p><strong>Especialidad Principal:</strong> Reparación de Electrodomésticos</p>
+                    <p><strong>Años de Experiencia:</strong> 3 años</p>
+                    <p><strong>Última Calificación Negativa:</strong> "No pudo solucionar el problema y cobró la visita."</p>
+                </div>
+            </div>
+
+            <div class="data-item experto-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user-tie"></i> Cecilia</h3>
+                    <span class="status warning"><i class="fas fa-exclamation-circle"></i> Algunas Malas</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star empty">☆</span> (4/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-experto"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-experto"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-experto"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-experto hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Experto #3 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Experto #3 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Experto #3 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Experto #3</h4>
+                    <p><strong>Nombre Completo:</strong> Javier Soto Mejía</p>
+                    <p><strong>Especialidad Principal:</strong> Clases de Guitarra a Domicilio</p>
+                    <p><strong>Años de Experiencia:</strong> 10 años</p>
+                    <p><strong>Última Calificación Negativa:</strong> "Tuvo un problema personal y canceló la clase con poca anticipación."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-section clientes-section">
+        <div class="section-header">
+            <h2><i class="fas fa-user-friends"></i> Clientes</h2>
+            <p><i class="fas fa-exclamation-triangle"></i> Gestión de clientes con malas calificaciones.</p>
+        </div>
+        <div class="data-grid listado-clientes">
+            <div class="data-item cliente-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user"></i> Jairo</h3>
+                    <span class="status bad"><i class="fas fa-thumbs-down"></i> Malas Calificaciones</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star filled">★</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span> (2/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-cliente"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-cliente"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-cliente"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-cliente hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Cliente #1 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Cliente #1 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Cliente #1 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Cliente #1</h4>
+                    <p><strong>Nombre Completo:</strong> Patricia Gómez Díaz</p>
+                    <p><strong>Correo Electrónico:</strong> patricia.g@mail.com</p>
+                    <p><strong>Historial de Comportamiento:</strong> Ha dejado múltiples reseñas negativas sin fundamento aparente.</p>
+                </div>
+            </div>
+    
+            <div class="data-item cliente-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user"></i> Alirio</h3>
+                    <span class="status bad"><i class="fas fa-thumbs-down"></i> Malas Calificaciones</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span><span class="star empty">☆</span> (1/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-cliente"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-cliente"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-cliente"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-cliente hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Cliente #2 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Cliente #2 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Cliente #2 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Cliente #2</h4>
+                    <p><strong>Nombre Completo:</strong> Roberto Pérez López</p>
+                    <p><strong>Correo Electrónico:</strong> roberto.p@email.net</p>
+                    <p><strong>Historial de Comportamiento:</strong> Ha cancelado servicios contratados en el último momento en varias ocasiones.</p>
+                </div>
+            </div>
+    
+            <div class="data-item cliente-item">
+                <div class="item-header">
+                    <h3><i class="fas fa-user"></i> Omar</h3>
+                    <span class="status warning"><i class="fas fa-exclamation-circle"></i> Algunas Malas</span>
+                </div>
+                <div class="item-details">
+                    <div class="calificaciones">
+                        <strong><i class="fas fa-star-half-alt"></i> Promedio:</strong>
+                        <span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star filled">★</span><span class="star empty">☆</span> (4/5)
+                    </div>
+                    <div class="actions">
+                        <button class="button primary revisar-cliente"><i class="fas fa-search"></i> Revisar</button>
+                        <button class="button warning suspender-cliente"><i class="fas fa-pause"></i> Suspender</button>
+                        <button class="button danger bloquear-cliente"><i class="fas fa-ban"></i> Bloquear</button>
+                    </div>
+                    <div class="enunciados-cliente hidden">
+                        <p class="enunciado-revisar"><i class="fas fa-check-circle green"></i> Cliente #3 marcado para revisión.</p>
+                        <p class="enunciado-suspender"><i class="fas fa-pause-circle yellow"></i> Cliente #3 suspendido temporalmente.</p>
+                        <p class="enunciado-bloquear"><i class="fas fa-ban red"></i> Cliente #3 bloqueado permanentemente.</p>
+                    </div>
+                </div>
+                <div class="detalles-item hidden">
+                    <h4>Detalles del Cliente #3</h4>
+                    <p><strong>Nombre Completo:</strong> Sandra Morales Ruiz</p>
+                    <p><strong>Correo Electrónico:</strong> sandra.m@domain.org</p>
+                    <p><strong>Historial de Comportamiento:</strong> Ha solicitado reembolsos parciales en servicios completados satisfactoriamente.</p>
+                </div>
+            </div>
+        </div> </section>
+    
+    <section>
+        <div class="full-width-button">
+            <a href="{% url 'solicitudes_admin' %}" class="button large primary full-width styled-button">
+                <i class="fas fa-clipboard-list"></i> Gestión de Solicitudes
+            </a>
+        </div>
+    </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.solicitud-item .actions .ver-detalles-solicitud').forEach(button => {
+            button.addEventListener('click', function() {
+                const solicitudItem = this.closest('.solicitud-item');
+                const detallesItem = solicitudItem.querySelector('.detalles-item');
+                detallesItem.classList.toggle('hidden');
+            });
+        });
+
+        document.querySelectorAll('.experto-item .actions button').forEach(button => {
+            button.addEventListener('click', function() {
+                const expertoItem = this.closest('.experto-item');
+                const enunciados = expertoItem.querySelector('.enunciados-experto');
+                enunciados.classList.remove('hidden');
+                enunciados.querySelectorAll('p').forEach(p => p.classList.add('hidden'));
+                if (this.classList.contains('revisar-experto')) {
+                    expertoItem.querySelector('.enunciado-revisar').classList.remove('hidden');
+                } else if (this.classList.contains('suspender-experto')) {
+                    expertoItem.querySelector('.enunciado-suspender').classList.remove('hidden');
+                } else if (this.classList.contains('bloquear-experto')) {
+                    expertoItem.querySelector('.enunciado-bloquear').classList.remove('hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('.cliente-item .actions button').forEach(button => {
+            button.addEventListener('click', function() {
+                const clienteItem = this.closest('.cliente-item');
+                const enunciados = clienteItem.querySelector('.enunciados-cliente');
+                enunciados.classList.remove('hidden');
+                enunciados.querySelectorAll('p').forEach(p => p.classList.add('hidden'));
+                if (this.classList.contains('revisar-cliente')) {
+                    clienteItem.querySelector('.enunciado-revisar').classList.remove('hidden');
+                } else if (this.classList.contains('suspender-cliente')) {
+                    clienteItem.querySelector('.enunciado-suspender').classList.remove('hidden');
+                } else if (this.classList.contains('bloquear-cliente')) {
+                    clienteItem.querySelector('.enunciado-bloquear').classList.remove('hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('.solicitud-item .actions .impulsar-solicitud').forEach(button => {button.addEventListener('click', function() {
+            const solicitudItem = this.closest('.solicitud-item');
+            const enunciadoImpulsar = solicitudItem.querySelector('.enunciado-impulsar');
+            enunciadoImpulsar.classList.remove('hidden');
+
+            // Opcional: Ocultar el enunciado después de un tiempo (3 segundos en este caso)
+            setTimeout(() => {
+                enunciadoImpulsar.classList.add('hidden');
+            }, 3000);
+        });
+    });
+});
+</script>
+{% endblock %}

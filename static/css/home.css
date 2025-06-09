@@ -1,0 +1,111 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #01304a; /* Fondo principal: Azul oscuro */
+    color: #fdfdfd; /* Color de texto general */
+}
+
+.contenedor {
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo del contenedor*/
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    max-width: 1000px;
+    width: 97%;
+}
+
+.logo-principal {
+    margin-bottom: 30px;
+}
+
+.logo-principal img {
+    max-width: 200px; /* Ajusta el tamaño máximo del logo */
+    height: auto;
+}
+
+.info-principal {
+    margin-bottom: 40px;
+}
+
+.info-principal p {
+    font-size: 1.4em;
+    line-height: 1.8;
+    color: #cababa;
+    margin: 20px 0;
+}
+
+.botones-acceso {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.boton-inicio-sesion,
+.boton-registro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.texto-boton {
+    font-size: 0.95em;
+    color: #fffbfb;
+    margin-bottom: 8px;
+}
+
+.boton {
+    background-color: #f27f00; /* Botones*/
+    color: #092727   ;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.boton.secundario {
+    background-color: #93dc93; /* Botón secundario*/
+}
+
+.boton:hover {
+    background-color: #cc6600; /* Naranja más oscuro al pasar el ratón */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.boton.secundario:hover {
+    background-color: #77b877; /* Verde más oscuro al pasar el ratón */
+}
+
+.whatsapp-icono {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #25d366; /* Verde WhatsApp */
+    color: #fff;
+    font-size: 2.5em;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+.whatsapp-icono:hover {
+    background-color: #128c7e; /* Verde WhatsApp más oscuro al pasar el ratón */
+    transform: scale(1.1);
+}

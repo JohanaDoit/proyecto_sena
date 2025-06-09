@@ -1,0 +1,124 @@
+/* Estilos generales del contenedor de resultados */
+.contenedor-resultados {
+    max-width: 960px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: var(--blanco);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.contenedor-resultados h1 {
+    color: var(--azul);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Estilos para cada tarjeta de experto */
+.experto-card {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--claro);
+    border-radius: 8px;
+    background-color: var(--blanco);
+}
+
+.experto-info {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.experto-foto {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid var(--azul);
+}
+
+.experto-info h3 {
+    color: var(--azul);
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1.5em;
+}
+
+.experto-info p {
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 1em;
+}
+
+.experto-servicio {
+    color: var(--naranja);
+    font-weight: bold;
+}
+
+.experto-calificacion {
+    color: var(--amarillo);
+}
+
+.experto-precio {
+    color: var(--verde);
+}
+
+.experto-contacto {
+    margin-left: 20px;
+}
+
+.boton-seleccionar {
+    background-color: var(--verde); /* Cambiamos el color del botón */
+    color: var(--blanco);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.boton-seleccionar:hover {
+    background-color: #77b377; /* Un tono más claro al pasar el mouse */
+}
+
+/* Estilos para el mensaje de selección */
+#mensaje-seleccion {
+    display: none; /* Inicialmente oculto */
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--verde);
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+/* Estilos para pantallas más pequeñas */
+@media (max-width: 600px) {
+    .experto-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .experto-foto {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+
+    .experto-contacto {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .boton-seleccionar {
+        width: 100%;
+    }
+
+    .experto-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

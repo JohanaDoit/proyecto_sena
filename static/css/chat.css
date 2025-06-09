@@ -1,0 +1,98 @@
+body {
+    background-color: #f5f1dd   ;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+
+
+  /*ajusta el tamaño del cuadro*/
+  .chat-container {
+    width: 150%;
+    max-width: 600px;
+    height: 600px;
+    border-radius: 15px;
+    box-shadow:  5px 5px 15px #ccae76;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+    /*ajusta el color del pie de pagina del cuadro*/
+  .chat-header {
+    background-color: #01304a;
+    color: #f5f1dd;
+    padding: 20px;
+    text-align: center;
+  }
+  
+    /*ajusta lo que esta por dentro del cuadro*/
+  .chat-body {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background-color: #f5f1dd;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+
+  /*ajusta el texto dentro del cuadro*/
+  .mensaje {
+    max-width: 70%;
+    padding: 20px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  
+    /*ajusta el color  dentro del cuadro  del texto*/
+  .mensaje-otro {
+    align-self: flex-start;
+    background-color: #01304a;
+    color: #ffffff;
+    font-size: 16px;
+
+  }
+  
+  /*ajusta el color  dentro del cuadro  del texto*/
+  .mensaje-propio {
+    align-self: flex-end;
+    background-color: #b6965b;
+    color: #ffffff;
+    font-size: 16px;
+  }
+  
+  /*ajusta a centrar lo que esta en la parte de abajo del cuadro*/
+  .chat-footer {
+    display: flex;
+    padding: 10px;
+  }
+  
+    /*ajusta el input de la parte de abajo tamaño y mas*/
+  .chat-footer input {
+    flex: 1;
+    padding: 16px;
+    font-size: 16px;
+    border-radius: 20px;
+    border: 1px solid #01304a;
+    margin-right: 10px;
+    outline: none;
+  }
+      /*ajusta el boton de enviar*/
+  .chat-footer button {
+    padding: 16px ;
+    background-color: #01304a;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    font-size: 16px;
+  }
+  

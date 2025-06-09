@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+}
+
+.contenedor-app {
+    max-width: 400px;
+    margin: 30px auto;
+    border: 2px solid #000;
+    border-radius: 15px;
+    background-color: white;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.mapa img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.info-servicio {
+    margin-top: 15px;
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #555;
+}
+
+.precio {
+    font-weight: bold;
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+.direccion, .oficio {
+    margin: 2px 0;
+    color: #666;
+}
+
+.btn-aceptar {
+    display: inline-block;
+    margin: 10px 0;
+    padding: 10px 15px;
+    background-color: #f2f2f2;
+    border: 2px solid black;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tarifa {
+    margin-top: 10px;
+}
+
+.tarifa input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.reporte {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.ayuda {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}

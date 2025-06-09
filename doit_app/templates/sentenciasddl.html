@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+</header>
+<section class="normalizacion">
+    
+    <div class="normalizacion">
+        <h1>Sentencias DDL</h1><br><br>
+    </div>
+</section>
+<section class="Previsualizacion">
+    <div class="Previsualizacion">
+        <h1>Previsualización</h1>
+        <div style="text-align: center;"> 
+        <h3>(Dar clic en la imagen para descargar el archivo)</h3><br><br>
+    </div>
+    </div>
+    <div style="text-align: center;"> 
+        <a href="{% static 'word/Database_DOIT.docx' %}" download="Database_DOIT.docx">
+            <img src="{% static 'images/prevddl.png' %}" alt="Previsualizacion Sentencias DDL">
+        </a>
+    </div>
+</section>
+<section class="Previsualizacion">
+    <div class="Previsualizacion">
+        <h1>Previsualización tablas con datos</h1>
+        <div style="text-align: center;"> 
+    </div>
+    </div>
+    <div style="text-align: center;"> 
+        <img src="{% static 'images/prev_tablas.png' %}" alt="Previsualizacion tablas con datos DDL">
+    </div>
+</section><br><br>
+{% endblock content %}

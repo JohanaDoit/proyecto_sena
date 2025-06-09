@@ -1,0 +1,89 @@
+/*color de la pantalla */
+body {
+  background-color: #f5f1dd   ;
+  font-family: Arial, sans-serif;
+}
+
+/* Ajustar el tamapo del cuadro */
+.pantalla-calificacion {
+  margin: 100px auto;         /* Puedes ajustar esto para moverlo hacia arriba o abajo */
+  text-align: center;
+  font-family: Arial, sans-serif;
+  padding: 40px;              /* Aumenta el espacio interno del cuadro */
+  width: 80%;                 /* Hazlo más ancho (puedes usar %, px o rem) */
+  max-width: 700px;           /* Limita el ancho si usas % */
+  background-color: #f5f1dd ;  /* (opcional) le puedes poner color de fondo para visualizar mejor */
+  border-radius: 15px;        /* (opcional) esquinas redondeadas */
+  box-shadow:  5px 5px 15px #ccae76;
+}
+  
+/*ajusta el tamaño y color del titulo*/
+  .pantalla-calificacion h2 {
+    font-size: 45px;
+    color: #01304a;
+  }
+  
+/*ajusta el tamaño y color del titulo*/
+.subtitulo {
+    font-size: 30px;
+    color: #01304a;
+  }
+  
+  /*centra el cuadro*/
+  .calificaciones-container {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+    /*cambia el color del cuadro y centra  hace ajustes al cuadro del pequeño*/
+  .calificacion-box {
+    background: #f5f1dd;
+    padding: 30px;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow:  5px 5px 15px #ccae76;
+  }
+  
+      /*arregla las estrellas*/
+  .estrellas {
+    direction: rtl;
+    unicode-bidi: bidi-override;
+    font-size: 40px;
+    margin: 10px ;
+  }
+  
+/*arregla las estrellas al pasar el cursor*/
+  .estrellas input {
+    display: none;
+  }
+  
+/*el color de las estrellas*/
+  .estrellas input:checked ~ label,
+  .estrellas label:hover,
+  .estrellas label:hover ~ label {
+    color: gold;
+  }
+  
+  /*arregla el cuadro de observaciones*/
+  textarea {
+    width: 80%;             /* Menos que 100% para poder moverlo */
+    min-height: 50px;
+    padding: 10px;
+    margin-bottom: 18px;
+    margin-left: 0;         /* Pégalo totalmente a la izquierda del contenedor */
+    font-size: 15px;
+
+  }
+    
+  .btn-finalizar {
+    display: inline-block;
+    background: #01304a;
+    color: white;
+    padding: 17px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 17px;
+  }
+  

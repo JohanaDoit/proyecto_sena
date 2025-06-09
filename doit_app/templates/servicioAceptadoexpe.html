@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Servicio Aceptado</title>
+    <link rel="stylesheet" href="{% static 'css/servicioAceptado.css' %}">
+</head>
+<body>
+    <!-- Notificación flotante -->
+<div class="notificacion">
+    <span>✨ Servicio Aceptado con éxito</span>
+</div>  
+
+    <div class="card-servicio">
+        <div class="info">
+            <div class="contenedor-servicio">
+                <div class="detalles-grid">
+                    <div class="columna">
+                        <img src="{% static 'images/ex1.png' %}" alt="Laura Pérez" class="foto-perfil">
+                        <ul>
+                            <li><strong>👤 client@:</strong> Laura Pérez</li>
+                            <li><strong>🛠️ Oficio:</strong> Electricista</li>
+                            <li><strong>⏱️ Tiempo estimado:</strong> 25 minutos</li>
+                            <li><strong>📅 Fecha:</strong> 20 de abril de 2025</li>
+                            <li><strong>💡Descripcion:</strong>Conexion individual de luces indirectas</li>
+                        </ul>
+                    </div>
+                    <div class="columna">
+                        <ul>
+                            <li><strong>📍 Dirección:</strong> Calle 23 #45-67, Bogotá</li>
+                            <li><strong>📞 Teléfono:</strong> 310 456 7890</li>
+                            <li><strong>💰 Tarifa:</strong> $60.000</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="botones">
+                    <a href="/chat/" class="btn ayuda">Contactar cliente</a>
+                    <a href="{% url 'fin' %}" class="btn cancelar"> Servicio finalizado</a>
+                    <a href="{% url 'servicioCanceladoexpe' %}" class="btn cancelar"> Cancelar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

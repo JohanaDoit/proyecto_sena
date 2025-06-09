@@ -1,0 +1,67 @@
+/* Estilos para el header */
+header {
+    background-color: #f8f9fa; /* Color de fondo claro */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 40px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Logo */
+.logo img {
+    height: auto;
+    max-height: 60px;
+}
+
+/* Navegación */
+nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    margin-left: 20px;
+    position: relative;
+}
+
+.nav-destacado {
+    text-decoration: none;
+    font-weight: bold;
+    color: #007bff;
+    transition: color 0.3s;
+}
+
+.nav-destacado:hover {
+    color: #0056b3;
+}
+
+/* Dropdown */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 35px;
+    left: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+    flex-direction: column;
+}
+
+.dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}

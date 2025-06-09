@@ -1,0 +1,78 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f5f1dd
+}
+
+h1 {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #557c5c;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f8bb49;
+}
+
+.star {
+    color: gold;
+    font-size: 1.2em;
+}
+
+.mostrar-mas-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid #557c5c;
+    color: #333;
+    cursor: pointer;
+    padding: 5px 0;
+    font-size: 0.9em;
+    text-align: left; /* Alinea el texto del botón a la derecha */
+    display: inline-block; /* Cambia a inline-block para controlar el ancho */
+    width: auto; /* El botón ocupa el ancho de su contenido */
+}
+
+.mostrar-mas-btn:hover {
+    color: #777;
+    border-bottom-color: #777;
+}
+
+.detalles-servicio {
+    display: none; /* Oculto por defecto */
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #e2d9af;
+    font-size: 0.9em;
+}
+
+.comentarios-col {
+    width: 20%; /* Ajusta el ancho según necesites */
+}
+
+.volver-btn {
+    display: block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #557c5c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    width: 100px; /* Ajusta el ancho si lo deseas */
+}
+
+.volver-btn:hover {
+    background-color: #f5c6cb;
+}

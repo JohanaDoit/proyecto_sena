@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat de Servicio</title>
+  <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      💬 Chat con Laura Pérez (Electricista)
+    </div>
+
+    <div class="chat-body">
+      <div class="mensaje mensaje-otro">
+        <div class="contenido">Hola, estoy en camino. 🚗</div>
+      </div>
+      <div class="mensaje mensaje-propio">
+        <div class="contenido">¡Perfecto! Te espero. 😊</div>
+      </div>
+    </div>
+
+    <div class="chat-footer">
+      <input type="text" placeholder="Escribe tu mensaje aquí...">
+      <button>Enviar</button>
+    </div>
+  </div>
+</body>
+</html>

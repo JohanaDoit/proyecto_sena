@@ -1,0 +1,45 @@
+.perfil-header {
+    display: flex;
+    align-items: flex-start; /* Cambiamos a flex-start para alinear arriba */
+    margin-bottom: 20px;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #f5f1dd;
+}
+
+.perfil-foto-container {
+    margin-right: 20px;
+    margin-bottom: 5px; /* Reducimos el margen inferior */
+}
+
+.perfil-foto {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f5f1dd;
+    box-shadow: 0 2px 5px #0000001a;
+}
+
+.perfil-nombre {
+    margin-top: 5px;
+    font-weight: bold;
+    margin-left: 10px;
+    color: #333;
+}
+
+.modificar-perfil-btn {
+    background-color: #93dc93;
+    color: rgb(14, 39, 31);
+    border: none;
+    margin-top: 25px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: small;
+    transition: background-color 0.3s ease;
+}
+
+.modificar-perfil-btn:hover {
+    background-color: #0056b3;
+}
