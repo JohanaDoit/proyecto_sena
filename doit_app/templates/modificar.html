@@ -136,7 +136,7 @@
             </ul>
         {% endif %}
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %} {# ¡Siempre necesario para formularios POST en Django por seguridad! #}
 
             {# Renderiza todos los campos de tu PerfilUsuarioForm. Esto incluye etiquetas, inputs, y errores. #}

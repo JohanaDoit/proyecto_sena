@@ -1,21 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.conf import settings # Importar settings para referenciar AUTH_USER_MODEL
+from django.conf import settings
 
-# Modelo Genero existente (del código que proporcionaste)
+# Modelo Genero
 class Genero(models.Model):
-    nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
+    Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
 
     class Meta:
-        ordering = ['nombre']
+        ordering = ['Nombre']
         verbose_name = "Género"
         verbose_name_plural = "Géneros"
-        app_label = "doit_app" # Asegura que esté asociado a esta app
+        app_label = "doit_app"
 
-    def __str__(self):
-        return self.nombre
+    def __str__(self): # ¡CORREGIDO!
+        return self.Nombre
 
-# Modelo CustomUser existente (del código que proporcionaste), con adiciones
+# Modelo CustomUser
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
         ('usuario', 'Usuario Normal'),
@@ -30,14 +30,13 @@ class CustomUser(AbstractUser):
     evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
     experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
-
-    # NUEVO CAMPO: idTipoDoc del esquema SQL, integrado directamente en CustomUser
+    foto_perfil = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True, verbose_name="Foto de Perfil")
     tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
     class Meta:
         verbose_name = "Usuario Personalizado"
         verbose_name_plural = "Usuarios Personalizados"
-        app_label = "doit_app" # Asegura que esté asociado a esta app
+        app_label = "doit_app"
 
     def __str__(self):
         return self.username
@@ -50,22 +49,22 @@ class CustomUser(AbstractUser):
         """Retorna True si el usuario tiene el rol 'experto'."""
         return self.tipo_usuario == 'experto'
 
-#  TipoDoc 
+# TipoDoc
 class TipoDoc(models.Model):
-    Nombre = models.CharField(max_length=50, verbose_name="Nombre del tipo de documento")
+    Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del tipo de documento")
 
     class Meta:
         verbose_name = "Tipo de Documento"
         verbose_name_plural = "Tipos de Documento"
-        db_table = "TipoDoc" # Nombre de la tabla en la base de datos
+        db_table = "TipoDoc"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.Nombre
 
-#  Categorias 
+# Categorias
 class Categorias(models.Model):
-    Nombre = models.CharField(max_length=50, verbose_name="Nombre de la categoría")
+    Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre de la categoría")
 
     class Meta:
         verbose_name = "Categoría"
@@ -73,14 +72,12 @@ class Categorias(models.Model):
         db_table = "Categorias"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.Nombre
 
-
-
-# Metodo 
+# Metodo
 class Metodo(models.Model):
-    Nombre = models.CharField(max_length=100, verbose_name="Nombre del método de pago")
+    Nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del método de pago")
 
     class Meta:
         verbose_name = "Método de Pago"
@@ -88,12 +85,12 @@ class Metodo(models.Model):
         db_table = "Metodo"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.Nombre
 
-# Estado 
+# Estado
 class Estado(models.Model):
-    Nombre = models.CharField(max_length=50, verbose_name="Nombre del estado")
+    Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del estado")
 
     class Meta:
         verbose_name = "Estado"
@@ -101,18 +98,15 @@ class Estado(models.Model):
         db_table = "Estado"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.Nombre
 
-
-#  Pagos 
+# Pagos
 class Pagos(models.Model):
     Monto = models.FloatField(verbose_name="Valor del servicio")
-    # Renombrado para evitar conflicto con el modelo 'Estado'
     estado_pago_texto = models.CharField(max_length=40, verbose_name="Estado del pago (texto)")
     Fecha = models.DateField(verbose_name="Fecha de pago")
     idMetodo = models.ForeignKey(Metodo, on_delete=models.CASCADE, verbose_name="Método de pago")
-    # related_name para evitar conflictos con otras FKs al modelo Estado
     idestado = models.ForeignKey(Estado, on_delete=models.CASCADE, related_name='pagos_estado', verbose_name="Estado del servicio")
 
     class Meta:
@@ -121,15 +115,13 @@ class Pagos(models.Model):
         db_table = "Pagos"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return f"Pago #{self.id} - Monto: {self.Monto} - Estado: {self.estado_pago_texto}"
 
-
-#  Profesion (del esquema SQL)
+# Profesion
 class Profesion(models.Model):
     Nombre = models.CharField(max_length=50, verbose_name="Nombre de la profesión")
     Descripcion = models.CharField(max_length=100, verbose_name="Descripción de la profesión")
-    # Enlaza con CustomUser
     idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Usuario")
 
     class Meta:
@@ -138,11 +130,10 @@ class Profesion(models.Model):
         db_table = "Profesion"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.Nombre
 
-
-#  Servicios (del esquema SQL)
+# Servicios
 class Servicios(models.Model):
     NombreServicio = models.CharField(max_length=50, verbose_name="Nombre del servicio")
     idCategorias = models.ForeignKey(Categorias, on_delete=models.CASCADE, verbose_name="Categoría del servicio")
@@ -153,16 +144,14 @@ class Servicios(models.Model):
         db_table = "Servicios"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return self.NombreServicio
 
-
-#  Calificaciones
+# Calificaciones
 class Calificaciones(models.Model):
     puntuacion = models.CharField(max_length=50, verbose_name="Puntuación del servicio")
     Comentario = models.CharField(max_length=150, verbose_name="Comentario del servicio")
     Fecha = models.DateField(verbose_name="Fecha del comentario")
-    # Enlaza con CustomUser
     idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones_recibidas', verbose_name="Usuario que recibe la calificación")
     idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE, verbose_name="Servicio calificado")
 
@@ -172,44 +161,56 @@ class Calificaciones(models.Model):
         db_table = "Calificaciones"
         app_label = "doit_app"
 
-    def __str__(self):
+    def __str__(self): # ¡CORREGIDO!
         return f"Calificación #{self.id} - Puntuación: {self.puntuacion}"
 
-
-# pais
+# Pais
 class Pais(models.Model):
-    nombre = models.CharField(max_length=100)
+    Nombre = models.CharField(max_length=100, unique=True)
 
-    def __str__(self):
-        return self.nombre
+    class Meta:
+        verbose_name = "País"
+        verbose_name_plural = "Países"
+        app_label = "doit_app"
 
-# departamento
+    def __str__(self): # ¡CORREGIDO!
+        return self.Nombre
+
+# Departamento
 class Departamento(models.Model):
-    nombre = models.CharField(max_length=100)
+    Nombre = models.CharField(max_length=100)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE, related_name='departamentos')
 
-    def __str__(self):
-        return self.nombre
+    class Meta:
+        verbose_name = "Departamento"
+        verbose_name_plural = "Departamentos"
+        app_label = "doit_app"
 
-# ciudad
+    def __str__(self): # ¡CORREGIDO!
+        return self.Nombre
+
+# Ciudad
 class Ciudad(models.Model):
-    nombre = models.CharField(max_length=100)
+    Nombre = models.CharField(max_length=100)
     departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name='ciudades')
 
-    def __str__(self):
-        return self.nombre
+    class Meta:
+        verbose_name = "Ciudad"
+        verbose_name_plural = "Ciudades"
+        app_label = "doit_app"
 
+    def __str__(self): # ¡CORREGIDO!
+        return self.Nombre
 
 # Reserva
 class Reserva(models.Model):
-    # Otros campos...
     Fecha = models.DateField()
     Hora = models.TimeField()
     direccion = models.CharField(max_length=255)
     descripcion = models.CharField(max_length=255)
     detallesAdicionales = models.CharField(max_length=255)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, default=1)
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, default=1) # El default=1 puede necesitar ajuste si los IDs de tus países no son fijos.
     metodoDePago = models.CharField(max_length=50, choices=[
         ('Efectivo', 'Efectivo'),
         ('Tarjeta', 'Tarjeta'),
@@ -217,9 +218,13 @@ class Reserva(models.Model):
     ])
     idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE)
+    # Considera añadir un campo de estado para la reserva, si aún no lo tienes, para gestionar su ciclo de vida
+    # idEstado = models.ForeignKey(Estado, on_delete=models.SET_DEFAULT, default=1) # Por ejemplo, un estado inicial (si es que tienes un Estado con id=1 que signifique 'Pendiente' o similar)
 
-    def __str__(self):
+    class Meta:
+        verbose_name = "Reserva"
+        verbose_name_plural = "Reservas"
+        app_label = "doit_app"
+
+    def __str__(self): # ¡CORREGIDO!
         return f"Reserva #{self.id} - {self.Fecha} {self.Hora}"
-
-
-
