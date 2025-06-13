@@ -21,15 +21,15 @@ class CustomUser(AbstractUser):
         ('usuario', 'Usuario Normal'),
         ('experto', 'Experto'),
     ]
-    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
-    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='usuario', verbose_name="Tipo de Usuario")
-    nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
-    numDoc = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="Número de Documento")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
-    evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
-    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
-    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
+    genero = models.ForeignKey('Genero', on_delete=models.SET_NULL, null=True, blank=True)
+    tipo_usuario = models.CharField(max_length=50, choices=[('usuario', 'Usuario'), ('experto', 'Experto')], default='usuario')
+    nacionalidad = models.CharField(max_length=100, blank=True)
+    numDoc = models.CharField(max_length=100, blank=True)
+    telefono = models.CharField(max_length=100, blank=True)
+    fechaNacimiento = models.DateField(null=True, blank=True)
+    evidenciaTrabajo = models.TextField(blank=True)
+    experienciaTrabajo = models.TextField(blank=True)
+    hojaVida = models.URLField(blank=True)
 
     # NUEVO CAMPO: idTipoDoc del esquema SQL, integrado directamente en CustomUser
     tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
