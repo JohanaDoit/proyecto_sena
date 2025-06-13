@@ -113,3 +113,6 @@ AUTH_USER_MODEL = 'doit_app.CustomUser' # ¡Correcto! Esto le dice a Django que 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'principal'
 LOGOUT_REDIRECT_URL = 'home'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 

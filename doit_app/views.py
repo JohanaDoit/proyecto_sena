@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import RegistroForm, PerfilUsuarioForm
-from django.contrib.auth.decorators import login_required # Mantén esta importación para otras vistas
+from .forms import RegistroForm, PerfilUsuarioForm # Asegúrate de que PerfilUsuarioForm está importado
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ReservaForm
-from .models import Estado
-from .models import Servicios , Categorias
+from .models import Estado, Servicios, Categorias # Asegúrate de que todos los modelos necesarios están importados
 
-def home(request): 
+# --- Vistas Generales ---
+def home(request):
     return render(request, 'home.html')
 
 @login_required
@@ -33,6 +33,9 @@ def busc_experto(request):
 
 @login_required
 def modificar(request):
+    # Esta vista 'modificar' parece ser solo un render de una plantilla.
+    # Si quieres que desde aquí se vaya a la edición de perfil, deberías redirigir:
+    # return redirect('nombre_de_la_url_para_editar_perfil')
     return render(request, 'modificar.html')
 
 @login_required
@@ -102,46 +105,52 @@ def solicitudes_admin(request):
 
 @login_required
 def reserva(request):
+    # Obtener el ID del servicio desde GET o sesión
     servicio_id = request.GET.get('servicio_id') or request.session.get('servicio_id')
 
-    if servicio_id:
-        request.session['servicio_id'] = servicio_id  # guardamos en sesión para mantener entre peticiones
-    else:
-        messages.error(request, "Servicio no seleccionado. Por favor, selecciona un servicio primero.")
-        return redirect('principal')  # Cambia por el nombre real de tu url principal
-
-    servicio = Servicios.objects.filter(id=servicio_id).first()
-    if not servicio:
-        messages.error(request, "Servicio inválido.")
+    # Verificar si hay ID de servicio
+    if not servicio_id:
+        messages.error(request, "⚠️ Servicio no seleccionado. Por favor, elige un servicio.")
         return redirect('principal')
 
+    # Guardar el ID del servicio en la sesión
+    request.session['servicio_id'] = servicio_id
+
+    # Buscar el servicio
+    servicio = Servicios.objects.filter(id=servicio_id).first()
+
+    # Validar que el servicio exista
+    if not servicio:
+        messages.error(request, "❌ El servicio seleccionado no existe.")
+        return redirect('principal')
+
+    # Si el formulario fue enviado (POST)
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.idUsuario = request.user
-            reserva.idEstado_id = 1  # estado inicial
+            reserva.idEstado_id = 1  # Estado inicial
             reserva.idServicios = servicio
             reserva.save()
-            messages.info(request,  f"✅ Reserva pendiente para {request.user.get_full_name() or request.user.username}\n"
-                                    f"🛎️ Servicio: {servicio.NombreServicio}\n"
-                                    f"📅 Fecha: {reserva.Fecha}\n"
-                                    f"🕒 Hora: {reserva.Hora}\n"
-                                    f"📍 Dirección: {reserva.direccion}"
+
+            messages.info(
+                request,
+                f"✅ Reserva pendiente para {request.user.get_full_name() or request.user.username}\n"
+                f"🛎️ Servicio: {servicio.NombreServicio}\n"
+                f"📅 Fecha: {reserva.Fecha}\n"
+                f"🕒 Hora: {reserva.Hora}\n"
+                f"📍 Dirección: {reserva.direccion}"
             )
-            return redirect('principal')  # O a donde quieras redirigir luego de reservar
+            return redirect('principal')
     else:
         form = ReservaForm()
-    return render(request, 'reserva.html', {'form': form, 'servicio': servicio})
 
+    return render(request, 'reserva.html', {
+        'form': form,
+        'servicio': servicio
+    })
 
-
-
-
-
-@login_required
-def servicioAceptado(request):
-    return render(request, 'servicioAceptado.html')
 
 # --- Vistas de Autenticación y Registro (NO deben tener @login_required) ---
 
@@ -228,22 +237,48 @@ def regisexperto(request):
         form = RegistroForm(initial={'tipo_usuario': 'experto'})
     return render(request, 'regisexperto.html', {'form': form})
 
+# --- Vistas de Perfil de Usuario (la que estamos depurando) ---
 @login_required
-def editar_perfil_view(request):
+def editar_perfil_view(request): # Nombre de la función tal como está en tu urls.py
     user = request.user
     if request.method == 'POST':
-        form = PerfilUsuarioForm(request.POST, instance=user)
+        # --- LÍNEAS DE DEPURACIÓN CLAVE ---
+        print("\n--- INICIO DE DEPURACIÓN DE FORMULARIO DE PERFIL ---")
+        print("request.POST:", request.POST)
+        print("request.FILES:", request.FILES) # Esto es vital para la subida de archivos
+
+        form = PerfilUsuarioForm(request.POST, request.FILES, instance=user) # ¡request.FILES es crucial aquí!
+
         if form.is_valid():
-            form.save()
-            messages.success(request, '¡Tu perfil ha sido actualizado con éxito!')
-            return redirect('perfil')
+            print("Formulario de Perfil es VÁLIDO.")
+            try:
+                user_instance = form.save()
+                # Verifica si la foto de perfil existe y tiene una URL para imprimirla
+                photo_url = user_instance.foto_perfil.url if user_instance.foto_perfil else 'No hay foto'
+                print(f"Formulario guardado exitosamente. Foto de perfil actual: {photo_url}")
+                messages.success(request, '¡Tu perfil ha sido actualizado con éxito!')
+                print("--- FIN DE DEPURACIÓN (ÉXITO) ---\n")
+                # Redirige a la página principal o a donde se muestre el perfil actualizado.
+                # Asegúrate de que 'principal' es el nombre de la URL de tu página principal.
+                return redirect('principal') 
+            except Exception as e:
+                print(f"ERROR al guardar el formulario de perfil: {e}")
+                messages.error(request, f'Hubo un error al guardar el perfil: {e}')
+                print("--- FIN DE DEPURACIÓN (ERROR DE GUARDADO) ---\n")
         else:
+            print("Formulario de Perfil NO es VÁLIDO.")
+            print("Errores del formulario:", form.errors) # <-- ¡Esto es CRÍTICO para ver qué falla!
             messages.error(request, 'Hubo un error al actualizar tu perfil. Por favor, revisa los datos.')
-            print("El formulario de perfil no es válido. Errores:", form.errors)
+            print("--- FIN DE DEPURACIÓN (VALIDACIÓN FALLIDA) ---\n")
     else:
         form = PerfilUsuarioForm(instance=user)
+
+    # --- RUTA DE LA PLANTILLA CORREGIDA ---
+    # Si la plantilla está directamente en doit_app/templates/, no necesita 'doit_app/' antes.
     return render(request, 'modificar.html', {'form': form})
 
+
+# Vistas de contenido estático
 def nosotros(request):
     return render(request, 'nosotros.html')
 

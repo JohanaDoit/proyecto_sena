@@ -59,15 +59,35 @@ button:hover:not(:disabled) {
 
 .perfil-header {
     display: flex;
-    align-items: center;
-    gap: 15px; /* Reducido de 20px */
+    flex-direction: column; /* ¡CLAVE! Apila sus hijos (perfil-info-completa y el div del botón) verticalmente */
+    align-items: center; /* Centra los elementos horizontalmente en la columna */
+    gap: 15px; /* Mantiene el espacio entre la info del perfil y el botón */
     flex-shrink: 0;
+    /* margin-bottom: 20px; */ /* Opcional: añade un poco de espacio debajo de este bloque */
 }
 
+/* ****************************************************
+   * ESTE ES EL BLOQUE QUE NECESITAS AÑADIR O VERIFICAR *
+   * para el nuevo contenedor 'perfil-info-completa'  *
+   ****************************************************
+*/
+.perfil-info-completa {
+    display: flex;
+    flex-direction: column; /* Esto apila la foto y el nombre dentro de este contenedor. */
+    align-items: center; /* Centra la foto y el nombre horizontalmente dentro de este contenedor. */
+    margin-bottom: 10px; /* Espacio entre este bloque (foto+nombre) y el botón. */
+}
+/* ************************************************** */
+
+
 .perfil-foto-container {
+    /* Mantenemos estos estilos. Como la foto y el nombre ya están en .perfil-info-completa apilados,
+       este contenedor para la foto simplemente asegura su centrado si la foto es más pequeña. */
     display: flex;
     flex-direction: column;
     align-items: center;
+    /* Ya no necesita un margin-bottom tan grande aquí si el nombre es su hermano directo en perfil-info-completa,
+       pero el margin-bottom en .perfil-foto es el que realmente controla el espacio entre la foto y el nombre. */
 }
 
 .perfil-foto {
@@ -75,11 +95,11 @@ button:hover:not(:disabled) {
     height: 80px; /* Ligeramente reducido */
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 3px; /* Reducido de 5px */
+    margin-bottom: 3px; /* Espacio entre la foto y el nombre (que ahora es su hermano directo) */
 }
 
 .perfil-nombre {
-    margin: 0;
+    margin: 0; /* Elimina márgenes por defecto del párrafo */
     color: var(--azul);
     font-size: 16px; /* Ligeramente reducido */
     text-align: center;
@@ -434,7 +454,7 @@ button:hover:not(:disabled) {
 
     .seccion-servicios {
         padding: 20px 15px;
-        /* min-height: unset; */ /* Si eliminaste min-height: 100vh arriba, asegúrate de que aquí también se adapte */
+        /* min-height: unset; */
     }
 
     .tarjeta-servicio {
@@ -542,4 +562,3 @@ button:hover:not(:disabled) {
         padding: 3px 10px;
     }
 }
-
