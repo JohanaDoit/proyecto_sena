@@ -189,3 +189,5 @@ class ReservaForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'detallesAdicionales': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+        #viernes13 de junio
