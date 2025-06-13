@@ -137,12 +137,12 @@ class PerfilUsuarioForm(UserChangeForm):
 
         for field_name, field in self.fields.items():
             if not isinstance(field.widget, (forms.widgets.DateInput, forms.widgets.Textarea, forms.widgets.ClearableFileInput, forms.widgets.Select)) and \
-               'class' not in field.widget.attrs:
+                'class' not in field.widget.attrs:
                 field.widget.attrs.update({'class': 'form-control'})
 
         if 'password' in self.fields:
             del self.fields['password']
-
+    
 
 class ReservaForm(forms.ModelForm):
     metodoDePago = forms.ModelChoiceField(
