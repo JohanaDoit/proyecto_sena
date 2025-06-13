@@ -9,8 +9,93 @@
 
 {% block content %}
     <div class="register-form-container"> {# ¡Añadida una clase al div contenedor! #}
-        <h2>Registro de Usuario</h2>
-        
+     <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <style>
+        .form-container {
+            max-width: 800px; /* Ajusta el ancho del formulario */
+            margin: auto; /* Centra el formulario */
+            padding: 20px;
+            background: #f8f9fa; /* Color de fondo */
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Registro de Usuario</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Primera columna -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.telefono.label_tag }}
+                            {{ form.telefono }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.fechaNacimiento.label_tag }}
+                            {{ form.fechaNacimiento }}
+                        </div>
+                    </div>
+
+                    <!-- Segunda columna -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form.genero.label_tag }}
+                            {{ form.genero }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.tipo_usuario.label_tag }}
+                            {{ form.tipo_usuario }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.nacionalidad.label_tag }}
+                            {{ form.nacionalidad }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.numDoc.label_tag }}
+                            {{ form.numDoc }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.evidenciaTrabajo.label_tag }}
+                            {{ form.evidenciaTrabajo }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.experienciaTrabajo.label_tag }}
+                            {{ form.experienciaTrabajo }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de envío centrado -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                </div>
+            </form>
+
+
         {# Mostrar mensajes de Django (éxito, error, etc.) #}
         {% if messages %}
             <ul class="messages">

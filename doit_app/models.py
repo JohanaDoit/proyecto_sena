@@ -30,7 +30,8 @@ class CustomUser(AbstractUser):
     evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
     experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
-    foto_perfil = models.ImageField(upload_to='perfil_fotos/', null=True, blank=True, verbose_name="Foto de Perfil")
+
+    # NUEVO CAMPO: idTipoDoc del esquema SQL, integrado directamente en CustomUser
     tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
     class Meta:
