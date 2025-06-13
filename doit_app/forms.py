@@ -145,18 +145,6 @@ class PerfilUsuarioForm(UserChangeForm):
 
 
 class ReservaForm(forms.ModelForm):
-    servicio = forms.ModelChoiceField(
-        queryset=Servicios.objects.all().order_by('NombreServicio'), # <-- Mantener si 'NombreServicio' es correcto en tu modelo Servicios
-        empty_label="Selecciona un servicio",
-        required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    estado = forms.ModelChoiceField(
-        queryset=Estado.objects.all().order_by('Nombre'), # <--- CORREGIDO: 'Nombre' (N mayúscula)
-        empty_label="Selecciona un estado",
-        required=True,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
     metodoDePago = forms.ModelChoiceField(
         queryset=Metodo.objects.all().order_by('Nombre'), # <--- CORREGIDO: 'Nombre' (N mayúscula)
         empty_label="Selecciona un método de pago",
@@ -193,8 +181,8 @@ class ReservaForm(forms.ModelForm):
     class Meta:
         model = Reserva
         fields = [
-            'servicio', 'Fecha', 'Hora', 'direccion', 'descripcion',
-            'detallesAdicionales', 'estado', 'metodoDePago', 'pais', 'ciudad'
+            'Fecha', 'Hora', 'direccion', 'descripcion',
+            'detallesAdicionales', 'metodoDePago', 'pais', 'ciudad'
         ]
         widgets = {
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
