@@ -105,37 +105,51 @@ def solicitudes_admin(request):
 
 @login_required
 def reserva(request):
+    # Obtener el ID del servicio desde GET o sesión
     servicio_id = request.GET.get('servicio_id') or request.session.get('servicio_id')
 
-    if servicio_id:
-        request.session['servicio_id'] = servicio_id  # guardamos en sesión para mantener entre peticiones
-    else:
-        messages.error(request, "Servicio no seleccionado. Por favor, selecciona un servicio primero.")
-        return redirect('principal')  # Cambia por el nombre real de tu url principal
-
-    servicio = Servicios.objects.filter(id=servicio_id).first()
-    if not servicio:
-        messages.error(request, "Servicio inválido.")
+    # Verificar si hay ID de servicio
+    if not servicio_id:
+        messages.error(request, "⚠ Servicio no seleccionado. Por favor, elige un servicio.")
         return redirect('principal')
 
+    # Guardar el ID del servicio en la sesión
+    request.session['servicio_id'] = servicio_id
+
+    # Buscar el servicio
+    servicio = Servicios.objects.filter(id=servicio_id).first()
+
+    # Validar que el servicio exista
+    if not servicio:
+        messages.error(request, "❌ El servicio seleccionado no existe.")
+        return redirect('principal')
+
+    # Si el formulario fue enviado (POST)
     if request.method == 'POST':
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.idUsuario = request.user
-            reserva.idEstado_id = 1  # estado inicial
+            reserva.idEstado_id = 1  # Estado inicial
             reserva.idServicios = servicio
             reserva.save()
-            messages.info(request,  f"✅ Reserva pendiente para {request.user.get_full_name() or request.user.username}\n"
-                                    f"🛎️ Servicio: {servicio.NombreServicio}\n"
-                                    f"📅 Fecha: {reserva.Fecha}\n"
-                                    f"🕒 Hora: {reserva.Hora}\n"
-                                    f"📍 Dirección: {reserva.direccion}"
+
+            messages.info(
+                request,
+                f"✅ Reserva pendiente para {request.user.get_full_name() or request.user.username}\n"
+                f"🛎 Servicio: {servicio.NombreServicio}\n"
+                f"📅 Fecha: {reserva.Fecha}\n"
+                f"🕒 Hora: {reserva.Hora}\n"
+                f"📍 Dirección: {reserva.direccion}"
             )
-            return redirect('principal')  # O a donde quieras redirigir luego de reservar
+            return redirect('principal')
     else:
         form = ReservaForm()
-    return render(request, 'reserva.html', {'form': form, 'servicio': servicio})
+
+    return render(request, 'reserva.html', {
+        'form': form,
+        'servicio': servicio
+    })
 
 
 # --- Vistas de Autenticación y Registro (NO deben tener @login_required) ---

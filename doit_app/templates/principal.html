@@ -72,112 +72,133 @@
 
     <a href="{% url 'busc_experto' %}" class="boton-experto">Buscar experto</a>
 
-    <section class="seccion-servicios">
+<section class="seccion-servicios">
         <div class="tarjeta-servicio">
             <h3>Reserva tu servicio</h3>
+            
+            <section class="seccion-servicios">
+    <div class="tarjeta-servicio">
+        <h3>Reserva tu servicio</h3>
 
-            <div class="grupo-formulario">
-                <label for="categoria">Selecciona una categoría:</label>
-                <select id="categoria">
-                    <option selected disabled>-- Elige una categoría --</option>
-                    {% for categoria in categorias %}
-                        <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="grupo-formulario">
-                <label for="servicio">Selecciona un servicio:</label>
-                <select id="servicio" disabled>
-                    <option selected>-- Elige un servicio --</option>
-                </select>
-            </div>
-
-            <a href="{% url 'reserva' %}">
-                <button id="reservarBtn" type="button" disabled>Reservar</button>
-            </a>
+        <div class="grupo-formulario">
+            <label for="categoria">Selecciona una categoría:</label>
+            <select id="categoria">
+                <option selected disabled>-- Elige una categoría --</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
+                {% endfor %}
+            </select>
         </div>
-    </section>
-    <script>
-        const categoriaSelect = document.getElementById('categoria');
-        const servicioSelect = document.getElementById('servicio');
-        const reservarBtn = document.getElementById('reservarBtn');
 
-        // Aquí pasamos desde Django los servicios agrupados por categoría
-        const serviciosPorCategoria = {
-            {% for categoria, servicios in servicios_por_categoria.items %}
-                "{{ categoria }}": [
-                    {% for serv in servicios %}
-                        "{{ serv.NombreServicio }}",
-                    {% endfor %}
-                ],
-            {% endfor %}
-        };
-
-        categoriaSelect.addEventListener('change', () => {
-            const seleccionada = categoriaSelect.value;
-            servicioSelect.innerHTML = '';
-            if(serviciosPorCategoria[seleccionada]) {
-                serviciosPorCategoria[seleccionada].forEach(serv => {
-                    const option = document.createElement('option');
-                    option.value = serv;
-                    option.textContent = serv;
-                    servicioSelect.appendChild(option);
-                });
-                servicioSelect.disabled = false;
-                reservarBtn.disabled = true;
-            }
-        });
-
-        servicioSelect.addEventListener('change', () => {
-            reservarBtn.disabled = false;
-        });
-    </script>
-
-    <section class="contenido-principal">
-        <div class="servicios-cerca">
-            <h2>Servicios:</h2>
-            <div class="tarjeta-servicio">
-                <div class="info-izquierda">
-                    <h3>Jaime</h3>
-                    <span class="distancia">340 metros</span>
-                    <p class="precio">$109.000</p>
-                    <p class="oficio">Plomero</p>
-                </div>
-                <div class="info-derecha">
-                    <p class="direccion">Cll 134 #14uB-58</p>
-                    <p class="fecha-servicio">15 abril 2025</p>
-                    <span class="estado solicitar">Aceptado</span>
-                </div>
-            </div>
-            <div class="tarjeta-servicio">
-                <div class="info-izquierda">
-                    <h3>Cecilia</h3>
-                    <span class="distancia">580 metros</span>
-                    <p class="precio">$77.000</p>
-                    <p class="oficio">Manicurista</p>
-                </div>
-                <div class="info-derecha">
-                    <p class="direccion">Cll 126 #167-32</p>
-                    <p class="fecha-servicio">20 abril 2025</p>
-                    <span class="estado pendiente">Pendiente</span>
-                </div>
-            </div>
-
-            <div class="tarjeta-servicio finalizado">
-                <div class="info-izquierda">
-                    <h3>Pedro</h3>
-                    <span class="distancia">200 metros</span>
-                    <p class="precio">$25.000</p>
-                    <p class="oficio">Barbero</p>
-                </div>
-                <div class="info-derecha">
-                    <p class="direccion">C26 126 #167-32</p>
-                    <p class="fecha-servicio">10 abril 2025</p>
-                    <span class="estado finalizado">Finalizado</span>
-                </div>
-            </div>
+        <div class="grupo-formulario">
+            <label for="servicio">Selecciona un servicio:</label>
+            <select id="servicio" disabled>
+                <option selected>-- Elige un servicio --</option>
+            </select>
         </div>
+        <a id="reservarLink" href="{% url 'reserva' %}">
+            <button id="reservarBtn" type="button" disabled>Reservar</button>  
+        </a>
+    </div>
+</section>
+
+
+<script>
+    const categoriaSelect = document.getElementById('categoria');
+    const servicioSelect = document.getElementById('servicio');
+    const reservarBtn = document.getElementById('reservarBtn');
+    const reservarLink = document.getElementById('reservarLink');
+
+    // Servicios agrupados por categoría, cada uno con id y nombre
+    const serviciosPorCategoria = {
+        {% for categoria, servicios in servicios_por_categoria.items %}
+            "{{ categoria }}": [
+                {% for serv in servicios %}
+                    {"id": "{{ serv.id }}", "nombre": "{{ serv.NombreServicio }}"}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Evento al cambiar la categoría seleccionada
+    categoriaSelect.addEventListener('change', () => {
+        const seleccionada = categoriaSelect.value;
+
+        // Limpiar opciones anteriores
+        servicioSelect.innerHTML = '<option value="">Selecciona un servicio</option>';
+
+        if (serviciosPorCategoria[seleccionada]) {
+            serviciosPorCategoria[seleccionada].forEach(serv => {
+                const option = document.createElement('option');
+                option.value = serv.id;
+                option.textContent = serv.nombre;
+                servicioSelect.appendChild(option);
+            });
+
+            servicioSelect.disabled = false;
+            reservarBtn.disabled = true;
+            reservarLink.href = "{% url 'reserva' %}"; // resetear href
+        } else {
+            servicioSelect.disabled = true;
+        }
+    });
+
+    // Evento al cambiar el servicio seleccionado
+    servicioSelect.addEventListener('change', () => {
+        reservarBtn.disabled = false;
+        const servicioSeleccionado = servicioSelect.value;
+        reservarLink.href = "{% url 'reserva' %}?servicio_id=" + encodeURIComponent(servicioSeleccionado);
+    });
+</script>
+
+<h2>Servicios:</h2>
+
+{% if messages %}
+    {% for message in messages %}
+    <div style="
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        background-color:rgb(62, 151, 163);
+        color:rgb(243, 243, 248);
+        border-left: 6px solid #ffecb5;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        box-shadow: 10px 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+    ">
+        <div class="custom-spinner"></div>
+            <div style="white-space: pre-line;">
+        {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<style>
+.custom-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ffeeba;
+    border-top: 3px solid #ffc107;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {  
+        transform: rotate(360deg);
+    }
+}
+</style>
+
+
 
         <div class="servicios">
             <article class="servicio">
