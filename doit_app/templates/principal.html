@@ -13,8 +13,18 @@
 
     <div class="header-container">
         <div class="perfil-header">
-            <div class="perfil-foto-container">
-                <img src="{% static 'images/fotoperfilMuj.jpg' %}" alt="Foto de perfil de Juliana" class="perfil-foto">
+            {# ESTE ES EL NUEVO CONTENEDOR 'perfil-info-completa' que agrupa la foto y el nombre #}
+            <div class="perfil-info-completa">
+                <div class="perfil-foto-container">
+                    {# Lógica para mostrar la foto de perfil (dinámica o por defecto) #}
+                    {% if user.is_authenticated and user.foto_perfil %}
+                        <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="perfil-foto">
+                    {% else %}
+                        {# Si no hay foto de perfil subida o no está autenticado, muestra la imagen por defecto #}
+                        <img src="{% static 'images/fotoperfilMuj.jpg' %}" alt="Foto de perfil por defecto" class="perfil-foto">
+                    {% endif %}
+                </div>
+                {# El párrafo del nombre ahora está directamente dentro de 'perfil-info-completa' #}
                 <p class="perfil-nombre">
                     {# Lógica mejorada para mostrar el nombre del usuario logueado #}
                     {% if user.is_authenticated %}
