@@ -195,6 +195,28 @@
 }
 </style>
 
+<div>
+    <h4>🕘 Últimos 3 servicios solicitados</h4>
+    <ul>
+        {% for reserva in ultimas_reservas %}
+    <li style="margin-bottom: 10px;">
+        <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
+        <p><strong>Fecha:</strong> {{ reserva.Fecha }}</p>
+        <p><strong>Hora:</strong> {{ reserva.Hora }}</p>
+        <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+    </li>
+    {% empty %}
+    <li>No has hecho reservas recientes.</li>
+    {% endfor %}
+    </ul>
+</div>
+
+
+
+
+
+
+
         <div class="servicios">
             <article class="servicio">
             <h2>CUIDADO PERSONAL</h2>
