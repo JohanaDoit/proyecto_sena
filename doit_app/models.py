@@ -31,7 +31,8 @@ class CustomUser(AbstractUser):
     experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
 
-    # NUEVO CAMPO: idTipoDoc del esquema SQL, integrado directamente en CustomUser
+    foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
+
     tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
     class Meta:
@@ -39,16 +40,14 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "Usuarios Personalizados"
         app_label = "doit_app"
 
-    def __str__(self):
+    def _str_(self):
         return self.username
 
     def is_usuario_normal(self):
-        """Retorna True si el usuario tiene el rol 'usuario'."""
         return self.tipo_usuario == 'usuario'
 
     def is_experto(self):
-        """Retorna True si el usuario tiene el rol 'experto'."""
-        return self.tipo_usuario == 'experto'
+        return self.tipo_usuario=='experto'
 
 # TipoDoc
 class TipoDoc(models.Model):
