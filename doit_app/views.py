@@ -6,7 +6,9 @@ from .forms import RegistroForm, PerfilUsuarioForm # Asegúrate de que PerfilUsu
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ReservaForm
-from .models import Estado, Servicios, Categorias # Asegúrate de que todos los modelos necesarios están importados
+from .models import Estado, Servicios, Categorias 
+from .models import Reserva
+# Asegúrate de que todos los modelos necesarios están importados
 
 # --- Vistas Generales ---
 def home(request):
@@ -16,16 +18,23 @@ def home(request):
 def principal(request):
     categorias = Categorias.objects.all()
     servicios = Servicios.objects.all()
-    
-    # Agrupamos los servicios por categoría (clave: id o nombre de categoría)
+
+    # Agrupar servicios por categoría
     servicios_por_categoria = {}
     for cat in categorias:
         servicios_por_categoria[cat.Nombre] = list(servicios.filter(idCategorias=cat))
-    
+
+    # Obtener las últimas 3 reservas del usuario autenticado, ordenadas por fecha más reciente
+    ultimas_reservas = Reserva.objects.filter(
+        idUsuario=request.user
+    ).order_by('-Fecha', '-Hora')[:3]
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
+        'ultimas_reservas': ultimas_reservas,
     })
+
 
 @login_required
 def busc_experto(request):
