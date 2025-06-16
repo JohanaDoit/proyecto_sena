@@ -95,26 +95,25 @@ class RegistroForm(UserCreationForm):
             raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
 
-    def save(self, commit=True):
-        if user.tipo_usuario.select == 'experto':
-            user = super().save(commit=False)
-            user.genero = self.cleaned_data.get('genero')
-            user.tipo_usuario = self.cleaned_data.get('tipo_usuario')
-            user.nacionalidad = self.cleaned_data.get('nacionalidad')
-            user.numDoc = self.cleaned_data.get('numDoc')
-            user.telefono = self.cleaned_data.get('telefono')
-            user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
-            user.tipo_documento = self.cleaned_data.get('tipo_documento')
+def save(self, commit=True):
+    user = super().save(commit=False)  # Primero se define user
+    user.genero = self.cleaned_data.get('genero')
+    user.tipo_usuario = self.cleaned_data.get('tipo_usuario')
+    user.nacionalidad = self.cleaned_data.get('nacionalidad')
+    user.numDoc = self.cleaned_data.get('numDoc')
+    user.telefono = self.cleaned_data.get('telefono')
+    user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
+    user.tipo_documento = self.cleaned_data.get('tipo_documento')
 
-            user.hojaVida_file = self.cleaned_data.get('hojaVida_file')
-            user.foto_perfil = self.cleaned_data.get('foto_perfil')
+    if user.tipo_usuario == 'experto':  # Aquí sí se puede usar
+        user.hojaVida_file = self.cleaned_data.get('hojaVida_file')
+        user.foto_perfil = self.cleaned_data.get('foto_perfil')
+        user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo')
 
-            # Asigna la evidencia de trabajo como imagen
-            user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo') 
-        
-        if commit:
-            user.save()
-        return user
+    if commit:
+        user.save()
+
+    return user
 
 
 class PerfilUsuarioForm(UserChangeForm):
