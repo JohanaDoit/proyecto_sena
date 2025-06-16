@@ -28,7 +28,10 @@
             {# Ya tiene el id='id_tipo_usuario' que añadimos en forms.py #}
             {{ form.tipo_usuario.as_p }}
             {{ form.as_p }} 
+            <div class="g-recaptcha mt-3" data-sitekey="6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0"></div>
             <button type="submit">Registrarse</button>
         </form>
     </div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% endblock content %}
