@@ -4,22 +4,13 @@
 {% block title %}DOIT | Registrarse{% endblock %}
 
 {% block extra_css %}
-<style>
-    .form-container {
-        max-width: 800px;
-        margin: auto;
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/registrarse.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="form-container">
-        <h2 class="text-center mb-4">Registro de Usuario</h2>
+    <div class="register-form-container">
+
+        <h2 class="text-center mb-4">Nuevo Registro</h2>
 
         <!-- Mostrar mensajes -->
         {% if messages %}
@@ -30,19 +21,14 @@
             </ul>
         {% endif %}
 
-        <!-- Formulario único -->
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="g-recaptcha mt-3" data-sitekey="6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0"></div>
 
-            <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary">Registrarse</button>
-            </div>
+        <form method="post">
+            {% csrf_token %} 
+            {# Campo Tipo de Usuario (siempre visible y primero) #}
+            {# Ya tiene el id='id_tipo_usuario' que añadimos en forms.py #}
+            {{ form.tipo_usuario.as_p }}
+            {{ form.as_p }} 
+            <button type="submit">Registrarse</button>
         </form>
     </div>
-</div>
-
-<!-- Script de reCAPTCHA -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% endblock content %}
