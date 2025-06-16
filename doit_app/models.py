@@ -242,5 +242,3 @@ class Reserva(models.Model):
     def __str__(self): # ¡CORREGIDO!
         return f"Reserva #{self.id} - {self.Fecha} {self.Hora}"
     
-    class Meta(AbstractUser.Meta):
-        swappable = 'AUTH_USER_MODEL'
