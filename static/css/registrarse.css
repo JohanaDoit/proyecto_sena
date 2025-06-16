@@ -1,67 +1,176 @@
-/*  El h2 sirve para centrar título */
-h2 {
-    text-align: center; 
-}  
-
-/*  El color del titulo título */
-.titulo {
-    color: #01304a;
-    font-size: 35px;
-}
-
-/* El color y tamaño de la letra*/
-.form-label {
-    color: #01304a;
-    font-size: 20px;
-}
-
-/* Estilos generales del boton */
-.btn-custom {
-    display: inline-block;
-    padding: 12px 20px;
-    font-size: 18px;
+/* ... tu CSS existente ... */
+.h2{
     text-align: center;
-    text-decoration: none;
-    border-radius: 15px;
+    color: #0a0a0a;
+}
+.register-form-container {
+    background-color: hwb(55 90% 5%); /* Este es el fondo de tu formulario */
+    padding: 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(8, 4, 38, 0.08);
+    max-width: 650px; /* Esto hace que NO ocupe todo el ancho */
+    margin: 25px auto; /* Esto lo centra horizontalmente */
+    border: 1px solid #e0e0e0;
+}
+.register-form-container form {
+    background-color: rgba(170, 188, 227, 0.08);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 10px; /* Incrementado el gap vertical y horizontal ligeramente para claridad */
+    /* gap: 7px; es muy poco, puede apelotonar. Prueba 15px vertical, 10px horizontal */
 }
 
-/* color */
-.btn-registrar {
-    background-color: #01304a; 
-    color: #ffffff;
+/* Estilo para cada grupo de campo (label + input/select/textarea) */
+.form-field-group {
+    display: flex;
+    flex-direction: column; /* La etiqueta encima del campo */
+    /* Alinea el contenido de cada celda de la grilla al inicio */
+    align-items: flex-start; /* Asegura que todo el contenido se alinee a la izquierda */
 }
 
-/* Cambiar color de fondo y borde cuando el input/select está enfocado */
-.form-control:focus, 
-.form-select:focus {
-    border-color: #f8bb49 !important; 
-    box-shadow: 0 0 20px #f8bb49 !important; 
+.register-form-container label {
+    margin-bottom: 3px; /* Más espacio entre el label y el campo */
+    font-size: 1.0em; /* Ligeramente más grande para mejor legibilidad */
+    color: #1a1a1a;
+    font-weight: 500; /* Ligeramente más negrita para las etiquetas */
 }
 
-/* Cambiar el color cuando el checkbox está marcado */
-.form-check-input:checked {
-    background-color: #01304a !important;
-    border-color: #01304a !important;
-    width: 20px;
-    height: 20px;
+.register-form-container form input[type="text"],
+.register-form-container form input[type="email"],
+.register-form-container form input[type="password"],
+.register-form-container form select,
+.register-form-container form textarea {
+    width: 100%; /* Asegura que ocupen todo el ancho disponible en su celda */
+    box-sizing: border-box; /* Incluye padding y border en el width */
+    padding: 8px; /* Un poco más de padding para mejor tactilidad */
+    font-size: 0.9em; /* Ligeramente más grande */
+    border: 1px solid #ccc; /* Borde más visible */
+    border-radius: 4px; /* Un poco más redondeado */
 }
 
-/* Eliminar la sombra azul que aparece al hacer clic */
-.form-check-input:focus {
-    box-shadow: none !important;
-    border-color: #01304a !important; /* Mantener el borde del mismo color */
+/* Estilo para los mensajes de ayuda (como el de Nombre de Usuario) */
+.help-text {
+    font-size: 0.75em; /* Un poco más grande para el texto de ayuda */
+    color: #f4eded;
+    margin-top: 4px; /* Espacio entre el campo y el texto de ayuda */
+    line-height: 1.3; /* Mejor legibilidad */
 }
 
-.form-control {
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    font-size: 16px;
+/* Para la confirmación de contraseña, si quieres el texto al lado */
+.password-confirm-group {
+    display: flex;
+    align-items: center; /* Alinea verticalmente el input y el texto */
+    gap: 8px; /* Espacio entre el campo y el texto */
+    width: 100%; /* Ocupa el 100% de la celda de la grilla */
 }
 
-.btn-primary {
-    background-color: #007bff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 18px;
+.password-confirm-group input {
+    flex-grow: 1; /* Permite que el input ocupe el espacio restante */
+}
+
+/* El texto de la confirmación de contraseña */
+.password-confirm-group .help-text {
+    margin-top: 0; /* No necesita margen superior si está al lado */
+}
+
+
+/* Clase para los campos que deben ocupar las dos columnas */
+.full-width {
+    grid-column: 1 / span 2;
+}
+
+/* Ajustes para el contenedor de las reglas de la contraseña */
+.password-rules {
+    grid-column: 1 / span 2; /* Ocupa las dos columnas */
+    margin-top: 10px; /* Espacio superior */
+    padding-left: 15px; /* Indentación para las viñetas */
+    color: #f2f9fe;
+}
+
+.password-rules ul {
+    list-style-type: disc; /* Vinetas */
+    margin: 0;
+    padding: 0;
+}
+
+.password-rules li {
+    font-size: 0.85em; /* Tamaño para las reglas */
+    color: #eee7e7;
+    margin-bottom: 4px;
+}
+
+/* Asegura que el botón y el contenedor de experto ocupen las dos columnas */
+#experto-fields-container {
+    grid-column: 1 / span 2;
+    /* Tus estilos existentes para este contenedor */
+}
+
+.register-form-container button[type="submit"] {
+    color: #072521;
+    background-color: #f9fbfa;
+    align-items: center;
+    grid-column: 1 / span 2; /* Ocupa las dos columnas del grid */
+    padding: 10px 25px; /* Aumentado el padding para un botón más cómodo al tacto */
+    font-size: 1em; /* Un poco más grande para mejor legibilidad */
+    margin-top: 15px; /* Aumentado el margen superior para separarlo de los campos */
+    width: 100%; /* Asegura que ocupe todo el ancho disponible en sus columnas */
+    box-sizing: border-box; /* Incluye padding y borde en el ancho total */
+    display: block; /* Asegura que tome el 100% del ancho y se comporta como un bloque */
+    color: #ffffff; /* Texto blanco para un mejor contraste */
+    background-color: #264868; /* Un azul primario atractivo (puedes cambiarlo) */
+    border: none; /* Elimina el borde por defecto del botón */
+    border-radius: 8px; /* Bordes más redondeados para un look moderno */
+    cursor: pointer; /* Cambia el cursor para indicar que es clickeable */
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease; /* Transiciones suaves */
+    font-weight: 600; /* Ligeramente más negrita para resaltar el texto */
+    letter-spacing: 0.5px; /* Ligero espaciado entre letras para un toque profesional */
+    text-transform: uppercase; /* Opcional: texto en mayúsculas */
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); /* Sombra sutil para darle profundidad */
+}
+
+/* Efecto hover (al pasar el ratón por encima) */
+.register-form-container button[type="submit"]:hover {
+    background-color: #051123; /* Un azul más oscuro al pasar el ratón */
+    transform: translateY(-2px); /* Ligero levantamiento para un efecto 3D sutil */
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3); /* Sombra más pronunciada */
+}
+
+/* Efecto active (al hacer clic en el botón) */
+.register-form-container button[type="submit"]:active {
+    background-color: #004085; /* Azul aún más oscuro al presionar */
+    transform: translateY(0); /* Vuelve a su posición original */
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2); /* Sombra más pequeña */
+}
+
+/* Estilo para cuando el botón está deshabilitado (por ejemplo, si el formulario no es válido) */
+.register-form-container button[type="submit"]:disabled {
+    background-color: #cccccc; /* Gris para indicar que está deshabilitado */
+    color: #666666;
+    cursor: not-allowed; /* Cursor de "no permitido" */
+    box-shadow: none;
+    transform: none;
+    /* Tus estilos existentes para el botón */
+}
+
+@media (max-width: 600px) {
+    .register-form-container form {
+        grid-template-columns: 1fr; /* Una sola columna en móviles */
+    }
+    .form-field-group,
+    .full-width, /* Asegura que todo ocupe la única columna */
+    #experto-fields-container,
+    .register-form-container button[type="submit"],
+    .password-rules {
+        grid-column: 1 / span 1; /* Todos ocupan una columna en móviles */
+    }
+    .password-confirm-group {
+        flex-direction: column; /* Pasa a ser columna también en móvil si es necesario */
+        align-items: flex-start;
+    }
+    .password-confirm-group input {
+        width: 100%;
+    }
+    .password-confirm-group .help-text {
+        margin-top: 4px;
+    }
 }
