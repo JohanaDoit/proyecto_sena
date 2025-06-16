@@ -18,7 +18,7 @@ class Genero(models.Model):
 # Modelo CustomUser
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
-        ('usuario', 'Cliente'),
+        ('cliente', 'Cliente'),
         ('experto', 'Experto'),
     ]
     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")

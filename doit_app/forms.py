@@ -15,7 +15,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     tipo_usuario_choices = [
-        ('usuario', 'Usuario'),
+        ('cliente', 'Cliente'),
         ('experto', 'Experto'),
     ]
     tipo_usuario = forms.ChoiceField(
@@ -48,7 +48,7 @@ class RegistroForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
     evidenciaTrabajo = forms.CharField(max_length=200, required=False, label="Evidencia de Trabajo (URL/Descripción)", widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}))
     experienciaTrabajo = forms.CharField(required=False, label="Experiencia de Trabajo", widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}))
-    hojaVida = forms.CharField(max_length=300, required=False, label="Link Hoja de Vida", widget=forms.TextInput(attrs={'class': 'form-control'}))
+
     tipo_documento = forms.ModelChoiceField(
         queryset=TipoDoc.objects.all().order_by('Nombre'), # <--- CORREGIDO: 'Nombre' (N mayúscula)
         empty_label="Selecciona tipo de documento",
