@@ -8,6 +8,8 @@ from django.contrib import messages
 from .forms import ReservaForm
 from .models import Estado, Servicios, Categorias 
 from .models import Reserva
+from django.conf import settings
+import requests
 # Asegúrate de que todos los modelos necesarios están importados
 
 # --- Vistas Generales ---
@@ -221,7 +223,19 @@ def login_admin(request):
 def registrarse(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
-        if form.is_valid():
+
+        # Validar reCAPTCHA
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+        data = {
+            'secret': settings.RECAPTCHA_PRIVATE_KEY,
+            'response': recaptcha_response
+        }
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = r.json()
+
+        if not result.get('success'):
+            messages.error(request, '⚠️ Debes verificar que no eres un robot.')
+        elif form.is_valid():
             user = form.save()
             auth_login(request, user)
             return redirect(reverse_lazy('principal'))
@@ -234,7 +248,19 @@ def registrarse(request):
 def regisexperto(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
-        if form.is_valid():
+
+        # Validar reCAPTCHA
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+        data = {
+            'secret': settings.RECAPTCHA_PRIVATE_KEY,
+            'response': recaptcha_response
+        }
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = r.json()
+
+        if not result.get('success'):
+            messages.error(request, '⚠️ Debes verificar que no eres un robot.')
+        elif form.is_valid():
             user = form.save(commit=False)
             user.tipo_usuario = 'experto'
             user.save()
