@@ -18,7 +18,7 @@ class Genero(models.Model):
 # Modelo CustomUser
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
-        ('usuario', 'Usuario Normal'),
+        ('usuario', 'Cliente'),
         ('experto', 'Experto'),
     ]
     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
@@ -30,11 +30,24 @@ class CustomUser(AbstractUser):
     evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
     experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
-
+    
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
-
+    
     tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
+    evidenciaTrabajo = models.ImageField(
+        upload_to='evidencia_trabajo/', # Directorio donde se guardarán las imágenes de evidencia
+        blank=True,
+        null=True,
+        verbose_name="Evidencia de Trabajo (Imagen)"
+    )
+
+    hojaVida_file = models.FileField(
+        upload_to='hojas_de_vida/', # Los archivos se guardarán en MEDIA_ROOT/hojas_de_vida/
+        blank=True,
+        null=True,
+        verbose_name="Archivo de Hoja de Vida" # Nombre que se mostrará en el admin y formularios
+    )
     class Meta:
         verbose_name = "Usuario Personalizado"
         verbose_name_plural = "Usuarios Personalizados"
@@ -228,3 +241,6 @@ class Reserva(models.Model):
 
     def __str__(self): # ¡CORREGIDO!
         return f"Reserva #{self.id} - {self.Fecha} {self.Hora}"
+    
+    class Meta(AbstractUser.Meta):
+        swappable = 'AUTH_USER_MODEL'
