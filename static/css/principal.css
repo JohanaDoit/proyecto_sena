@@ -37,7 +37,7 @@ button {
 }
 
 button:disabled {
-    background-color: #bbb;
+    background-color: #e39696;
     cursor: not-allowed;
 }
 
@@ -54,7 +54,7 @@ button:hover:not(:disabled) {
     gap: 30px; /* Reducido de 50px */
     padding: 15px 20px; /* Reducido el padding vertical */
     background-color: var(--palorosa);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(48, 124, 45, 0.1);
 }
 
 .perfil-header {
