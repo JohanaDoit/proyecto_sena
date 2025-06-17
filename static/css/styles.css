@@ -1,116 +1,159 @@
+/* static/css/styles.css */
+
+/* VARIABLES (opcional, para mantener consistencia) */
+:root {
+    --sidebar-width: 250px;
+    --header-height: 70px; /* Ajusta según la altura real de tu header */
+    --sidebar-bg-color: #2c3e50;
+    --header-bg-color: #f8f9fa;
+}
+
+/* GENERAL BODY Y LAYOUT */
 body {
-    font-family: sans-serif;
     margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex; /* Flexbox para organizar sidebar y content-wrapper */
+    min-height: 100vh;
+}
+
+/* SIDEBAR FIJO STYLES */
+#sidebar {
+    width: var(--sidebar-width); /* Usamos la variable */
+    min-height: 100vh;
+    background-color: var(--sidebar-bg-color);
+    color: rgb(7, 2, 32);
+    overflow-y: auto; /* Permite scroll si el contenido del sidebar es muy largo */
+    padding-top: 20px; 
+    position: fixed; /* Fijo en la pantalla */
+    z-index: 101; /* Mayor que el contenido y el header */
+    top: 0;
+    left: 0;
+}
+
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: #34495e; 
+    text-align: center;
+}
+
+#sidebar ul {
+    list-style-type: none;
     padding: 0;
-    background-color: #EEEEEE;
+    margin: 0;
 }
 
+#sidebar ul li a {
+    padding: 15px 20px;
+    display: block;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    font-size: 1.1em;
+}
+
+#sidebar ul li a i {
+    margin-right: 10px;
+}
+
+#sidebar ul li a:hover {
+    background-color: #34495e;
+    text-decoration: none;
+    color: white;
+}
+
+/* HEADER FIJO STYLES */
 header {
-    background-color:  #0b6e7b;
-    color: #fff;
-    padding: 1rem 0;
-    width: 100%;
+    position: fixed; /* Fijo en la pantalla */
+    top: 0;
+    /* El ancho y el margen izquierdo se controlan mejor desde #content-wrapper */
+    left: var(--sidebar-width); /* Empieza después del sidebar */
+    width: calc(100% - var(--sidebar-width)); /* Ocupa el resto del ancho */
+    background-color: var(--header-bg-color); /* Color de fondo para tu cabecera */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100; /* Menor que el sidebar, mayor que el contenido principal */
 }
 
-nav {
+/* Estilos de la barra de navegación dentro del header (ajustar según tu nav) */
+header nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    padding: 10px 20px; /* Añadimos padding para la nav */
+    /* Eliminamos max-width y margin: auto para que ocupe el 100% del header fijo */
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
+header .logo img {
+    height: 40px; 
 }
 
-.nav-links {
+header .nav-links {
     list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
 }
 
-.nav-links li {
-    margin-left: 1rem;
+header .nav-links li {
+    margin-left: 20px;
 }
 
-.nav-links a {
-    color: #e67e15;
+header .nav-links a {
     text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-.dropdown {
-    position: relative;
+header .nav-links a:hover {
+    background-color: #e2e6ea;
 }
 
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 3;
-}
 
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.hero {
-    background-image: url('../images/fondoeje.jpg'); 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    height: 100vh; 
+/* CONTENT WRAPPER (Contenido principal incluyendo main y footer) */
+#content-wrapper {
+    flex-grow: 1; /* Ocupa el espacio restante */
+    margin-left: var(--sidebar-width); /* Margen fijo para dejar espacio al sidebar */
+    padding-top: var(--header-height); /* Padding fijo para dejar espacio al header */
+    min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: #fff;
-    position: relative;
+    flex-direction: column;
 }
 
-.hero::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Color de fondo con opacidad */
-    z-index: 1;
+main {
+    flex-grow: 1; /* El main ocupa el espacio restante entre el header y el footer */
+    padding: 20px; /* Espaciado interno para el contenido de main */
 }
-
-.hero-content {
-    position: relative;
-    z-index: 2;
-}
-
 
 footer {
-    background-color: #0b6e7b;
-    color: #dadada;
+    width: 100%; /* Ocupa todo el ancho */
+    padding: 20px;
+    background-color: #f8f9fa;
     text-align: center;
-    padding: 1rem 0;
-    width: 100%;
+    color: #6c757d;
+    margin-top: auto; /* Empuja el footer hacia abajo */
 }
 
-/* Estilos Responsivos */
+
+/* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 768px) {
-    .nav-links {
-        flex-direction: column;
-        align-items: center;
+    :root {
+        --sidebar-width: 150px; /* Sidebar más pequeño en móviles */
+        --header-height: 60px; /* Altura del header si cambia en móviles */
     }
 
-    .nav-links li {
-        margin: 0.5rem 0;
+    #sidebar {
+        width: var(--sidebar-width);
+    }
+
+    header {
+        left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+    }
+
+    #content-wrapper {
+        margin-left: var(--sidebar-width);
+        padding-top: var(--header-height);
     }
 }
