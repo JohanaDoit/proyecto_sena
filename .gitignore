@@ -1,3 +1,4 @@
 # Archivos de caché de Python
 __pycache__/
 *.pyc
+doit_app/migrations/__pycache__

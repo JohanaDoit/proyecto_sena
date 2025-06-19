@@ -18,8 +18,12 @@
 
 </head>
 <body>
+    {# ================================================================= #}
+    {# INICIO DEL BLOQUE A AÑADIR EN TU BASE.HTML #}
+    {# Hemos envuelto la barra lateral existente en un nuevo bloque 'sidebar_content' #}
+    {% block sidebar_content %}
     <div id="sidebar">
-            <div class="perfil-header">
+        <div class="perfil-header">
             <div class="perfil-foto-container">
                 <img src="{% static 'images/fotoperfilMuj.jpg' %}" alt="Foto de perfil de Juliana" class="perfil-foto">
                 <p class="perfil-nombre">
@@ -53,6 +57,9 @@
             <li><a href="#"><i class="fas fa-users"></i> Gestionar Usuarios</a></li>
         </ul>
     </div>
+    {% endblock sidebar_content %}
+    {# FIN DEL BLOQUE A AÑADIR EN TU BASE.HTML #}
+    {# ================================================================= #}
 
     <div id="content-wrapper"> 
         <header>

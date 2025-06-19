@@ -1,3 +1,4 @@
+# doit_app/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -12,57 +13,10 @@ class Genero(models.Model):
         verbose_name_plural = "Géneros"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
-# Modelo CustomUser
-class CustomUser(AbstractUser):
-    tipo_usuario_choices = [
-        ('cliente', 'Cliente'),
-        ('experto', 'Experto'),
-    ]
-    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
-    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='usuario', verbose_name="Tipo de Usuario")
-    nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
-    numDoc = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="Número de Documento")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
-    evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
-    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
-    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Hoja de Vida")
-    
-    foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
-    
-    tipo_documento = models.ForeignKey('TipoDoc', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
-
-    evidenciaTrabajo = models.ImageField(
-        upload_to='evidencia_trabajo/', # Directorio donde se guardarán las imágenes de evidencia
-        blank=True,
-        null=True,
-        verbose_name="Evidencia de Trabajo (Imagen)"
-    )
-
-    hojaVida_file = models.FileField(
-        upload_to='hojas_de_vida/', # Los archivos se guardarán en MEDIA_ROOT/hojas_de_vida/
-        blank=True,
-        null=True,
-        verbose_name="Archivo de Hoja de Vida" # Nombre que se mostrará en el admin y formularios
-    )
-    class Meta:
-        verbose_name = "Usuario Personalizado"
-        verbose_name_plural = "Usuarios Personalizados"
-        app_label = "doit_app"
-
-    def _str_(self):
-        return self.username
-
-    def is_usuario_normal(self):
-        return self.tipo_usuario == 'usuario'
-
-    def is_experto(self):
-        return self.tipo_usuario=='experto'
-
-# TipoDoc
+# Modelo TipoDoc
 class TipoDoc(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del tipo de documento")
 
@@ -72,8 +26,67 @@ class TipoDoc(models.Model):
         db_table = "TipoDoc"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
+
+# Modelo CustomUser
+class CustomUser(AbstractUser):
+    tipo_usuario_choices = [
+        ('cliente', 'Cliente'),
+        ('experto', 'Experto'),
+    ]
+    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
+    
+    # --- CORRECCIÓN 1: DEFAULT DEL TIPO_USUARIO ---
+    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
+    
+    nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
+    numDoc = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="Número de Documento")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
+    
+    # --- CORRECCIÓN 2: ELIMINACIÓN DE CAMPO DUPLICADO ---
+    # Eliminado: evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
+    
+    # --- ESTA ES LA ÚNICA DEFINICIÓN DE evidenciaTrabajo, AHORA COMO IMAGEFIELD ---
+    evidenciaTrabajo = models.ImageField(
+        upload_to='evidencia_trabajo/', # Directorio donde se guardarán las imágenes de evidencia
+        blank=True,
+        null=True,
+        verbose_name="Evidencia de Trabajo (Imagen)"
+    )
+    
+    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
+    
+    # --- ASUMIMOS que 'hojaVida' es para un LINK a la HV y 'hojaVida_file' es para el archivo en sí.
+    # Si quieres que 'hojaVida' también sea un FileField, elimina 'hojaVida_file' y cambia 'hojaVida' a FileField.
+    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
+    hojaVida_file = models.FileField(
+        upload_to='hojas_de_vida/', 
+        blank=True,
+        null=True,
+        verbose_name="Archivo de Hoja de Vida"
+    )
+    
+    foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
+    
+    tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
+
+    class Meta:
+        verbose_name = "Usuario Personalizado"
+        verbose_name_plural = "Usuarios Personalizados"
+        app_label = "doit_app"
+
+    # --- CORRECCIÓN 3: MÉTODO __str__ ---
+    def __str__(self):
+        return self.username
+
+    # --- CORRECCIÓN 4: LÓGICA DE is_usuario_normal ---
+    def is_usuario_normal(self):
+        return self.tipo_usuario == 'cliente' # Ahora el default es 'cliente'
+
+    def is_experto(self):
+        return self.tipo_usuario == 'experto'
 
 # Categorias
 class Categorias(models.Model):
@@ -85,7 +98,7 @@ class Categorias(models.Model):
         db_table = "Categorias"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Metodo
@@ -98,7 +111,7 @@ class Metodo(models.Model):
         db_table = "Metodo"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Estado
@@ -111,7 +124,7 @@ class Estado(models.Model):
         db_table = "Estado"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Pagos
@@ -128,7 +141,7 @@ class Pagos(models.Model):
         db_table = "Pagos"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return f"Pago #{self.id} - Monto: {self.Monto} - Estado: {self.estado_pago_texto}"
 
 # Profesion
@@ -143,7 +156,7 @@ class Profesion(models.Model):
         db_table = "Profesion"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Servicios
@@ -157,7 +170,7 @@ class Servicios(models.Model):
         db_table = "Servicios"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.NombreServicio
 
 # Calificaciones
@@ -174,7 +187,7 @@ class Calificaciones(models.Model):
         db_table = "Calificaciones"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return f"Calificación #{self.id} - Puntuación: {self.puntuacion}"
 
 # Pais
@@ -186,7 +199,7 @@ class Pais(models.Model):
         verbose_name_plural = "Países"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Departamento
@@ -199,7 +212,7 @@ class Departamento(models.Model):
         verbose_name_plural = "Departamentos"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Ciudad
@@ -212,7 +225,7 @@ class Ciudad(models.Model):
         verbose_name_plural = "Ciudades"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return self.Nombre
 
 # Reserva
@@ -223,7 +236,7 @@ class Reserva(models.Model):
     descripcion = models.CharField(max_length=255)
     detallesAdicionales = models.CharField(max_length=255)
     ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, default=1) # El default=1 puede necesitar ajuste si los IDs de tus países no son fijos.
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, default=1) 
     metodoDePago = models.CharField(max_length=50, choices=[
         ('Efectivo', 'Efectivo'),
         ('Tarjeta', 'Tarjeta'),
@@ -231,14 +244,15 @@ class Reserva(models.Model):
     ])
     idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE)
-    # Considera añadir un campo de estado para la reserva, si aún no lo tienes, para gestionar su ciclo de vida
-    # idEstado = models.ForeignKey(Estado, on_delete=models.SET_DEFAULT, default=1) # Por ejemplo, un estado inicial (si es que tienes un Estado con id=1 que signifique 'Pendiente' o similar)
+    # Ya tienes idEstado en el modelo que proporcionaste en la vista. 
+    # Asegúrate de que esta línea esté presente si es un campo de Reserva.
+    idEstado = models.ForeignKey(Estado, on_delete=models.SET_DEFAULT, default=1, verbose_name="Estado de la Reserva")
+
 
     class Meta:
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"
         app_label = "doit_app"
 
-    def __str__(self): # ¡CORREGIDO!
+    def __str__(self):
         return f"Reserva #{self.id} - {self.Fecha} {self.Hora}"
-    
