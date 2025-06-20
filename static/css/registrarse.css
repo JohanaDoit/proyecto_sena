@@ -4,7 +4,7 @@
     color: #0a0a0a;
 }
 .register-form-container {
-    background-color: hwb(55 90% 5%); /* Este es el fondo de tu formulario */
+    background-color: #ffffff; /* Este es el fondo de tu formulario */
     padding: 18px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(8, 4, 38, 0.08);

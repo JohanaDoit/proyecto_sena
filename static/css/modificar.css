@@ -2,7 +2,7 @@
 
 /* --- Variables CSS (pueden ser las mismas de styles.css o específicas si se necesitan ajustes) --- */
 :root {
-    --bg-light-yellow: #eae7b1; /* Fondo suave y claro */
+    --bg-light-yellow: #ffffff; /* Fondo suave y claro */
     --text-dark: #333; /* Color de texto oscuro */
     --border-green: #557c5c; /* Línea divisoria y botón principal */
     --shadow-subtle: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -25,7 +25,7 @@
 
 /* --- Estilos del Contenedor Principal de Perfil --- */
 .container-perfil {
-    background-color: var(--bg-light-yellow);
+    background-color:#E9F1FA   ;
     padding: var(--spacing-large);
     margin: var(--spacing-large) auto; /* Centra y da margen */
     border-radius: var(--border-radius-base);
