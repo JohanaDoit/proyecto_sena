@@ -32,6 +32,9 @@
         .invalid-feedback {
             display: block; /* Para asegurar que se muestre */
             color: #dc3545; /* Asegura que el color de error sea rojo */
+
+        .text {
+        justify-content: center
         }
     </style>
 </head>
@@ -78,8 +81,11 @@
                 </div>
             {% endif %}
 
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                    <a href="{% url 'password_reset' %}">¿Olvidaste tu contraseña?</a>
+            
+
+                <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                <a href="{% url 'password_reset' %}" class="text-center d-block mt-2">¿Olvidaste tu contraseña?</a>
+                
             <p class="text-center mt-3">¿No tienes cuenta? <a href="{% url 'registrarse' %}">Regístrate aquí</a></p>
         </form>
     </div>
