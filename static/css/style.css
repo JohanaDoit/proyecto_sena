@@ -1,6 +1,6 @@
 /* Estilos para el header */
 header {
-    background-color: #147ae0; /* Color de fondo claro */
+    background-color: #0e467e; /* Color de fondo claro */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -44,7 +44,7 @@ nav ul li {
     position: absolute;
     top: 35px;
     left: 0;
-    background-color: white;
+    background-color:  #E9F1FA ;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     z-index: 1;
@@ -59,7 +59,7 @@ nav ul li {
 }
 
 .dropdown-content a:hover {
-    background-color: #f1f1f1;
+    background-color: #E9F1FA;
 }
 
 .dropdown:hover .dropdown-content {
