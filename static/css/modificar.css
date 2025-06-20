@@ -1,0 +1,136 @@
+    /* static/css/modificar.css */
+
+/* --- Variables CSS (pueden ser las mismas de styles.css o específicas si se necesitan ajustes) --- */
+:root {
+    --bg-light-yellow: #eae7b1; /* Fondo suave y claro */
+    --text-dark: #333; /* Color de texto oscuro */
+    --border-green: #557c5c; /* Línea divisoria y botón principal */
+    --shadow-subtle: 0 0 10px rgba(0, 0, 0, 0.1);
+    --border-radius-base: 8px;
+    --spacing-small: 5px;
+    --spacing-medium: 15px;
+    --spacing-large: 20px;
+    
+    /* Colores del botón de guardar */
+    --save-btn-bg: var(--border-green);
+    --save-btn-hover: #f5c6cb; /* Color al pasar el ratón, ajusta a tu paleta (quizás un verde más oscuro) */
+
+    /* Colores del botón de volver */
+    --back-btn-bg: #ccc;
+    --back-btn-hover: #bbb;
+
+    /* Reusar variables de estilos.css si están definidas allí y quieres consistencia */
+    /* Ej: --primary-blue: #1e3a8a; */
+}
+
+/* --- Estilos del Contenedor Principal de Perfil --- */
+.container-perfil {
+    background-color: var(--bg-light-yellow);
+    padding: var(--spacing-large);
+    margin: var(--spacing-large) auto; /* Centra y da margen */
+    border-radius: var(--border-radius-base);
+    box-shadow: var(--shadow-subtle);
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    /* Asegúrate de que el z-index no interfiera con el sidebar/header si es necesario */
+    z-index: 1; 
+}
+
+/* --- Título del Formulario --- */
+.container-perfil h2 {
+    color: var(--text-dark);
+    margin-top: 0;
+    border-bottom: 2px solid var(--border-green);
+    padding-bottom: 10px;
+    margin-bottom: var(--spacing-medium);
+    text-align: center; /* Centrar el título */
+}
+
+
+/* Estilo específico para campos de tipo file (si los usas) */
+.form-control-file {
+    display: block;
+    width: 100%;
+    padding: 8px 0; /* Menos padding horizontal para files */
+    border: none; /* Los campos file suelen no tener borde por defecto */
+}
+
+/* Estilo para checkboxes */
+.form-check-input {
+    margin-right: 5px; /* Espacio entre el checkbox y su label */
+}
+
+.form-check-label {
+    display: inline-block; /* Para que la etiqueta esté al lado del checkbox */
+    font-weight: normal; /* No tan negrita como las otras etiquetas */
+    color: #333;
+}
+
+
+.button-group {
+    display: flex;
+    justify-content: center; /* Centra los botones en el grupo */
+    gap: 15px; /* Espacio entre los botones */
+    margin-top: var(--spacing-large);
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    text-decoration: none; /* Para enlaces que parecen botones */
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Estilos específicos para el botón de "Guardar Cambios" */
+.btn-primary { /* Clase que Django renderiza para submit con widget_tweaks */
+    background-color: var(--save-btn-bg);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--save-btn-hover); /* Un verde más oscuro, o un color de énfasis */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Estilos específicos para el botón "Volver" */
+.btn-secondary { /* Clase que Django renderiza para a.back-button con widget_tweaks */
+    background-color: var(--back-btn-bg);
+    color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+    background-color: var(--back-btn-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    .container-perfil {
+        padding: var(--spacing-medium);
+        margin: 1rem auto;
+    }
+    .button-group {
+        flex-direction: column; /* Apilar botones en pantallas pequeñas */
+    }
+    .btn, .btn-primary, .btn-secondary {
+        width: 100%; /* Botones de ancho completo */
+    }
+}

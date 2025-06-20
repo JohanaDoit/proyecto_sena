@@ -22,7 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-6+_g-$h2@)b-5&a-i-+45s+%vikaz&&_9gg^f5hdyw)u03gg-f'
-RECAPTCHA_PUBLIC_KEY = '6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0'
+# RECAPTCHA_PUBLIC_KEY y RECAPTCHA_PRIVATE_KEY
+# Buen uso de nombres para las claves de reCAPTCHA.
+# En la vista 'registrarse', pasé `RECAPTCHA_SITE_KEY` al contexto.
+# Si estás usando `RECAPTCHA_PUBLIC_KEY` para la clave del sitio, asegúrate de que la plantilla lo use.
+# O renombra RECAPTCHA_PUBLIC_KEY a RECAPTCHA_SITE_KEY para mayor claridad.
+RECAPTCHA_SITE_KEY = '6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0' # Renombrado para consistencia con 'site key'
 RECAPTCHA_PRIVATE_KEY = '6LeM6WErAAAAALSbptCzkAU9GG_UwOW_ueLw8JBq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -39,8 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'doit_app', # ¡Tu aplicación 'asistencia' está correctamente incluida aquí!
-    'widget_tweaks', # Si lo estás usando
+    'doit_app', # ¡Tu aplicación 'doit_app' está correctamente incluida aquí!
+    'widget_tweaks', # Si lo estás usando, esto es correcto.
 ]
 
 MIDDLEWARE = [
@@ -52,13 +57,19 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-ROOT_URLCONF = 'doit.urls'
+# ROOT_URLCONF: Asegúrate de que 'doit.urls' se refiere al archivo urls.py de tu proyecto principal.
+# Si tu proyecto principal se llama 'Apolo', debería ser 'Apolo.urls'.
+# Si tu proyecto se llama 'doit', entonces está bien.
+ROOT_URLCONF = 'doit.urls' # <--- CAMBIAR SI TU PROYECTO PRINCIPAL SE LLAMA 'Apolo'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
+        # 'DIRS': [os.path.join(BASE_DIR, 'templates')], # Esto es correcto si tienes una carpeta 'templates' en la raíz del proyecto.
+        # Si tienes plantillas específicas de la app en 'doit_app/templates' y también globales en 'templates/',
+        # esto es una buena configuración.
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], 
+        'APP_DIRS': True, # Esto le dice a Django que busque templates dentro de las carpetas 'templates' de cada app instalada.
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -73,7 +84,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',  # Esto creará un archivo db.sqlite3 en el directorio base de tu proyecto
+        'NAME': BASE_DIR / 'db.sqlite3',   # Esto creará un archivo db.sqlite3 en el directorio base de tu proyecto
     }
 }
 # Internationalization
@@ -97,32 +108,47 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'es-co'
-TIME_ZONE = 'America/Bogota'
-USE_I18N = True
-USE_TZ = True
+TIME_ZONE = 'America/Bogota' # Esto es crucial para manejar las fechas y horas correctamente. ¡Muy bien!
+USE_I18N = True # Permite la internacionalización
+USE_TZ = True   # Habilita el soporte para zonas horarias. ¡Fundamental para un buen manejo de fechas!
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+# STATICFILES_DIRS: Donde Django buscará archivos estáticos adicionales (además de los de las apps)
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),] # Correcto, si tienes una carpeta 'static' en la raíz.
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
-AUTH_USER_MODEL = 'doit_app.CustomUser' # ¡Correcto! Esto le dice a Django que use tu modelo de usuario personalizado.
+AUTH_USER_MODEL = 'doit_app.CustomUser' # ¡Esto es CORRECTO y VITAL! Le dice a Django que use tu modelo de usuario personalizado.
 
 # Authentication redirects
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'principal'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'login' # Nombre de la URL para el login
+LOGIN_REDIRECT_URL = 'principal' # URL a la que redirigir después de un login exitoso (general)
+LOGOUT_REDIRECT_URL = 'home' # URL a la que redirigir después del logout.
 
+# MEDIA_URL y MEDIA_ROOT: ¡Excelente! Estas configuraciones son cruciales para subir y servir archivos (fotos de perfil, evidencias).
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') 
 
+# Configuraciones de Email: Muy bien que las tengas.
+# Esto es para el envío de correos, por ejemplo, para restablecimiento de contraseña.
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'm3069364@gmail.com'
-EMAIL_HOST_PASSWORD = 'mrgx zhfm wwet lvyv'
+# SECURITY WARNING: No guardes la contraseña directamente en settings.py en producción.
+# Usa variables de entorno (ej. os.environ.get('EMAIL_HOST_PASSWORD'))
+EMAIL_HOST_PASSWORD = 'mrgx zhfm wwet lvyv' # <-- ¡OJO AQUÍ!
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Mensajes (Configuración por defecto está bien, pero puedes personalizarla)
+# MESSAGE_TAGS = {
+#     messages.DEBUG: 'alert-info',
+#     messages.INFO: 'alert-info',
+#     messages.SUCCESS: 'alert-success',
+#     messages.WARNING: 'alert-warning',
+#     messages.ERROR: 'alert-danger',
+# }

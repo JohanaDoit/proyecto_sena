@@ -1,210 +1,109 @@
-
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}DOIT | Principal cliente{% endblock %} {# Título para la pestaña del navegador #}
+{% block title %}DOIT | Principal cliente{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/principal.css' %}">
-<link rel="stylesheet" href="{% static 'css/modperf_cliente.css' %}">
+<link rel="stylesheet" href="{% static 'css/modperf_cliente.css' %}"> 
 {% endblock %}
 
-{% block content %}
-
-    <div class="header-container">
-        <div class="perfil-header">
-            {# ESTE ES EL NUEVO CONTENEDOR 'perfil-info-completa' que agrupa la foto y el nombre #}
-        </div>
-
-        <div class="banner-bienvenida">
-            <div class="contenido-banner">
-                <h1>👋 ¡Bienvenid@
-                    {# También muestra el nombre (o username) en el saludo #}
-                    {% if user.is_authenticated %}
-                        {% if user.first_name %}
-                            {{ user.first_name }}
-                        {% elif user.username %}
-                            {{ user.username }}
-                        {% endif %}
+{% block content %}  {# <-- AHORA SOLO HAY UN BLOQUE 'content' #}
+    {# Contenido que estaba en el primer bloque 'content' #}
+    <div class="banner-bienvenida">
+        <div class="contenido-banner">
+            <h1>👋 ¡Bienvenid@
+                {% if user.is_authenticated %}
+                    {% if user.first_name %}
+                        {{ user.first_name }}
+                    {% elif user.username %}
+                        {{ user.username }}
                     {% endif %}
-                    a
+                {% endif %}
+                a
+                {% if not user.is_authenticated %}
                     <a href="{% url 'home' %}">
                         <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
                     </a>
-                </h1>
-                <input type="text" placeholder="Escribe el nombre del experto aquí...." style="margin-left: 60px;">
+                {% else %}
+                    <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
+                {% endif %}
+            </h1>
+            <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form">
+                <input type="text" name="q" placeholder="Buscar experto por nombre o especialidad...">
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+    </div>
+
+    <section class="seccion-servicios">
+        <div class="tarjeta-servicio">
+            <h3>Reserva tu servicio</h3>
+
+            <div class="grupo-formulario">
+                <label for="categoria">Selecciona una categoría:</label>
+                <select id="categoria" class="form-control">
+                    <option value="" selected disabled>-- Elige una categoría --</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
+                    {% endfor %}
+                </select>
             </div>
+
+            <div class="grupo-formulario">
+                <label for="servicio">Selecciona un servicio:</label>
+                <select id="servicio" disabled class="form-control">
+                    <option value="" selected>-- Elige un servicio --</option>
+                </select>
+            </div>
+            <a id="reservarLink" href="{% url 'reserva' %}">
+                <button id="reservarBtn" type="button" disabled class="btn btn-primary">Reservar</button>
+            </a>
         </div>
+    </section>
+
+    {# Contenido que estaba en el segundo bloque 'content' #}
+    <h2>Servicios:</h2>
+    <div>
+        <h4>🕘 Últimos 3 servicios solicitados</h4>
+        <ul>
+            {% for reserva in ultimas_reservas %}
+                <li style="margin-bottom: 10px;">
+                    <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
+                    <p><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</p>
+                    <p><strong>Hora:</strong> {{ reserva.Hora|time:"h:i A" }}</p>
+                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                    <p><strong>Estado:</strong> {{ reserva.idEstado.Nombre }}</p>
+                </li>
+            {% empty %}
+                <li>No has hecho reservas recientes.</li>
+            {% endfor %}
+        </ul>
     </div>
 
-    <a href="{% url 'busc_experto' %}" class="boton-experto">Buscar experto</a>
-
-<section class="seccion-servicios">
-    <div class="tarjeta-servicio">
-        <h3>Reserva tu servicio</h3>
-
-        <div class="grupo-formulario">
-            <label for="categoria">Selecciona una categoría:</label>
-            <select id="categoria">
-                <option selected disabled>-- Elige una categoría --</option>
-                {% for categoria in categorias %}
-                    <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="grupo-formulario">
-            <label for="servicio">Selecciona un servicio:</label>
-            <select id="servicio" disabled>
-                <option selected>-- Elige un servicio --</option>
-            </select>
-        </div>
-        <a id="reservarLink" href="{% url 'reserva' %}">
-            <button id="reservarBtn" type="button" disabled>Reservar</button>  
-        </a>
-    </div>
-</section>
-
-
-<script>
-    const categoriaSelect = document.getElementById('categoria');
-    const servicioSelect = document.getElementById('servicio');
-    const reservarBtn = document.getElementById('reservarBtn');
-    const reservarLink = document.getElementById('reservarLink');
-
-    // Servicios agrupados por categoría, cada uno con id y nombre
-    const serviciosPorCategoria = {
-        {% for categoria, servicios in servicios_por_categoria.items %}
-            "{{ categoria }}": [
-                {% for serv in servicios %}
-                    {"id": "{{ serv.id }}", "nombre": "{{ serv.NombreServicio }}"}{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ]{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    // Evento al cambiar la categoría seleccionada
-    categoriaSelect.addEventListener('change', () => {
-        const seleccionada = categoriaSelect.value;
-
-        // Limpiar opciones anteriores
-        servicioSelect.innerHTML = '<option value="">Selecciona un servicio</option>';
-
-        if (serviciosPorCategoria[seleccionada]) {
-            serviciosPorCategoria[seleccionada].forEach(serv => {
-                const option = document.createElement('option');
-                option.value = serv.id;
-                option.textContent = serv.nombre;
-                servicioSelect.appendChild(option);
-            });
-
-            servicioSelect.disabled = false;
-            reservarBtn.disabled = true;
-            reservarLink.href = "{% url 'reserva' %}"; // resetear href
-        } else {
-            servicioSelect.disabled = true;
-        }
-    });
-
-    // Evento al cambiar el servicio seleccionado
-    servicioSelect.addEventListener('change', () => {
-        reservarBtn.disabled = false;
-        const servicioSeleccionado = servicioSelect.value;
-        reservarLink.href = "{% url 'reserva' %}?servicio_id=" + encodeURIComponent(servicioSeleccionado);
-    });
-</script>
-
-<h2>Servicios:</h2>
-
-{% if messages %}
-    {% for message in messages %}
-    <div style="
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
-        padding: 15px 20px;
-        background-color:rgb(62, 151, 163);
-        color:rgb(243, 243, 248);
-        border-left: 6px solid #ffecb5;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        box-shadow: 10px 2px 8px rgba(0, 0, 0, 0.1);
-        position: relative;
-    ">
-        <div class="custom-spinner"></div>
-            <div style="white-space: pre-line;">
-        {{ message }}
-        </div>
-    </div>
-    {% endfor %}
-{% endif %}
-
-<style>
-.custom-spinner {
-    width: 20px;
-    height: 20px;
-    border: 3px solid #ffeeba;
-    border-top: 3px solid #ffc107;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {  
-        transform: rotate(360deg);
-    }
-}
-</style>
-
-<div>
-    <h4>🕘 Últimos 3 servicios solicitados</h4>
-    <ul>
-        {% for reserva in ultimas_reservas %}
-    <li style="margin-bottom: 10px;">
-        <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
-        <p><strong>Fecha:</strong> {{ reserva.Fecha }}</p>
-        <p><strong>Hora:</strong> {{ reserva.Hora }}</p>
-        <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
-    </li>
-    {% empty %}
-    <li>No has hecho reservas recientes.</li>
-    {% endfor %}
-    </ul>
-</div>
-
-
-
-
-
-
-
-        <div class="servicios">
-            <article class="servicio">
+    <div class="servicios">
+        <article class="servicio">
             <h2>CUIDADO PERSONAL</h2>
             <img src="{% static 'images/20.jpg' %}" alt="Foto 1">
             <p>Ofrecemos contactos con expertos en proporcionar momentos de relajación, realzar la belleza natural y ayudar a enfrentar cada día con más confianza.</p>
         </article>
-            <article class="servicio">
+        <article class="servicio">
             <h2>CUIDADO HOGAR</h2>
             <img src="{% static 'images/21.png' %}" alt="Foto 2">
             <p>Doit te conecta con un equipo de profesionales capacitados que trabaja con dedicación, utilizando técnicas innovadoras, asegurándose que cada rincón brille y transmita armonía.</p>
         </article>
         <article class="servicio">
             <h2>LOCATIVOS</h2>
-            <img src="{% static 'images/22.png' %}" alt="Foto 3">
+            <img src="{% static 'images/22.png'}" alt="Foto 3">
             <p>Contactamos profesionales en servicios locativos para cubrir tus necesidades de mantenimiento, reparación y adecuación del hogar.</p>
         </article>
-        </div>
-    </section>
-    <div class="servicios-populares">
-        <div class="servicios-mas-solicitados">
-            <h2>⭐ Servicios más solicitados</h2>
-                <div class="servicios-grid">
+    </div>
+</section> {# Este cierre de sección estaba un poco fuera de lugar, asumiendo que es el cierre de 'seccion-servicios' #}
+
+<div class="servicios-populares">
+    <div class="servicios-mas-solicitados">
+        <h2>⭐ Servicios más solicitados</h2>
+        <div class="servicios-grid">
             <div class="servicio-cuadro">
                 <img src="{% static 'images/22.png' %}" alt="Electricista">
                 <h3>Pintor</h3>
@@ -219,4 +118,55 @@
             </div>
         </div>
     </div>
+</div>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+    const categoriaSelect = document.getElementById('categoria');
+    const servicioSelect = document.getElementById('servicio');
+    const reservarBtn = document.getElementById('reservarBtn');
+    const reservarLink = document.getElementById('reservarLink');
+
+    const serviciosPorCategoria = {
+        {% for categoria, servicios in servicios_por_categoria.items %}
+            "{{ categoria }}": [
+                {% for serv in servicios %}
+                    {"id": "{{ serv.id }}", "nombre": "{{ serv.NombreServicio }}"}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    categoriaSelect.addEventListener('change', () => {
+        const seleccionada = categoriaSelect.value;
+        servicioSelect.innerHTML = '<option value="">-- Elige un servicio --</option>';
+
+        if (serviciosPorCategoria[seleccionada]) {
+            serviciosPorCategoria[seleccionada].forEach(serv => {
+                const option = document.createElement('option');
+                option.value = serv.id;
+                option.textContent = serv.nombre;
+                servicioSelect.appendChild(option);
+            });
+            servicioSelect.disabled = false;
+            reservarBtn.disabled = true;
+            reservarLink.href = "{% url 'reserva' %}";
+        } else {
+            servicioSelect.disabled = true;
+            reservarBtn.disabled = true;
+        }
+    });
+
+    servicioSelect.addEventListener('change', () => {
+        const servicioSeleccionado = servicioSelect.value;
+        if (servicioSeleccionado) {
+            reservarBtn.disabled = false;
+            reservarLink.href = "{% url 'reserva' %}?servicio_id=" + encodeURIComponent(servicioSeleccionado);
+        } else {
+            reservarBtn.disabled = true;
+            reservarLink.href = "{% url 'reserva' %}";
+        }
+    });
+</script>
+{% endblock extra_js %}

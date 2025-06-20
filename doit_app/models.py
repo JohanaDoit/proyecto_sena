@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
-# Modelo Genero
+# Modelo Genero (SIN CAMBIOS)
 class Genero(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
 
@@ -16,7 +16,7 @@ class Genero(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Modelo TipoDoc
+# Modelo TipoDoc (SIN CAMBIOS)
 class TipoDoc(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del tipo de documento")
 
@@ -29,7 +29,7 @@ class TipoDoc(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Modelo CustomUser
+# Modelo CustomUser (AJUSTES MENORES)
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
         ('cliente', 'Cliente'),
@@ -37,7 +37,6 @@ class CustomUser(AbstractUser):
     ]
     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
     
-    # --- CORRECCIÓN 1: DEFAULT DEL TIPO_USUARIO ---
     tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
     
     nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
@@ -45,12 +44,8 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
     
-    # --- CORRECCIÓN 2: ELIMINACIÓN DE CAMPO DUPLICADO ---
-    # Eliminado: evidenciaTrabajo = models.CharField(max_length=200, blank=True, null=True, verbose_name="Evidencia de Trabajo")
-    
-    # --- ESTA ES LA ÚNICA DEFINICIÓN DE evidenciaTrabajo, AHORA COMO IMAGEFIELD ---
     evidenciaTrabajo = models.ImageField(
-        upload_to='evidencia_trabajo/', # Directorio donde se guardarán las imágenes de evidencia
+        upload_to='evidencia_trabajo/', 
         blank=True,
         null=True,
         verbose_name="Evidencia de Trabajo (Imagen)"
@@ -58,8 +53,6 @@ class CustomUser(AbstractUser):
     
     experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
     
-    # --- ASUMIMOS que 'hojaVida' es para un LINK a la HV y 'hojaVida_file' es para el archivo en sí.
-    # Si quieres que 'hojaVida' también sea un FileField, elimina 'hojaVida_file' y cambia 'hojaVida' a FileField.
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
     hojaVida_file = models.FileField(
         upload_to='hojas_de_vida/', 
@@ -72,23 +65,24 @@ class CustomUser(AbstractUser):
     
     tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
+    # Nuevo campo para la especialidad del experto (lo añadimos para el perfil del experto)
+    especialidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Especialidad")
+
     class Meta:
         verbose_name = "Usuario Personalizado"
         verbose_name_plural = "Usuarios Personalizados"
         app_label = "doit_app"
 
-    # --- CORRECCIÓN 3: MÉTODO __str__ ---
     def __str__(self):
         return self.username
 
-    # --- CORRECCIÓN 4: LÓGICA DE is_usuario_normal ---
     def is_usuario_normal(self):
-        return self.tipo_usuario == 'cliente' # Ahora el default es 'cliente'
+        return self.tipo_usuario == 'cliente'
 
     def is_experto(self):
         return self.tipo_usuario == 'experto'
 
-# Categorias
+# Categorias (SIN CAMBIOS)
 class Categorias(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre de la categoría")
 
@@ -101,7 +95,7 @@ class Categorias(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Metodo
+# Metodo (SIN CAMBIOS)
 class Metodo(models.Model):
     Nombre = models.CharField(max_length=100, unique=True, verbose_name="Nombre del método de pago")
 
@@ -114,7 +108,7 @@ class Metodo(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Estado
+# Estado (SIN CAMBIOS)
 class Estado(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del estado")
 
@@ -127,7 +121,7 @@ class Estado(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Pagos
+# Pagos (SIN CAMBIOS)
 class Pagos(models.Model):
     Monto = models.FloatField(verbose_name="Valor del servicio")
     estado_pago_texto = models.CharField(max_length=40, verbose_name="Estado del pago (texto)")
@@ -144,7 +138,7 @@ class Pagos(models.Model):
     def __str__(self):
         return f"Pago #{self.id} - Monto: {self.Monto} - Estado: {self.estado_pago_texto}"
 
-# Profesion
+# Profesion (SIN CAMBIOS)
 class Profesion(models.Model):
     Nombre = models.CharField(max_length=50, verbose_name="Nombre de la profesión")
     Descripcion = models.CharField(max_length=100, verbose_name="Descripción de la profesión")
@@ -159,7 +153,7 @@ class Profesion(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Servicios
+# Servicios (SIN CAMBIOS)
 class Servicios(models.Model):
     NombreServicio = models.CharField(max_length=50, verbose_name="Nombre del servicio")
     idCategorias = models.ForeignKey(Categorias, on_delete=models.CASCADE, verbose_name="Categoría del servicio")
@@ -173,7 +167,7 @@ class Servicios(models.Model):
     def __str__(self):
         return self.NombreServicio
 
-# Calificaciones
+# Calificaciones (SIN CAMBIOS)
 class Calificaciones(models.Model):
     puntuacion = models.CharField(max_length=50, verbose_name="Puntuación del servicio")
     Comentario = models.CharField(max_length=150, verbose_name="Comentario del servicio")
@@ -190,7 +184,7 @@ class Calificaciones(models.Model):
     def __str__(self):
         return f"Calificación #{self.id} - Puntuación: {self.puntuacion}"
 
-# Pais
+# Pais (SIN CAMBIOS)
 class Pais(models.Model):
     Nombre = models.CharField(max_length=100, unique=True)
 
@@ -202,7 +196,7 @@ class Pais(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Departamento
+# Departamento (SIN CAMBIOS)
 class Departamento(models.Model):
     Nombre = models.CharField(max_length=100)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE, related_name='departamentos')
@@ -215,7 +209,7 @@ class Departamento(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Ciudad
+# Ciudad (SIN CAMBIOS)
 class Ciudad(models.Model):
     Nombre = models.CharField(max_length=100)
     departamento = models.ForeignKey(Departamento, on_delete=models.CASCADE, related_name='ciudades')
@@ -228,31 +222,57 @@ class Ciudad(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Reserva
+# Modelo Reserva (MANTENIDO, PERO CON CAMPOS ADICIONALES PARA SOLICITUDES DE EXPERTO)
 class Reserva(models.Model):
-    Fecha = models.DateField()
-    Hora = models.TimeField()
-    direccion = models.CharField(max_length=255)
-    descripcion = models.CharField(max_length=255)
-    detallesAdicionales = models.CharField(max_length=255)
-    ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE)
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, default=1) 
-    metodoDePago = models.CharField(max_length=50, choices=[
-        ('Efectivo', 'Efectivo'),
-        ('Tarjeta', 'Tarjeta'),
-        ('Transferencia', 'Transferencia'),
-    ])
-    idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE)
-    # Ya tienes idEstado en el modelo que proporcionaste en la vista. 
-    # Asegúrate de que esta línea esté presente si es un campo de Reserva.
+    # Campos existentes:
+    Fecha = models.DateField(verbose_name="Fecha de Reserva") # Puede ser la fecha solicitada para el servicio
+    Hora = models.TimeField(verbose_name="Hora de Reserva") # Hora solicitada para el servicio
+    direccion = models.CharField(max_length=255, verbose_name="Dirección del Servicio")
+    descripcion = models.TextField(verbose_name="Descripción del Servicio") # Cambiado a TextField para más detalle
+    detallesAdicionales = models.TextField(blank=True, null=True, verbose_name="Detalles Adicionales") # Cambiado a TextField
+    ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name="Ciudad del Servicio")
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="País del Servicio") 
+    
+    # Este campo debe ser un ForeignKey a Metodo si quieres coherencia con el formulario
+    # Asumo que quieres que este sea el método de pago PREFERIDO del cliente al hacer la reserva
+    metodoDePago = models.ForeignKey(Metodo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Método de Pago Preferido")
+    
+    idUsuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='reservas_realizadas', 
+        verbose_name="Cliente que Reserva"
+    )
+    idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE, verbose_name="Servicio Solicitado")
     idEstado = models.ForeignKey(Estado, on_delete=models.SET_DEFAULT, default=1, verbose_name="Estado de la Reserva")
 
+    # CAMPOS NUEVOS PARA LA FUNCIONALIDAD DE EXPERTO
+    experto_asignado = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='reservas_aceptadas', 
+        limit_choices_to={'tipo_usuario': 'experto'}, # Solo se pueden asignar expertos
+        verbose_name="Experto Asignado"
+    )
+    pago_ofrecido = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        blank=True, 
+        null=True, 
+        verbose_name="Pago Ofrecido por el Cliente"
+    )
+    
+    # Campos de auditoría (opcional, pero útil)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"
+        db_table = "Reserva" # Manteniendo el nombre de la tabla
         app_label = "doit_app"
 
     def __str__(self):
-        return f"Reserva #{self.id} - {self.Fecha} {self.Hora}"
+        return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"

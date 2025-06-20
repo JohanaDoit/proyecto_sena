@@ -1,89 +1,176 @@
 /* static/css/styles.css */
 
-/* VARIABLES (opcional, para mantener consistencia) */
+/* VARIABLES GLOBALES */
 :root {
     --sidebar-width: 250px;
     --header-height: 70px; /* Ajusta según la altura real de tu header */
-    --sidebar-bg-color: #2c3e50;
-    --header-bg-color: #f8f9fa;
+    
+    /* Colores del Layout */
+    --sidebar-bg-color: #2c3e50; /* Gris azulado oscuro */
+    --sidebar-text-color: #ecf0f1; /* Blanco grisáceo para texto, para contraste */
+    --sidebar-hover-bg-color: #34495e; /* Un poco más claro para hover */
+    --header-bg-color: #ffffff; /* Blanco para el header */
+    --footer-bg-color: #f8f9fa; /* Gris claro para el footer */
+    --main-content-bg-color: #f0f2f5; /* Fondo del área de contenido principal */
+
+    /* Colores de Marca y Acrílicos (si aplican globalmente) */
+    --primary-blue: #1e3a8a; /* Azul principal (quizás para botones o énfasis) */
+    --secondary-blue: #3b82f6; /* Azul secundario/claro */
+
+    /* Colores para mensajes de alerta (globales para todo el sitio) */
+    --alert-info-bg: #d1ecf1;
+    --alert-info-border: #bee5eb;
+    --alert-info-text: #0c5460;
+
+    --alert-success-bg: #d4edda;
+    --alert-success-border: #c3e6cb;
+    --alert-success-text: #155724;
+
+    --alert-danger-bg: #f8d7da;
+    --alert-danger-border: #f5c6cb;
+    --alert-danger-text: #721c24;
+
+    --alert-warning-bg: #fff3cd;
+    --alert-warning-border: #ffeeba;
+    --alert-warning-text: #856404;
+
+    /* Sombras y Bordes */
+    --shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --border-radius-base: 5px;
 }
 
 /* GENERAL BODY Y LAYOUT */
-body {
+html, body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif; /* Consistencia con otras plantillas */
+    background-color: var(--main-content-bg-color); /* Fondo global para el cuerpo */
+    color: #333; /* Color de texto por defecto */
+}
+
+body {
     display: flex; /* Flexbox para organizar sidebar y content-wrapper */
-    min-height: 100vh;
+    min-height: 100vh; /* Ocupa al menos el 100% del alto de la ventana */
 }
 
 /* SIDEBAR FIJO STYLES */
 #sidebar {
-    width: var(--sidebar-width); /* Usamos la variable */
+    width: var(--sidebar-width);
     min-height: 100vh;
     background-color: var(--sidebar-bg-color);
-    color: rgb(7, 2, 32);
-    overflow-y: auto; /* Permite scroll si el contenido del sidebar es muy largo */
+    color: var(--sidebar-text-color); /* Texto visible */
+    overflow-y: auto;
     padding-top: 20px; 
-    position: fixed; /* Fijo en la pantalla */
-    z-index: 101; /* Mayor que el contenido y el header */
+    position: fixed;
+    z-index: 101;
     top: 0;
     left: 0;
+    box-shadow: var(--shadow-medium); /* Sombra para el sidebar */
 }
 
-#sidebar .sidebar-header {
-    padding: 20px;
-    background: #34495e; 
+/* Perfil en la cabecera del sidebar (desde base.html) */
+#sidebar .perfil-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#sidebar .perfil-foto-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 3px solid var(--sidebar-text-color);
+}
+
+#sidebar .perfil-foto {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#sidebar .perfil-nombre {
+    color: var(--sidebar-text-color);
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
     text-align: center;
 }
 
-#sidebar ul {
+#sidebar .modificar-perfil-btn {
+    background-color: var(--secondary-blue); /* Color del botón de modificar perfil */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: var(--border-radius-base);
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+#sidebar .modificar-perfil-btn:hover {
+    background-color: var(--primary-blue);
+}
+
+#sidebar ul.list-unstyled { /* Bootstrap usa list-unstyled */
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-#sidebar ul li a {
+#sidebar ul.list-unstyled li a {
     padding: 15px 20px;
     display: block;
-    color: white;
+    color: var(--sidebar-text-color);
     text-decoration: none;
     transition: background-color 0.2s;
     font-size: 1.1em;
+    display: flex;
+    align-items: center;
 }
 
-#sidebar ul li a i {
+#sidebar ul.list-unstyled li a i {
     margin-right: 10px;
+    font-size: 1.2em; /* Iconos un poco más grandes */
 }
 
-#sidebar ul li a:hover {
-    background-color: #34495e;
+#sidebar ul.list-unstyled li a:hover {
+    background-color: var(--sidebar-hover-bg-color);
     text-decoration: none;
-    color: white;
+    color: var(--sidebar-text-color);
 }
+
 
 /* HEADER FIJO STYLES */
 header {
-    position: fixed; /* Fijo en la pantalla */
+    position: fixed;
     top: 0;
-    /* El ancho y el margen izquierdo se controlan mejor desde #content-wrapper */
-    left: var(--sidebar-width); /* Empieza después del sidebar */
-    width: calc(100% - var(--sidebar-width)); /* Ocupa el resto del ancho */
-    background-color: var(--header-bg-color); /* Color de fondo para tu cabecera */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 100; /* Menor que el sidebar, mayor que el contenido principal */
+    left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    height: var(--header-height); /* Asegura la altura fija */
+    background-color: var(--header-bg-color);
+    box-shadow: var(--shadow-light);
+    z-index: 100;
+    display: flex; /* Añadir flexbox para alinear nav */
+    align-items: center; /* Centrar verticalmente el contenido */
 }
 
-/* Estilos de la barra de navegación dentro del header (ajustar según tu nav) */
 header nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px; /* Añadimos padding para la nav */
-    /* Eliminamos max-width y margin: auto para que ocupe el 100% del header fijo */
+    width: 100%; /* Ocupa todo el ancho del header */
+    padding: 0 20px; /* Padding horizontal */
 }
 
 header .logo img {
-    height: 40px; 
+    height: 50px; /* Ajustado para ser un poco más grande */
 }
 
 header .nav-links {
@@ -91,69 +178,165 @@ header .nav-links {
     margin: 0;
     padding: 0;
     display: flex;
+    align-items: center; /* Centrar verticalmente los enlaces */
 }
 
 header .nav-links li {
-    margin-left: 20px;
+    margin-left: 25px; /* Más espacio entre enlaces */
 }
 
 header .nav-links a {
     text-decoration: none;
     color: #333;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    font-weight: 600; /* Un poco más de grosor */
+    padding: 8px 15px; /* Más padding para los botones/enlaces */
+    border-radius: var(--border-radius-base);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 header .nav-links a:hover {
     background-color: #e2e6ea;
+    color: var(--primary-blue); /* Cambia color del texto al pasar el ratón */
 }
 
 
 /* CONTENT WRAPPER (Contenido principal incluyendo main y footer) */
 #content-wrapper {
-    flex-grow: 1; /* Ocupa el espacio restante */
-    margin-left: var(--sidebar-width); /* Margen fijo para dejar espacio al sidebar */
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
     padding-top: var(--header-height); /* Padding fijo para dejar espacio al header */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    /* Eliminar el background-color aquí si quieres que main controle su propio fondo */
 }
 
 main {
-    flex-grow: 1; /* El main ocupa el espacio restante entre el header y el footer */
-    padding: 20px; /* Espaciado interno para el contenido de main */
+    flex-grow: 1;
+    padding: 30px; /* Más espaciado interno para el contenido de main */
+    background-color: var(--main-content-bg-color); /* Fondo del main */
 }
 
 footer {
-    width: 100%; /* Ocupa todo el ancho */
+    width: 100%;
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: var(--footer-bg-color);
     text-align: center;
     color: #6c757d;
-    margin-top: auto; /* Empuja el footer hacia abajo */
+    margin-top: auto;
+    border-top: 1px solid #e7e7e7; /* Un borde sutil en la parte superior */
+}
+
+.footer-links {
+    margin-top: 10px;
+}
+
+.footer-links a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    margin: 0 8px;
+    font-size: 0.9em;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+
+/* Estilos para los mensajes de Django (globales) */
+.messages-container {
+    margin: 20px 0;
+    padding: 0 20px; /* Espaciado a los lados */
+}
+
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 1rem; /* Espacio entre diferentes mensajes */
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-base);
+    font-size: 1rem;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio entre spinner y texto */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Sombra para resaltar */
+}
+
+.alert-info {
+    color: var(--alert-info-text);
+    background-color: var(--alert-info-bg);
+    border-color: var(--alert-info-border);
+}
+
+.alert-success {
+    color: var(--alert-success-text);
+    background-color: var(--alert-success-bg);
+    border-color: var(--alert-success-border);
+}
+
+.alert-danger {
+    color: var(--alert-danger-text);
+    background-color: var(--alert-danger-bg);
+    border-color: var(--alert-danger-border);
+}
+
+.alert-warning {
+    color: var(--alert-warning-text);
+    background-color: var(--alert-warning-bg);
+    border-color: var(--alert-warning-border);
+}
+
+/* Estilo para el spinner de carga en mensajes (si decides usarlo) */
+.custom-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1); /* Color base del spinner */
+    border-top: 3px solid var(--primary-blue); /* Color de la parte que gira */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 768px) {
     :root {
-        --sidebar-width: 150px; /* Sidebar más pequeño en móviles */
-        --header-height: 60px; /* Altura del header si cambia en móviles */
+        --sidebar-width: 0px; /* Sidebar oculto por defecto en móviles */
     }
 
     #sidebar {
-        width: var(--sidebar-width);
+        /* Para mostrar/ocultar el sidebar en móvil, necesitarás JS para toggler una clase */
+        /* Ejemplo: #sidebar.active { width: 200px; } */
+        transform: translateX(-100%); /* Oculta completamente el sidebar */
+        transition: transform 0.3s ease-in-out;
+    }
+
+    #sidebar.active { /* Esta clase se añade con JS para mostrar el sidebar */
+        transform: translateX(0%);
+        box-shadow: 2px 0 5px rgba(0,0,0,0.5); /* Sombra al abrir */
     }
 
     header {
-        left: var(--sidebar-width);
-        width: calc(100% - var(--sidebar-width));
+        left: 0; /* Header ocupa todo el ancho */
+        width: 100%;
+        padding-left: 20px; /* Espacio para un posible botón de menú */
+    }
+    
+    header nav {
+        justify-content: center; /* Centrar el logo y enlaces */
+        padding: 0 10px;
+    }
+
+    header .nav-links {
+        display: none; /* Oculta los enlaces de navegación en el header, puedes mostrar un icono de menú */
     }
 
     #content-wrapper {
-        margin-left: var(--sidebar-width);
+        margin-left: 0; /* Elimina el margen del sidebar */
         padding-top: var(--header-height);
     }
 }

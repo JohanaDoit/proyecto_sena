@@ -58,18 +58,20 @@
                 {% endif %}
             </div>
 
+{# CAMPO DE CONTRASEÑA PRINCIPAL #}
             <div class="form-group">
-                {{ form.password.label_tag }}
-                {{ form.password }}
-                {% if form.password.errors %}
+                {{ form.password1.label_tag }} {# ¡Cambiado de 'password' a 'password1'! #}
+                {{ form.password1 }} {# ¡Cambiado de 'password' a 'password1'! #}
+                {% if form.password1.errors %} {# ¡Cambiado de 'password' a 'password1'! #}
                     <div class="text-danger">
-                        {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        {% for error in form.password1.errors %}{{ error }}{% endfor %} {# ¡Cambiado de 'password' a 'password1'! #}
                     </div>
                 {% endif %}
             </div>
 
+            {# ESTE ES EL CAMPO DE CONFIRMACIÓN DE CONTRASEÑA #}
             <div class="form-group">
-                {{ form.password2.label_tag }}
+                {{ form.password2.label_tag }} 
                 {{ form.password2 }}
                 {% if form.password2.errors %}
                     <div class="text-danger">
@@ -77,7 +79,6 @@
                     </div>
                 {% endif %}
             </div>
-
             <div class="form-group">
                 {{ form.first_name.label_tag }}
                 {{ form.first_name }}
@@ -93,7 +94,7 @@
                 {{ form.last_name }}
                 {% if form.last_name.errors %}
                     <div class="text-danger">
-                        {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                        {% for error in form.last_name.errors %}{{ error }}{{% endfor %}
                     </div>
                 {% endif %}
             </div>
@@ -138,24 +139,18 @@
                 {% endif %}
             </div>
 
-            {# AQUI ESTABA LA PRIMERA INSTANCIA DUPLICADA Y MAL FORMADA DEL CAMPO numDoc. LA HE ELIMINADO. #}
-
-            {# ESTA ES LA ÚNICA INSTANCIA CORRECTA Y CORREGIDA PARA EL CAMPO numDoc. #}
             <div class="form-group">
                 {{ form.numDoc.label_tag }}
                 {{ form.numDoc }}
                 {% if form.numDoc.errors %}
                     <div class="text-danger">
-                        {# CORRECCIÓN: Solamente un bucle 'for' para los errores #}
-                        {% for error in form.numDoc.errors %}
-                            {{ error }}
-                        {% endfor %}
+                        {% for error in form.numDoc.errors %}{{ error }}{% endfor %}
                     </div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                {{ form.telefono.label_tag }} {# El campo telefono que faltaba #}
+                {{ form.telefono.label_tag }}
                 {{ form.telefono }}
                 {% if form.telefono.errors %}
                     <div class="text-danger">
@@ -164,6 +159,8 @@
                 {% endif %}
             </div>
 
+            {# EL CAMPO foto_perfil ESTÁ AQUÍ. Si es solo para expertos, deberías moverlo al div de experto-fields #}
+            {# Pero si puede ser para todos, déjalo aquí. El JavaScript lo manejará para ocultarlo si eres cliente. #}
             <div class="form-group">
                 {{ form.foto_perfil.label_tag }}
                 {{ form.foto_perfil }}
@@ -173,7 +170,6 @@
                     </div>
                 {% endif %}
             </div>
-
 
             {# DIV para los campos específicos de EXPERTO #}
             <div id="experto-fields" style="display: none;"> 
@@ -217,7 +213,18 @@
                         </div>
                     {% endif %}
                 </div>
-            </div>
+
+                {# AQUÍ VA EL CAMPO DE ESPECIALIDAD QUE FALTABA #}
+                <div class="form-group">
+                    {{ form.especialidad.label_tag }} 
+                    {{ form.especialidad }}
+                    {% if form.especialidad.errors %}
+                        <div class="text-danger">
+                            {% for error in form.especialidad.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div> {# Cierre del DIV para experto-fields #}
 
             <div class="g-recaptcha mt-3" data-sitekey="6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0"></div>
             <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
