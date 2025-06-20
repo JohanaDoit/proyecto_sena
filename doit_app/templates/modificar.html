@@ -1,125 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Configuración de Usuario{% endblock %}
-{% load static %} 
+{% block title %}DOIT | Configuración de Perfil{% endblock %}
+{% load static %}
+{% load widget_tweaks %} {# ¡Importante! Asegúrate de tener widget_tweaks instalado #}
+
 {% block extra_css %}
-<style>
-
-    .container-perfil {
-        background-color: #eae7b1; /* Fondo suave y claro */
-        padding: 20px;
-        margin: 20px auto; /* Centra el contenedor horizontalmente con márgenes automáticos */
-        border-radius: 8px; /* Bordes ligeramente redondeados */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra sutil para profundidad */
-        width: 90%; /* Ocupa el 90% del ancho disponible */
-        max-width: 600px; /* Pero no excede los 600px para pantallas grandes */
-        position: relative; /* Para posicionamiento de elementos internos si es necesario */
-    }
-
-    .container-perfil h2 {
-        color: #333; /* Color de texto oscuro para el título */
-        margin-top: 0;
-        border-bottom: 2px solid #557c5c; /* Línea divisoria bajo el título */
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
-
-    /* Estilos para las etiquetas y campos de entrada del formulario de Django */
-    .container-perfil p {
-        margin-bottom: 15px; /* Espacio entre cada párrafo de campo (label + input) */
-    }
-
-    .container-perfil p label {
-        display: block; /* Hace que la etiqueta ocupe su propia línea */
-        margin-bottom: 5px; /* Espacio entre la etiqueta y el campo de entrada */
-        font-weight: bold; /* Texto de etiqueta en negrita */
-        color: #555; /* Color de texto para las etiquetas */
-    }
-
-    .container-perfil p input[type="text"],
-    .container-perfil p input[type="password"],
-    .container-perfil p input[type="tel"],
-    .container-perfil p input[type="email"],
-    .container-perfil p input[type="date"],
-    .container-perfil p select,
-    .container-perfil p textarea {
-        width: calc(100% - 12px); /* Ancho completo menos el padding */
-        padding: 8px;
-        border: 1px solid #ccc; /* Borde gris claro */
-        border-radius: 4px; /* Bordes ligeramente redondeados para los campos */
-        box-sizing: border-box; /* Asegura que padding y border se incluyan en el ancho */
-        font-size: 1rem; /* Tamaño de fuente legible */
-    }
-
-    /* Estilos para el grupo de botones */
-    .button-group {
-        display: flex; /* Para que los botones estén en la misma línea */
-        justify-content: flex-start; /* Alinea los botones al inicio */
-        gap: 10px; /* Espacio entre los botones */
-        margin-top: 20px; /* Margen superior para separarlos del formulario */
-    }
-
-    .button-group button[type="submit"],
-    .button-group .back-button { /* Aplica estilos base similares al enlace de volver */
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-        text-decoration: none; /* Quita el subrayado del enlace */
-        display: inline-block; /* Para que se comporten como bloques y se les pueda aplicar padding */
-        text-align: center; /* Centra el texto en el botón */
-    }
-
-    /* Estilos específicos para el botón de "Guardar Cambios" */
-    .button-group button[type="submit"] {
-        background-color: #557c5c; /* Color de fondo del botón */
-        color: white; /* Color de texto del botón */
-    }
-
-    .button-group button[type="submit"]:hover {
-        background-color: #f5c6cb; /* Cambio de color al pasar el ratón */
-    }
-
-    /* Estilos específicos para el botón "Volver" */
-    .button-group .back-button {
-        background-color: #ccc; /* Un gris neutro */
-        color: #333; /* Texto oscuro */
-    }
-
-    .button-group .back-button:hover {
-        background-color: #bbb; /* Un gris un poco más oscuro al pasar el ratón */
-    }
-
-    /* Estilos para los mensajes de Django (success, error, info) */
-    .messages {
-        list-style: none;
-        padding: 0;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .messages li {
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-    .messages .success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    .messages .error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    .messages .info {
-        background-color: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/modificar.css' %}">
+    {# Si tienes otros archivos CSS globales (como principal.css o styles.css), #}
+    {# puedes dejarlos aquí también si es necesario, pero styles.css ya debería estar en base.html #}
+    {# <link rel="stylesheet" href="{% static 'css/styles.css' %}"> #}
 {% endblock %}
 
 {% block content %}
@@ -128,27 +16,168 @@
         <h2>Editar Información de Perfil</h2>
 
         {# Mostrar mensajes de Django (éxito, error, etc.) #}
+        {# Hemos movido los estilos de estos mensajes a styles.css para que sean globales #}
         {% if messages %}
-            <ul class="messages">
+            <div class="messages-container"> {# Un contenedor para los mensajes globales #}
                 {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    <div class="alert alert-{{ message.tags }}"> {# Bootstrap-like alert classes #}
+                        {# Puedes añadir un icono o spinner aquí si lo deseas #}
+                        <i class="fas fa-info-circle"></i> {# Ejemplo de Font Awesome, ajusta si usas otro #}
+                        <span>{{ message }}</span>
+                    </div>
                 {% endfor %}
-            </ul>
+            </div>
         {% endif %}
 
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %} {# ¡Siempre necesario para formularios POST en Django por seguridad! #}
 
-            {# Renderiza todos los campos de tu PerfilUsuarioForm. Esto incluye etiquetas, inputs, y errores. #}
-            {{ form.as_p }}
+            {# Errores no asociados a campos específicos #}
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Iterar sobre los campos para aplicar estilos consistentes con form-group y form-control #}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+                    
+                    {# Renderiza el campo con la clase 'form-control' #}
+                    {% if field.field.widget.input_type == 'file' %}
+                        {# Para campos de tipo 'file' es común no usar 'form-control' o usar uno diferente #}
+                        {% render_field field class="form-control-file" %} 
+                    {% elif field.field.widget.input_type == 'checkbox' %}
+                        {# Para checkboxes, el estilo es diferente #}
+                        {% render_field field class="form-check-input" %} 
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% else %}
+                        {# Para la mayoría de los campos de texto, número, email, select, textarea #}
+                        {% render_field field class="form-control" %}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p class="errorlist">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
 
             <div class="button-group">
-                <button type="submit">Guardar Cambios</button>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 {# Botón de Volver a la pantalla principal #}
-                <a href="{% url 'principal' %}" class="back-button">Volver a Principal</a>
+                <a href="{% url 'principal' %}" class="back-button btn btn-secondary">Volver a Principal</a>
             </div>
         </form>
 
     </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+    <script>
+        // Función para cargar departamentos basados en el país seleccionado
+        document.addEventListener('DOMContentLoaded', function() {
+            var paisSelect = document.getElementById('id_pais');
+            var departamentoSelect = document.getElementById('id_departamento');
+            var ciudadSelect = document.getElementById('id_ciudad');
+
+            function loadDepartamentos() {
+                var paisId = paisSelect.value;
+                departamentoSelect.innerHTML = '<option value="">Cargando departamentos...</option>';
+                departamentoSelect.disabled = true;
+                ciudadSelect.innerHTML = '<option value="">Selecciona un departamento primero</option>';
+                ciudadSelect.disabled = true;
+
+                if (paisId) {
+                    fetch(`/api/departamentos/?pais_id=${paisId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            departamentoSelect.innerHTML = '<option value="">-- Selecciona un Departamento --</option>';
+                            data.forEach(function(departamento) {
+                                var option = document.createElement('option');
+                                option.value = departamento.id;
+                                option.textContent = departamento.Nombre;
+                                departamentoSelect.appendChild(option);
+                            });
+                            departamentoSelect.disabled = false;
+                            // Si ya hay un valor de departamento, seleccionarlo
+                            if (departamentoSelect.dataset.selectedValue) {
+                                departamentoSelect.value = departamentoSelect.dataset.selectedValue;
+                                loadCiudades(); // Y cargar ciudades si ya hay departamento
+                                departamentoSelect.dataset.selectedValue = ''; // Limpiar después de usar
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar departamentos:', error);
+                            departamentoSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        });
+                } else {
+                    departamentoSelect.innerHTML = '<option value="">-- Selecciona un País primero --</option>';
+                }
+            }
+
+            function loadCiudades() {
+                var departamentoId = departamentoSelect.value;
+                ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
+                ciudadSelect.disabled = true;
+
+                if (departamentoId) {
+                    fetch(`/api/ciudades/?departamento_id=${departamentoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            ciudadSelect.innerHTML = '<option value="">-- Selecciona una Ciudad --</option>';
+                            data.forEach(function(ciudad) {
+                                var option = document.createElement('option');
+                                option.value = ciudad.id;
+                                option.textContent = ciudad.Nombre;
+                                ciudadSelect.appendChild(option);
+                            });
+                            ciudadSelect.disabled = false;
+                            // Si ya hay un valor de ciudad, seleccionarlo
+                            if (ciudadSelect.dataset.selectedValue) {
+                                ciudadSelect.value = ciudadSelect.dataset.selectedValue;
+                                ciudadSelect.dataset.selectedValue = ''; // Limpiar después de usar
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar ciudades:', error);
+                            ciudadSelect.innerHTML = '<option value="">Error al cargar</option>';
+                        });
+                } else {
+                    ciudadSelect.innerHTML = '<option value="">-- Selecciona un Departamento primero --</option>';
+                }
+            }
+
+            // Guardar valores iniciales para preseleccionar después de la carga dinámica
+            if (paisSelect && departamentoSelect && ciudadSelect) {
+                if (departamentoSelect.value) {
+                    departamentoSelect.dataset.selectedValue = departamentoSelect.value;
+                }
+                if (ciudadSelect.value) {
+                    ciudadSelect.dataset.selectedValue = ciudadSelect.value;
+                }
+                
+                paisSelect.addEventListener('change', loadDepartamentos);
+                departamentoSelect.addEventListener('change', loadCiudades);
+
+                // Cargar departamentos/ciudades al inicio si ya hay un país seleccionado
+                if (paisSelect.value) {
+                    loadDepartamentos();
+                } else {
+                    // Si no hay país, asegúrate de que departamento y ciudad estén deshabilitados
+                    departamentoSelect.disabled = true;
+                    ciudadSelect.disabled = true;
+                    departamentoSelect.innerHTML = '<option value="">-- Selecciona un País primero --</option>';
+                    ciudadSelect.innerHTML = '<option value="">-- Selecciona un Departamento primero --</option>';
+                }
+            }
+        });
+    </script>
+{% endblock %}

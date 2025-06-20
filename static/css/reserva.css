@@ -3,10 +3,10 @@
 /* --- Variables CSS (Personalización sencilla) --- */
 :root {
     --blanco: #f9f9f9;
-    --azul-principal: #1e3a8a;
-    --azul-secundario: #3b82f6;
-    --gris-claro: #e5e7eb;
-    --gris-oscuro: #6b7280;
+    --azul-principal: #1e3a8a; /* Darker blue, for headings and main elements */
+    --azul-secundario: #3b82f6; /* Brighter blue, for accents and hovers */
+    --gris-claro: #e5e7eb; /* Light gray, for borders */
+    --gris-oscuro: #6b7280; /* Darker gray, for text */
     --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --borde-redondeado: 0.5rem;
@@ -14,29 +14,42 @@
     --espaciado-mediano: 1.25rem;
     --espaciado-grande: 2rem;
     --fuente-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    /* Colores para mensajes de alerta */
+    --alert-info-bg: #d1ecf1;
+    --alert-info-border: #bee5eb;
+    --alert-info-text: #0c5460;
+
+    --alert-success-bg: #d4edda;
+    --alert-success-border: #c3e6cb;
+    --alert-success-text: #155724;
+
+    --alert-danger-bg: #f8d7da;
+    --alert-danger-border: #f5c6cb;
+    --alert-danger-text: #721c24;
 }
 
 /*
-   *** ¡IMPORTANTE! Asegúrate de que NO haya estilos 'html' o 'body' aquí. ***
-   *** Esos estilos de layout global los maneja 'styles.css' ahora.      ***
+    *** ¡IMPORTANTE! Asegúrate de que NO haya estilos 'html' o 'body' aquí. ***
+    *** Esos estilos de layout global los maneja 'styles.css' ahora.         ***
 */
 
-
-/* --- Estilos del Contenedor del Formulario (que ya es .container de Bootstrap) --- */
-/* El .container de Bootstrap ya tiene margen superior e inferior automático (mt-5) */
-.container {
+/* --- Estilos del Contenedor del Formulario --- */
+/* Las clases .container y .mt-5 ya son de Bootstrap, si las estás usando */
+/* Si no usas Bootstrap CDN, estas reglas para .container son buenas. */
+.container.mt-5 { /* Específico para este contenedor, si es diferente a otros .container */
     background-color: var(--blanco);
     border-radius: var(--borde-redondeado);
     box-shadow: var(--sombra-suave);
     padding: var(--espaciado-grande);
     width: 100%;
-    max-width: 520px;
+    max-width: 520px; /* Un ancho razonable para formularios */
+    margin: 3rem auto; /* Ajusta este margen si mt-5 de Bootstrap no es suficiente */
     text-align: left;
-    /* margin: var(--espaciado-mediano) auto; // Ya mt-5 de Bootstrap maneja el margen superior */
 }
 
 /* --- Título del Formulario --- */
-.container h2 {
+.container.mt-5 h2 {
     color: var(--azul-principal);
     margin-bottom: var(--espaciado-grande);
     font-size: 2rem;
@@ -46,59 +59,76 @@
     text-align: center;
 }
 
-/* --- Estilos de los Grupos de Campos (Párrafos generados por form.as_p) --- */
-.container form p {
-    margin-bottom: var(--espaciado-mediano);
+/* --- Estilos de los Grupos de Campos (div.form-group) --- */
+.form-group {
+    margin-bottom: var(--espaciado-mediano); /* Espacio entre cada grupo de campo */
 }
 
 /* --- Estilos de las Etiquetas (Labels) --- */
-.container form p label {
-    display: block;
-    margin-bottom: var(--espaciado-pequeno);
+.form-group label {
+    display: block; /* Cada etiqueta en su propia línea */
+    margin-bottom: var(--espaciado-pequeno); /* Espacio entre etiqueta y input */
     font-weight: 600;
     color: var(--azul-principal);
     font-size: 0.95rem;
 }
 
-/* --- Estilos de los Campos de Entrada (Input, Textarea, Select) --- */
-.container form p input[type="text"],
-.container form p input[type="email"],
-.container form p input[type="password"],
-.container form p input[type="number"],
-.container form p textarea,
-.container form p select {
+/* --- Estilos de los Campos de Entrada (Input, Textarea, Select con clase .form-control) --- */
+.form-control {
     width: 100%;
     padding: var(--espaciado-pequeno);
     border-radius: var(--borde-redondeado);
     border: 1px solid var(--gris-claro);
     font-size: 1rem;
     background-color: var(--blanco);
-    box-sizing: border-box;
+    box-sizing: border-box; /* Asegura que padding y border no aumenten el ancho total */
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.container form p input[type="text"]:focus,
-.container form p input[type="email"]:focus,
-.container form p input[type="password"]:focus,
-.container form p input[type="number"]:focus,
-.container form p textarea:focus,
-.container form p select:focus {
+/* Estilo al enfocar (click) en un campo */
+.form-control:focus {
     outline: none;
     border-color: var(--azul-secundario);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Sombra azul tenue */
 }
 
-.container form p textarea {
+/* Estilos específicos para textarea */
+textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la clase form-control */
     min-height: 100px;
-    resize: vertical;
+    resize: vertical; /* Permite redimensionar verticalmente */
 }
 
-/* --- Estilos del Botón de Envío (Sobrescribiendo Bootstrap) --- */
-.container .btn-primary {
-    background-color: var(--azul-principal) !important;
-    color: var(--blanco) !important;
+/* Estilos para campos deshabilitados (ej. select de departamento/ciudad antes de seleccionar país) */
+.form-control:disabled {
+    background-color: #f2f2f2; /* Un gris más claro para indicar que está deshabilitado */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* --- Estilos para los mensajes de error de campo (.errorlist) --- */
+.errorlist {
+    color: var(--alert-danger-text); /* Rojo para errores */
+    list-style-type: none; /* Eliminar viñetas */
+    padding-left: 0;
+    margin-top: .25rem;
+    font-size: .875em; /* Tamaño de fuente más pequeño */
+}
+
+/* --- Estilos para el texto de ayuda (helptext), si lo usas con Django por defecto #}
+/* Si usas la clase 'form-text' en tu HTML, usa ese selector */
+.form-text.text-muted { /* Esto apunta a <small class="form-text text-muted"> */
+    font-size: .875em;
+    color: var(--gris-oscuro);
+    margin-top: .25rem;
+    display: block; /* Para que ocupe su propia línea */
+}
+
+/* --- Estilos del Botón de Envío (.btn-primary) --- */
+.btn-primary {
+    background-color: var(--azul-principal); /* Usar variable */
+    color: var(--blanco);
     padding: var(--espaciado-mediano) var(--espaciado-grande);
-    border: none !important;
+    border: none; /* Eliminar borde si Bootstrap lo añade */
     border-radius: var(--borde-redondeado);
     font-weight: 700;
     cursor: pointer;
@@ -107,16 +137,73 @@
     transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
     margin-top: var(--espaciado-grande);
     box-shadow: var(--sombra-suave);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.05em; /* Espaciado entre letras */
 }
 
-.container .btn-primary:hover {
-    background-color: var(--azul-secundario) !important;
+.btn-primary:hover {
+    background-color: var(--azul-secundario); /* Usar variable al pasar el ratón */
     box-shadow: var(--sombra-fuerte);
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* Pequeño efecto de levantamiento */
 }
 
-.container .btn-primary:active {
+.btn-primary:active {
     transform: translateY(0);
     box-shadow: var(--sombra-suave);
+}
+
+/* --- Estilos para los mensajes de alerta (si no usas Bootstrap CDN, estos son esenciales) --- */
+.alert {
+    padding: var(--espaciado-pequeno) var(--espaciado-mediano);
+    margin-bottom: var(--espaciado-mediano);
+    border: 1px solid transparent;
+    border-radius: var(--borde-redondeado);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.alert-info {
+    color: var(--alert-info-text);
+    background-color: var(--alert-info-bg);
+    border-color: var(--alert-info-border);
+}
+
+.alert-success {
+    color: var(--alert-success-text);
+    background-color: var(--alert-success-bg);
+    border-color: var(--alert-success-border);
+}
+
+.alert-danger { /* Usado para form.non_field_errors */
+    color: var(--alert-danger-text);
+    background-color: var(--alert-danger-bg);
+    border-color: var(--alert-danger-border);
+}
+
+/* Estilo para texto estático de servicio preseleccionado */
+.form-control-static {
+    padding-top: .375rem; /* Alineación con los inputs */
+    padding-bottom: .375rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+    color: #333;
+    font-weight: bold;
+    /* Asegúrate de que tenga el mismo padding y fuente que .form-control para consistencia */
+    padding: var(--espaciado-pequeno); 
+    font-size: 1rem;
+}
+
+/* Media Queries para responsividad (opcional pero recomendado) */
+@media (max-width: 768px) {
+    .container.mt-5 {
+        padding: var(--espaciado-mediano);
+        margin: 2rem auto;
+    }
+    .container.mt-5 h2 {
+        font-size: 1.75rem;
+        margin-bottom: var(--espaciado-mediano);
+    }
+    .btn-primary {
+        font-size: 1rem;
+        padding: 1rem;
+    }
 }
