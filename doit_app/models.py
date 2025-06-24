@@ -35,25 +35,6 @@ class CustomUser(AbstractUser):
         ('cliente', 'Cliente'),
         ('experto', 'Experto'),
     ]
-    
-    # NUEVAS OPCIONES PARA EL ESTADO DE APROBACIÓN
-    USER_APPROVAL_STATUS_CHOICES = [
-        ('PENDING', 'Pendiente de Aprobación'),
-        ('APPROVED', 'Aprobado'),
-        ('REJECTED', 'Rechazado'),
-    ]
-    
-    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
-    
-    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
-    
-    # NUEVO CAMPO PARA EL ESTADO DE APROBACIÓN
-    approval_status = models.CharField(
-        max_length=10,
-        choices=USER_APPROVAL_STATUS_CHOICES,
-        default='PENDING', # Por defecto, todo nuevo usuario está pendiente de aprobación
-        verbose_name="Estado de Aprobación"
-    )
     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
     
     tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")

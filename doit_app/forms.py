@@ -1,6 +1,6 @@
+# doit_app/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.core.exceptions import ValidationError # Importar para validaciones personalizadas
 
 # Importa todos los modelos necesarios
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
@@ -12,6 +12,7 @@ class RegistroForm(UserCreationForm):
     # UserCreationForm los provee automáticamente con sus validaciones.
 
     # Asegúrate de que 'email' sea requerido y único si lo usas como campo principal
+    # UserCreationForm no hace el email requerido por defecto, pero tu lo has puesto.
     email = forms.EmailField(
         required=True,
         label="Correo Electrónico",
@@ -22,7 +23,7 @@ class RegistroForm(UserCreationForm):
     genero = forms.ModelChoiceField(
         queryset=Genero.objects.all().order_by('Nombre'),
         empty_label="Selecciona tu género",
-        required=False, # Puede ser True si es obligatorio
+        required=False,
         label="Género",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
@@ -36,24 +37,24 @@ class RegistroForm(UserCreationForm):
     
     nacionalidad = forms.CharField(
         max_length=100, 
-        required=False, # Puede ser True si es obligatorio
+        required=False, 
         label="Nacionalidad",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     numDoc = forms.CharField(
         max_length=100, 
-        required=False, # Puede ser True si es obligatorio
+        required=False, 
         label="Número de Documento", 
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     telefono = forms.CharField(
-        max_length=20, # Ajustado al max_length del modelo
-        required=False, # Puede ser True si es obligatorio
+        max_length=100, 
+        required=False, 
         label="Teléfono", 
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
     fechaNacimiento = forms.DateField(
-        required=False, # Puede ser True si es obligatorio
+        required=False, 
         label="Fecha de Nacimiento", 
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
@@ -61,7 +62,7 @@ class RegistroForm(UserCreationForm):
     tipo_documento = forms.ModelChoiceField(
         queryset=TipoDoc.objects.all().order_by('Nombre'),
         empty_label="Selecciona tipo de documento",
-        required=False, # Puede ser True si es obligatorio
+        required=False,
         label="Tipo de Documento",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
@@ -89,23 +90,24 @@ class RegistroForm(UserCreationForm):
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     foto_perfil = forms.ImageField( 
-        required=False, 
+        required=False, # Este campo DEBERÍA ser obligatorio para EXPERTOS si se quiere forzar una imagen de perfil
         label="Foto de Perfil", 
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     especialidad = forms.CharField(
         max_length=100,
-        required=False, 
+        required=False, # Este campo DEBERÍA ser obligatorio para EXPERTOS
         label="Especialidad (ej. Electricista, Plomero)",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        # 'email' está aquí para que ModelForm lo incluya, aunque ya lo definas explícitamente.
         # UserCreationForm.Meta.fields ya incluye 'username', 'password', 'password2'.
+        # Asegúrate de que 'email' NO esté aquí si lo has definido explícitamente arriba,
+        # para evitar duplicación. UserCreationForm.Meta.fields NO incluye 'email' por defecto.
         fields = UserCreationForm.Meta.fields + (
-            'email',
+            'email', # Aseguramos que 'email' esté aquí, ya que no viene por defecto en UserCreationForm.Meta.fields
             'tipo_usuario', 
             'first_name',
             'last_name',
@@ -121,8 +123,6 @@ class RegistroForm(UserCreationForm):
             'hojaVida_file', 
             'foto_perfil',
             'especialidad',
-            # NO incluyas 'is_active' ni 'approval_status' aquí. 
-            # Esos campos deben ser manejados por el modelo y la lógica de aprobación.
         )
         labels = {
             'username': 'Nombre de Usuario',
@@ -142,7 +142,7 @@ class RegistroForm(UserCreationForm):
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            # 'email': forms.EmailInput(attrs={'class': 'form-control'}), # Ya definido explícitamente
+            # 'email': forms.EmailInput(attrs={'class': 'form-control'}), # Ya definido arriba
             # Los widgets para 'password' y 'password2' son manejados por UserCreationForm
         }
 
@@ -152,6 +152,8 @@ class RegistroForm(UserCreationForm):
 
         if tipo_usuario == 'experto':
             # Hacemos los campos de experto requeridos condicionalmente
+            # NOTA: 'required=False' en la definición del campo es para el comportamiento por defecto,
+            # aquí lo forzamos a ser requerido si el tipo de usuario es 'experto'.
             if not cleaned_data.get('evidenciaTrabajo'):
                 self.add_error('evidenciaTrabajo', 'Este campo es obligatorio para expertos.')
             if not cleaned_data.get('experienciaTrabajo'):
@@ -159,10 +161,10 @@ class RegistroForm(UserCreationForm):
             
             # Validación para hojaVida (uno de los dos debe estar)
             if not cleaned_data.get('hojaVida') and not cleaned_data.get('hojaVida_file'):
-                # Error de campo no específico para 'hojaVida' y 'hojaVida_file'
-                # Puedes elegir dónde mostrar el error en tu template.
+                # Añadimos un error no de campo (non_field_errors) o a un campo general si no quieres duplicar
+                # self.add_error(None, 'Debe proporcionar un link o subir un archivo de Hoja de Vida para expertos.')
                 self.add_error('hojaVida', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
-                self.add_error('hojaVida_file', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
+                self.add_error('hojaVida_file', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.') # Este es un error duplicado, considera si quieres ambos.
             
             if not cleaned_data.get('foto_perfil'):
                 self.add_error('foto_perfil', 'Este campo es obligatorio para expertos.')
@@ -172,14 +174,20 @@ class RegistroForm(UserCreationForm):
 
         return cleaned_data
 
+    # UserCreationForm ya tiene clean_username y clean_email, pero puedes sobreescribirlos si necesitas
+    # lógica adicional o mensajes de error personalizados.
+    # El clean_email de UserCreationForm por defecto no verifica unicidad si el campo no es `unique=True` en el modelo User.
+    # Si CustomUser tiene email unique=True, Django ya lo validará. Si no, tu clean_email es útil.
     def clean_email(self):
         email = self.cleaned_data['email']
-        # Verifica si el correo ya existe en cualquier otro usuario
+        # Verifica si el correo ya existe, excluyendo el usuario actual si es una actualización
         if CustomUser.objects.filter(email=email).exists():
-            raise ValidationError("Este correo electrónico ya está registrado.")
+            raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
 
     def save(self, commit=True):
+        # UserCreationForm se encarga de crear el usuario base (username, password, email, first_name, last_name)
+        # y de hashear la contraseña.
         user = super().save(commit=False)
         
         # Asignamos los campos adicionales del CustomUser
@@ -191,9 +199,8 @@ class RegistroForm(UserCreationForm):
         user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
         user.tipo_documento = self.cleaned_data.get('tipo_documento')
 
-        # Asigna los campos de experto solo si el tipo de usuario es experto.
-        # Es crucial que estos campos se limpien si el usuario cambia de 'experto' a 'cliente'
-        # Esto sucede en PerfilUsuarioForm. Aquí en RegistroForm, simplemente los asignamos.
+        # Asigna los campos de experto solo si están presentes en cleaned_data
+        # y si el tipo de usuario es experto.
         if user.tipo_usuario == 'experto':
             user.experienciaTrabajo = self.cleaned_data.get('experienciaTrabajo')
             user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo')
@@ -202,17 +209,13 @@ class RegistroForm(UserCreationForm):
             user.foto_perfil = self.cleaned_data.get('foto_perfil')
             user.especialidad = self.cleaned_data.get('especialidad')
         else:
-            # Asegúrate de que estos campos estén vacíos/nulos si se registra como cliente
+            # Si no es experto, asegúrate de que estos campos estén vacíos/nulos
             user.experienciaTrabajo = None
             user.evidenciaTrabajo = None
             user.hojaVida = None
             user.hojaVida_file = None
             user.foto_perfil = None
             user.especialidad = None
-        
-        # ¡IMPORTANTE! No sobrescribas `is_active` o `approval_status` aquí.
-        # Sus valores por defecto en el modelo (is_active=False, approval_status='PENDING')
-        # son correctos para el flujo de aprobación.
 
         if commit:
             user.save()
@@ -220,10 +223,12 @@ class RegistroForm(UserCreationForm):
 
 
 # --- PERFIL USUARIO FORM (para edición de perfil) ---
+# Esta clase es para editar un usuario existente, no para crear uno nuevo.
 class PerfilUsuarioForm(UserChangeForm): 
-    # El campo 'tipo_usuario' es mejor que no sea editable directamente
+    # El campo 'tipo_usuario' es mejor que no sea editable en este formulario
     # si se decide que un usuario no puede cambiar su rol fácilmente.
-    # Por ahora, se dejará readonly.
+    # Si se necesita cambiar, se requeriría una lógica de negocio más compleja.
+    # Por ahora, se dejará readonly o se podría incluso excluir si el rol es fijo.
     
     genero = forms.ModelChoiceField(
         queryset=Genero.objects.all().order_by('Nombre'),
@@ -313,22 +318,34 @@ class PerfilUsuarioForm(UserChangeForm):
         super().__init__(*args, **kwargs)
         
         # El campo tipo_usuario debe ser inmutable o manejado con cuidado en PerfilUsuarioForm.
+        # Si la instancia ya existe (es decir, estamos editando un usuario), haz el campo de sólo lectura.
         if self.instance and self.instance.pk:
-            # Hacer el campo de solo lectura (el valor se enviará con el formulario)
             self.fields['tipo_usuario'].widget.attrs['readonly'] = True
-            # Alternativa: si no quieres que el campo se envíe, usa 'disabled'
-            # self.fields['tipo_usuario'].widget.attrs['disabled'] = True
+            # self.fields['tipo_usuario'].widget.attrs['disabled'] = True # Esto impide que el valor se envíe
 
         # Ocultar campos de experto si el usuario es cliente
-        if self.instance and self.instance.tipo_usuario == 'cliente':
+        # Asegúrate de que self.instance.tipo_usuario exista antes de acceder
+        if self.instance and hasattr(self.instance, 'tipo_usuario') and self.instance.tipo_usuario == 'cliente':
             # Si el usuario es cliente, ocultamos y hacemos que los campos no sean requeridos.
-            for field_name in ['experienciaTrabajo', 'evidenciaTrabajo', 'hojaVida', 'hojaVida_file', 'especialidad', 'foto_perfil']:
-                if field_name in self.fields: # Asegúrate de que el campo existe
-                    self.fields[field_name].required = False
-                    self.fields[field_name].widget = forms.HiddenInput()
-        
-        # Aplicar la clase 'form-control' a la mayoría de los campos si no la tienen ya
+            # No se necesitan los errores de "obligatorio" si el campo está oculto.
+            self.fields['experienciaTrabajo'].required = False
+            self.fields['evidenciaTrabajo'].required = False
+            self.fields['hojaVida'].required = False
+            self.fields['hojaVida_file'].required = False
+            self.fields['especialidad'].required = False
+            self.fields['foto_perfil'].required = False # Si la foto de perfil es solo para expertos
+            
+            self.fields['experienciaTrabajo'].widget = forms.HiddenInput()
+            self.fields['evidenciaTrabajo'].widget = forms.HiddenInput()
+            self.fields['hojaVida'].widget = forms.HiddenInput()
+            self.fields['hojaVida_file'].widget = forms.HiddenInput()
+            self.fields['especialidad'].widget = forms.HiddenInput()
+            self.fields['foto_perfil'].widget = forms.HiddenInput()
+
+        # Aplica la clase 'form-control' a la mayoría de los campos si no la tienen ya
         for field_name, field in self.fields.items():
+            # Excluye tipos de widgets que ya tienen un manejo específico, o que no son de texto/select,
+            # y los campos que ya tienen 'form-control' definido en el widget.
             if not isinstance(field.widget, (
                 forms.widgets.DateInput, 
                 forms.widgets.TimeInput, 
@@ -337,8 +354,8 @@ class PerfilUsuarioForm(UserChangeForm):
                 forms.widgets.Select,
                 forms.widgets.HiddenInput,
                 forms.widgets.URLInput,
-                forms.widgets.CheckboxInput, 
-                forms.widgets.PasswordInput, 
+                forms.widgets.CheckboxInput, # Para campos booleanos si tuvieras
+                forms.widgets.PasswordInput, # UserChangeForm los maneja de forma diferente
             )) and 'class' not in field.widget.attrs:
                 field.widget.attrs.update({'class': 'form-control'})
 
@@ -347,47 +364,44 @@ class PerfilUsuarioForm(UserChangeForm):
         email = self.cleaned_data['email']
         # Si el email ya existe en otro usuario (excluyendo el usuario que se está editando)
         if CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
-            raise ValidationError("Este correo electrónico ya está en uso por otro usuario.")
+            raise forms.ValidationError("Este correo electrónico ya está en uso por otro usuario.")
         return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        
-        # Obtener el tipo de usuario original antes de cualquier cambio en el formulario
-        original_user = None
-        if user.pk: # Si el usuario ya existe en la base de datos
+        # Obtenemos el usuario original para comparar el tipo_usuario
+        # Esto es importante si el tipo_usuario podría cambiarse (aunque lo hicimos readonly)
+        # o si quieres limpiar los campos de experto al cambiar de experto a cliente.
+        try:
             original_user = CustomUser.objects.get(pk=user.pk)
-        
-        # Si el tipo de usuario cambia de experto a cliente (o ya era cliente y se limpia en caso de reenvío),
-        # limpia los campos de experto.
+            original_tipo_usuario = original_user.tipo_usuario
+        except CustomUser.DoesNotExist:
+            original_tipo_usuario = None # O maneja el error como prefieras
+
+        # Si el tipo de usuario cambia de experto a cliente (o ya era cliente), limpia los campos de experto
         # Esto es crucial para no mantener datos de experto en un cliente.
-        # IMPORTANTE: self.cleaned_data.get('tipo_usuario') te da el valor que EL USUARIO INTENTA ENVIAR.
-        # Si el campo 'tipo_usuario' es readonly o disabled, este valor será el original del usuario.
-        if original_user and original_user.tipo_usuario == 'experto' and self.cleaned_data.get('tipo_usuario') == 'cliente':
-            # Limpia los campos de experto al cambiar de tipo
+        if self.cleaned_data.get('tipo_usuario') == 'cliente' and original_tipo_usuario == 'experto':
             user.evidenciaTrabajo = None 
             user.experienciaTrabajo = ""
             user.hojaVida = ""
-            user.hojaVida_file = None # Los FileFields se limpian a None
-            user.foto_perfil = None
             user.especialidad = "" 
+            
+            # Borra el archivo físico si existe y el campo cambia a None
+            if original_user.hojaVida_file:
+                original_user.hojaVida_file.delete(save=False) 
+            user.hojaVida_file = None 
 
-            # Opcional: Borra los archivos físicos asociados si cambian a None
-            # Asegúrate de importar `default_storage` si lo usas
-            # from django.core.files.storage import default_storage
-            # if original_user.evidenciaTrabajo and default_storage.exists(original_user.evidenciaTrabajo.name):
-            #     default_storage.delete(original_user.evidenciaTrabajo.name)
-            # if original_user.hojaVida_file and default_storage.exists(original_user.hojaVida_file.name):
-            #     default_storage.delete(original_user.hojaVida_file.name)
-            # if original_user.foto_perfil and default_storage.exists(original_user.foto_perfil.name):
-            #     default_storage.delete(original_user.foto_perfil.name)
-
+            if original_user.foto_perfil and original_user.tipo_usuario == 'experto': # Asumiendo foto_perfil es solo para expertos
+                original_user.foto_perfil.delete(save=False)
+            user.foto_perfil = None
+        
         if commit:
             user.save()
         return user
 
 
 # --- RESERVA FORM ---
+# Esta es la clase para el formulario de Reserva.
 class ReservaForm(forms.ModelForm):
     # Campos ModelChoiceField con sus querysets y empty_label
     metodoDePago = forms.ModelChoiceField(
@@ -483,6 +497,13 @@ class ReservaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # No es estrictamente necesario redefinir los querysets aquí
+        # si ya están definidos en los campos de arriba y no cambian dinámicamente.
+        # self.fields['metodoDePago'].queryset = Metodo.objects.all().order_by('Nombre')
+        # self.fields['pais'].queryset = Pais.objects.all().order_by('Nombre')
+        # self.fields['ciudad'].queryset = Ciudad.objects.all().order_by('Nombre')
+        # self.fields['idServicios'].queryset = Servicios.objects.all().order_by('NombreServicio')
+        # self.fields['idEstado'].queryset = Estado.objects.all().order_by('Nombre')
         
         # Aplicar form-control a todos los campos por defecto si no lo tienen
         for field_name, field in self.fields.items():
@@ -494,7 +515,7 @@ class ReservaForm(forms.ModelForm):
                 forms.widgets.Select,
                 forms.widgets.CheckboxInput,
                 forms.widgets.RadioSelect,
-                forms.widgets.NumberInput, 
+                forms.widgets.NumberInput, # Para pago_ofrecido
                 forms.widgets.URLInput,
             )) and 'class' not in field.widget.attrs:
                 field.widget.attrs.update({'class': 'form-control'})
