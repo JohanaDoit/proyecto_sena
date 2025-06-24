@@ -1,6 +1,5 @@
 # Archivos de caché de Python
 __pycache__/
-*.pyc
 doit_app/migrations/__pycache__/*
 doit_app/migrations/__pycache__/0001_initial.cpython-313.pyc
 doit_app/migrations/__pycache__/__init__.cpython-313.pyc
