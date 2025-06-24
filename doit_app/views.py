@@ -479,3 +479,6 @@ def terminos_condiciones(request):
 
 def tratamiento_datos(request):
     return render(request, 'tratamiento_datos.html')
+
+
+
