@@ -78,12 +78,6 @@ class RegistroForm(UserCreationForm):
         label="Experiencia de Trabajo", 
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
     )
-    hojaVida = forms.CharField( # Link a CV
-        max_length=300, 
-        required=False, 
-        label="Link Hoja de Vida (URL)", 
-        widget=forms.URLInput(attrs={'class': 'form-control'}) 
-    )
     hojaVida_file = forms.FileField( # Archivo de CV
         required=False, 
         label="Subir Hoja de Vida (PDF, DOCX, etc.)", 
@@ -119,7 +113,6 @@ class RegistroForm(UserCreationForm):
             'telefono',
             'experienciaTrabajo',
             'evidenciaTrabajo',
-            'hojaVida', 
             'hojaVida_file', 
             'foto_perfil',
             'especialidad',
@@ -133,7 +126,6 @@ class RegistroForm(UserCreationForm):
             'password2': 'Confirmación de Contraseña',
             'tipo_usuario': 'Tipo de Usuario',
             'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
-            'hojaVida': 'Link Hoja de Vida (URL)',
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'foto_perfil': 'Foto de Perfil',
             'especialidad': 'Especialidad (Solo para Expertos)',
@@ -246,12 +238,6 @@ class PerfilUsuarioForm(UserChangeForm):
     )
     
     # Campos específicos de experto para el PerfilUsuarioForm
-    hojaVida = forms.CharField( 
-        max_length=300, 
-        required=False, 
-        label="Link Hoja de Vida (URL)", 
-        widget=forms.URLInput(attrs={'class': 'form-control'}) 
-    )
     hojaVida_file = forms.FileField( 
         required=False, 
         label="Subir Hoja de Vida (PDF, DOCX, etc.)", 
@@ -296,7 +282,6 @@ class PerfilUsuarioForm(UserChangeForm):
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
             'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
-            'hojaVida': 'Link Hoja de Vida (URL)',
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'especialidad': 'Especialidad',
         }
