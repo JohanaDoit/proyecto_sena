@@ -417,14 +417,6 @@ class ReservaForm(forms.ModelForm):
         label="Tipo de Servicio Solicitado", 
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    idEstado = forms.ModelChoiceField(
-        queryset=Estado.objects.all().order_by('Nombre'),
-        empty_label="Selecciona el estado de la reserva",
-        required=True,
-        label="Estado de la Reserva",
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
     # Campos de Fecha y Hora con sus widgets
     Fecha = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
@@ -459,7 +451,6 @@ class ReservaForm(forms.ModelForm):
             'ciudad', 
             'idServicios', 
             'pago_ofrecido', 
-            'idEstado',
         ]
         labels = {
             'Fecha': 'Fecha Preferida del Servicio',
@@ -472,7 +463,6 @@ class ReservaForm(forms.ModelForm):
             'ciudad': 'Ciudad del Servicio',
             'idServicios': 'Tipo de Servicio',
             'pago_ofrecido': 'Pago Ofrecido',
-            'idEstado': 'Estado de la Reserva'
         }
         widgets = {
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),

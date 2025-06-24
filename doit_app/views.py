@@ -9,6 +9,8 @@ from .models import Estado, Servicios, Categorias, Reserva, CustomUser
 from django.conf import settings
 import requests
 from django.db.models import Q
+from .models import Ciudad
+from django.http import JsonResponse
 
 # Funciones de test para @user_passes_test
 def is_cliente(user):
@@ -57,6 +59,7 @@ def principal(request):
         'ultimas_reservas': ultimas_reservas,
     })
 
+
 @login_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login')) 
 def reserva(request):
@@ -67,10 +70,18 @@ def reserva(request):
         return redirect('principal')
 
     servicio = get_object_or_404(Servicios, id=servicio_id)
-    request.session['servicio_id'] = servicio_id # Guardar en sesión para POST
+    request.session['servicio_id'] = servicio_id  # Guardar en sesión para POST
 
     if request.method == 'POST':
         form = ReservaForm(request.POST)
+
+        # Ajustar queryset dinámico de ciudad basado en el país enviado
+        pais_id = request.POST.get('pais')
+        if pais_id:
+            form.fields['ciudad'].queryset = Ciudad.objects.filter(departamento__pais_id=pais_id)
+        else:
+            form.fields['ciudad'].queryset = Ciudad.objects.none()
+
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.idUsuario = request.user
@@ -97,6 +108,22 @@ def reserva(request):
         'form': form,
         'servicio': servicio
     })
+
+
+def ciudades_por_pais(request):
+    pais_id = request.GET.get('pais_id')
+    if pais_id:
+        ciudades = Ciudad.objects.filter(departamento__pais_id=pais_id).values('id', 'Nombre')
+        return JsonResponse(list(ciudades), safe=False)
+    return JsonResponse({'error': 'No se proporcionó un ID de país'}, status=400)
+
+
+
+
+
+
+
+
 
 @login_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
