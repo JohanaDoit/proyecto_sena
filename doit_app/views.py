@@ -11,6 +11,8 @@ import requests
 from django.db.models import Q
 from .models import Ciudad
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
 # Funciones de test para @user_passes_test
 def is_cliente(user):
@@ -27,6 +29,27 @@ def is_admin(user):
 # --- Vistas Generales ---
 def home(request):
     return render(request, 'home.html')
+
+
+@login_required
+def cancelar_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    if reserva.idUsuario != request.user:
+        messages.error(request, "No tienes permiso para cancelar esta reserva.")
+        return redirect('principal')
+
+    if request.method == 'POST':
+        estado_cancelada = Estado.objects.get(Nombre='Cancelada')
+        reserva.idEstado = estado_cancelada
+        reserva.save()
+        messages.success(request, f'Has cancelado la reserva #{reserva.id}.')
+    
+    return redirect('principal')
+
+
+
+
 
 @login_required
 def principal(request):
@@ -46,18 +69,26 @@ def principal(request):
     for cat in categorias:
         servicios_por_categoria[cat.Nombre] = list(servicios.filter(idCategorias=cat))
 
-    # Obtener las últimas 3 reservas del usuario cliente autenticado
+    # Últimas 3 reservas activas (sin cancelar ni completadas)
     ultimas_reservas = Reserva.objects.filter(
         idUsuario=request.user
     ).exclude(
         Q(idEstado__Nombre='Cancelada') | Q(idEstado__Nombre='Completada')
     ).order_by('-Fecha', '-Hora')[:3]
 
+    # Buscar si hay alguna reserva aceptada para mostrar el mensaje especial
+    reserva_aceptada = Reserva.objects.filter(
+        idUsuario=request.user,
+        idEstado__Nombre='Aceptada'
+    ).order_by('-Fecha', '-Hora').first()  # Solo la más reciente
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
         'ultimas_reservas': ultimas_reservas,
+        'reserva_aceptada': reserva_aceptada,  # Pasamos esto al template
     })
+
 
 
 @login_required
@@ -109,13 +140,45 @@ def reserva(request):
         'servicio': servicio
     })
 
-
 def ciudades_por_pais(request):
     pais_id = request.GET.get('pais_id')
     if pais_id:
         ciudades = Ciudad.objects.filter(departamento__pais_id=pais_id).values('id', 'Nombre')
         return JsonResponse(list(ciudades), safe=False)
     return JsonResponse({'error': 'No se proporcionó un ID de país'}, status=400)
+
+@require_POST
+@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+def aceptar_reserva_experto(request, reserva_id):
+    reserva = get_object_or_404(Reserva, pk=reserva_id, experto_asignado__isnull=True)
+
+    try:
+        estado_activa = Estado.objects.get(Nombre='Activa')
+    except Estado.DoesNotExist:
+        messages.error(request, "Error interno: Estado 'Activa' no existe.")
+        return redirect('dashboard_experto')
+
+    reserva.experto_asignado = request.user
+    reserva.idEstado = estado_activa
+    reserva.save()
+
+    messages.success(request, "✅ Has aceptado la reserva correctamente.")
+    return redirect('dashboard_experto')
+
+
+@require_POST
+@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+def rechazar_reserva_experto(request, reserva_id):
+    # Opcional: registrar rechazo, pero por ahora solo redireccionar
+    messages.info(request, "Has rechazado la reserva.")
+    return redirect('dashboard_experto')
+
+
+
+
+
+
+
 
 
 
@@ -160,38 +223,36 @@ def servicioCancelado(request):
 def servicioCanceladoexpe(request):
     return render(request, 'servicioCanceladoexpe.html')
 
+
+
+
 # ESTA ES LA ÚNICA DEFINICIÓN DE dashboard_experto QUE DEBE QUEDAR
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def dashboard_experto(request):
-    # Mantener el print para depuración de la vista dashboard_experto
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Is Authenticated: {request.user.is_authenticated}, Tipo: {request.user.tipo_usuario}")
 
-    # Mueve la comprobación explícita aquí si quieres que se ejecute con la vista correcta
     if not is_experto(request.user):
-        print("DEBUG: is_experto regresó False para el usuario autenticado DESPUÉS DE REDIRECCIÓN. Esto es inesperado.")
-        # Si esto se imprime, la lógica de is_experto es el problema o la sesión no se pegó.
-        # Puedes probar una redirección temporal a 'home' para romper el bucle.
-        # return redirect('home') # Temporalmente para depurar
+        print("DEBUG: is_experto regresó False para el usuario autenticado.")
+        return redirect('principal')
 
     try:
         estado_pendiente = Estado.objects.get(Nombre='Pendiente')
         estado_activa = Estado.objects.get(Nombre='Activa')
     except Estado.DoesNotExist:
         messages.error(request, "Error de configuración de estados. Contacte al administrador.")
-        # Esta redirección a 'principal' es la que podría causar el bucle si los estados no existen.
-        # Asegúrate de que los estados 'Pendiente' y 'Activa' existan en tu base de datos.
         return redirect('principal') 
 
     reservas_pendientes = Reserva.objects.filter(
         (Q(experto_asignado__isnull=True) | Q(experto_asignado=request.user)),
         Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa),
-        idServicios__NombreServicio__iexact=request.user.especialidad
+        idServicios__idCategorias=request.user.categoria_especialidad
     ).order_by('Fecha', 'Hora')
 
     reservas_asignadas = Reserva.objects.filter(
         experto_asignado=request.user
     ).exclude(
-        Q(idEstado__Nombre='Completada') | Q(idEstado__Nombre='Cancelada') | Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa)
+        Q(idEstado__Nombre='Completada') | Q(idEstado__Nombre='Cancelada') |
+        Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa)
     ).order_by('Fecha', 'Hora')
 
     return render(request, 'experto/dashboard_experto.html', {
@@ -205,32 +266,35 @@ def dashboard_experto(request):
 def aceptar_reserva_experto(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
 
+    # Verifica si la reserva ya fue aceptada por otro experto
     if reserva.experto_asignado and reserva.experto_asignado != request.user:
         messages.warning(request, "Esta reserva ya ha sido aceptada por otro experto.")
         return redirect('dashboard_experto')
     
-    if reserva.idServicios.NombreServicio.lower() != request.user.especialidad.lower():
+    # 🔁 Validación por categoría de especialidad
+    if reserva.idServicios.idCategorias != request.user.categoria_especialidad:
         messages.error(request, "No estás cualificado para aceptar este tipo de servicio.")
         return redirect('dashboard_experto')
 
+    # Si todo está bien, procesar aceptación POST
     if request.method == 'POST':
         try:
             reserva.experto_asignado = request.user
             estado_aceptada = Estado.objects.get(Nombre='Aceptada')
             reserva.idEstado = estado_aceptada
-            
             reserva.save()
+
             messages.success(request, f'✅ ¡Has aceptado la reserva #{reserva.id}!')
             return redirect('dashboard_experto')
+
         except Estado.DoesNotExist:
             messages.error(request, "Error de configuración de estados. Contacte al administrador.")
             return redirect('dashboard_experto')
         except Exception as e:
             messages.error(request, f"Ocurrió un error al aceptar la reserva: {e}")
             return redirect('dashboard_experto')
-    
-    return render(request, 'experto/confirmar_aceptar_reserva.html', {'reserva': reserva})
 
+    return render(request, 'experto/confirmar_aceptar_reserva.html', {'reserva': reserva})
 
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
@@ -260,6 +324,9 @@ def rechazar_reserva_experto(request, reserva_id):
             return redirect('dashboard_experto')
     
     return render(request, 'experto/confirmar_rechazar_reserva.html', {'reserva': reserva})
+
+
+
 
 
 @login_required

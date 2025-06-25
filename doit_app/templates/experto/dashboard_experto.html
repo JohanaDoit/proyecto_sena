@@ -1,44 +1,59 @@
-{% extends "base.html" %} {# Asegúrate de que tu base.html exista y esté configurado #}
-{% load static %} {# Cargar la etiqueta static para CSS/JS #}
+{% extends "base.html" %}
+{% load static %}
 
 {% block title %}DOIT | Dashboard de Experto{% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
-        <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
-        <p class="lead">Tu especialidad: <strong>{{ user_especialidad|default:"No especificada" }}</strong></p>
+<div class="container mt-4">
+    <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
+    <p class="lead">Tu especialidad: <strong>{{ user_especialidad|default:"No especificada" }}</strong></p>
 
-        {# Mensajes de Django (success, error, info, warning) #}
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-        <hr>
+    <hr>
 
-        {# Sección de Reservas Pendientes #}
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h3>Reservas Pendientes <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span></h3>
-                    </div>
-                    <div class="card-body">
-                        {% if reservas_pendientes %}
-                            <ul class="list-group">
-                                {% for reserva in reservas_pendientes %}
-                                    <li class="list-group-item">
-                                        <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
-                                        <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
-                                        <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
-                                        <p><strong>Descripción:</strong> {{ reserva.Comentarios|default:"No hay comentarios." }}</p>
-                                        <p><strong>Estado:</strong> <span class="badge bg-warning text-dark">{{ reserva.idEstado.Nombre }}</span></p>
+    <div class="row">
+        <!-- RESERVAS PENDIENTES -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Reservas Pendientes <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span></h3>
+                </div>
+                <div class="card-body">
+                    {% if reservas_pendientes %}
+                        <ul class="list-group">
+                            {% for reserva in reservas_pendientes %}
+                                <li class="list-group-item">
+                                    <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
+
+                                    {% if reserva.idServicios.idCategorias.Nombre != request.user.categoria_especialidad.Nombre %}
+                                        <div class="alert alert-warning mt-2">
+                                            No estás calificado para aceptar este tipo de servicio.
+                                        </div>
+                                    {% endif %}
+
+                                    <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
+                                    <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
+                                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                                    <p><strong>Descripción:</strong> {{ reserva.descripcion|default:"Sin descripción." }}</p>
+                                    {% if reserva.detallesAdicionales %}
+                                        <p><strong>Detalles adicionales:</strong> {{ reserva.detallesAdicionales }}</p>
+                                    {% endif %}
+                                    {% if reserva.pago_ofrecido %}
+                                        <p><strong>Pago ofrecido:</strong> ${{ reserva.pago_ofrecido }}</p>
+                                    {% endif %}
+                                    <p><strong>Estado:</strong> <span class="badge bg-warning text-dark">{{ reserva.idEstado.Nombre }}</span></p>
+
+                                    {% if reserva.idServicios.idCategorias.Nombre == request.user.categoria_especialidad.Nombre %}
                                         <form action="{% url 'aceptar_reserva_experto' reserva.id %}" method="post" class="d-inline">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-success btn-sm me-2">Aceptar</button>
@@ -47,74 +62,49 @@
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
                                         </form>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No tienes reservas pendientes en este momento.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            {# Sección de Reservas Asignadas #}
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h3>Tus Reservas Asignadas <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span></h3>
-                    </div>
-                    <div class="card-body">
-                        {% if reservas_asignadas %}
-                            <ul class="list-group">
-                                {% for reserva in reservas_asignadas %}
-                                    <li class="list-group-item">
-                                        <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
-                                        <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
-                                        <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
-                                        <p><strong>Estado:</strong> <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span></p>
-                                        {# Aquí podrías añadir enlaces para "Marcar como completada", "Ver detalles", etc. #}
-                                        <a href="#" class="btn btn-primary btn-sm disabled">Gestionar</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No tienes reservas asignadas actualmente.</p>
-                        {% endif %}
-                    </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No tienes reservas pendientes en este momento.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
-        {# Enlaces de navegación adicionales para el experto #}
-        <div class="text-center mt-4">
-            <a href="{% url 'historial_experto' %}" class="btn btn-secondary me-2">Ver Historial de Reservas</a>
-            <a href="{% url 'editar_perfil' %}" class="btn btn-info">Editar Perfil</a>
-            <a href="{% url 'user_logout' %}" class="btn btn-danger">Cerrar Sesión</a>
+        <!-- RESERVAS ASIGNADAS -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3>Tus Reservas Asignadas <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span></h3>
+                </div>
+                <div class="card-body">
+                    {% if reservas_asignadas %}
+                        <ul class="list-group">
+                            {% for reserva in reservas_asignadas %}
+                                <li class="list-group-item">
+                                    <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
+                                    <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
+                                    <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
+                                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                                    <p><strong>Estado:</strong> <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span></p>
+                                    <a href="#" class="btn btn-outline-primary btn-sm disabled">Gestionar</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No tienes reservas asignadas actualmente.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-
     </div>
-{% endblock %}
 
-{% block extra_css %}
-    {# Puedes enlazar a tus archivos CSS aquí #}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <style>
-        .card-header {
-            font-size: 1.25rem;
-            font-weight: bold;
-        }
-        .list-group-item {
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .messages .alert {
-            margin-top: 20px;
-        }
-    </style>
-{% endblock %}
-
-{% block extra_js %}
-    {# Puedes enlazar a tus archivos JS aquí #}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <div class="text-center mt-4">
+        <a href="{% url 'historial_experto' %}" class="btn btn-secondary me-2">Ver Historial de Reservas</a>
+        <a href="{% url 'editar_perfil' %}" class="btn btn-info">Editar Perfil</a>
+        <a href="{% url 'user_logout' %}" class="btn btn-danger">Cerrar Sesión</a>
+    </div>
+</div>
 {% endblock %}

@@ -69,4 +69,7 @@ urlpatterns = [
 
 
     path('api/ciudades_por_pais/', views.ciudades_por_pais, name='ciudades_por_pais'),
+    path('experto/reserva/aceptar/<int:reserva_id>/', views.aceptar_reserva_experto, name='aceptar_reserva_experto'),
+    path('experto/reserva/rechazar/<int:reserva_id>/', views.rechazar_reserva_experto, name='rechazar_reserva_experto'),
+    path('reserva/cancelar/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
 ]

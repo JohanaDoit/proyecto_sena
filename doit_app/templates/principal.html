@@ -8,97 +8,117 @@
 <link rel="stylesheet" href="{% static 'css/modperf_cliente.css' %}"> 
 {% endblock %}
 
-{% block content %}  {# <-- AHORA SOLO HAY UN BLOQUE 'content' #}
-    {# Contenido que estaba en el primer bloque 'content' #}
-    <div class="banner-bienvenida">
-        <div class="contenido-banner">
-            <h1>👋 ¡Bienvenid@
-                {% if user.is_authenticated %}
-                    {% if user.first_name %}
-                        {{ user.first_name }}
-                    {% elif user.username %}
-                        {{ user.username }}
-                    {% endif %}
+{% block content %}
+<div class="banner-bienvenida">
+    <div class="contenido-banner">
+        <h1>👋 ¡Bienvenid@
+            {% if user.is_authenticated %}
+                {% if user.first_name %}
+                    {{ user.first_name }}
+                {% elif user.username %}
+                    {{ user.username }}
                 {% endif %}
-                a
-                {% if not user.is_authenticated %}
-                    <a href="{% url 'home' %}">
-                        <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
-                    </a>
-                {% else %}
-                    <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
-                {% endif %}
-            </h1>
-            <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form">
-                <input type="text" name="q" placeholder="Buscar experto por nombre o especialidad...">
-                <button type="submit">Buscar</button>
+            {% endif %}
+            a
+            <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
+        </h1>
+        <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form">
+            <input type="text" name="q" placeholder="Buscar experto por nombre o especialidad...">
+            <button type="submit">Buscar</button>
+        </form>
+    </div>
+</div>
+
+{# ✅ Bloque de mensaje si la reserva fue aceptada #}
+{% if reserva_aceptada %}
+<div class="alert alert-success d-flex align-items-center mt-4" role="alert" style="gap: 15px;">
+    <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
+                {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
+            {% else %}
+                {% static 'img/default_profile.png' %}
+            {% endif %}"
+        alt="Foto del experto"
+        class="rounded-circle"
+        width="80"
+        height="80">
+
+    <div>
+        <p><strong>{{ reserva_aceptada.experto_asignado.get_full_name }}</strong> ha aceptado tu reserva <strong>#{{ reserva_aceptada.id }}</strong>.</p>
+        <p>Servicio: <strong>{{ reserva_aceptada.idServicios.NombreServicio }}</strong><br>
+            Fecha: {{ reserva_aceptada.Fecha|date:"d/m/Y" }} a las {{ reserva_aceptada.Hora|time:"H:i" }}</p>
+
+        <div class="mt-2">
+            <a href="#" class="btn btn-outline-primary btn-sm">Contactar</a>
+            <form action="{% url 'cancelar_reserva' reserva_aceptada.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">Cancelar</button>
             </form>
         </div>
     </div>
+</div>
+{% endif %}
 
-    <section class="seccion-servicios">
-        <div class="tarjeta-servicio">
-            <h3>Reserva tu servicio</h3>
+<section class="seccion-servicios">
+    <div class="tarjeta-servicio">
+        <h3>Reserva tu servicio</h3>
 
-            <div class="grupo-formulario">
-                <label for="categoria">Selecciona una categoría:</label>
-                <select id="categoria" class="form-control">
-                    <option value="" selected disabled>-- Elige una categoría --</option>
-                    {% for categoria in categorias %}
-                        <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="grupo-formulario">
-                <label for="servicio">Selecciona un servicio:</label>
-                <select id="servicio" disabled class="form-control">
-                    <option value="" selected>-- Elige un servicio --</option>
-                </select>
-            </div>
-            <a id="reservarLink" href="{% url 'reserva' %}">
-                <button id="reservarBtn" type="button" disabled class="btn btn-primary">Reservar</button>
-            </a>
+        <div class="grupo-formulario">
+            <label for="categoria">Selecciona una categoría:</label>
+            <select id="categoria" class="form-control">
+                <option value="" selected disabled>-- Elige una categoría --</option>
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.Nombre }}">{{ categoria.Nombre }}</option>
+                {% endfor %}
+            </select>
         </div>
-    </section>
 
-    {# Contenido que estaba en el segundo bloque 'content' #}
-    <h2>Servicios:</h2>
-    <div>
-        <h4>🕘 Últimos 3 servicios solicitados</h4>
-        <ul>
-            {% for reserva in ultimas_reservas %}
-                <li style="margin-bottom: 10px;">
-                    <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
-                    <p><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</p>
-                    <p><strong>Hora:</strong> {{ reserva.Hora|time:"h:i A" }}</p>
-                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
-                    <p><strong>Estado:</strong> {{ reserva.idEstado.Nombre }}</p>
-                </li>
-            {% empty %}
-                <li>No has hecho reservas recientes.</li>
-            {% endfor %}
-        </ul>
+        <div class="grupo-formulario">
+            <label for="servicio">Selecciona un servicio:</label>
+            <select id="servicio" disabled class="form-control">
+                <option value="" selected>-- Elige un servicio --</option>
+            </select>
+        </div>
+        <a id="reservarLink" href="{% url 'reserva' %}">
+            <button id="reservarBtn" type="button" disabled class="btn btn-primary">Reservar</button>
+        </a>
     </div>
+</section>
 
-    <div class="servicios">
-        <article class="servicio">
-            <h2>CUIDADO PERSONAL</h2>
-            <img src="{% static 'images/20.jpg' %}" alt="Foto 1">
-            <p>Ofrecemos contactos con expertos en proporcionar momentos de relajación, realzar la belleza natural y ayudar a enfrentar cada día con más confianza.</p>
-        </article>
-        <article class="servicio">
-            <h2>CUIDADO HOGAR</h2>
-            <img src="{% static 'images/21.png' %}" alt="Foto 2">
-            <p>Doit te conecta con un equipo de profesionales capacitados que trabaja con dedicación, utilizando técnicas innovadoras, asegurándose que cada rincón brille y transmita armonía.</p>
-        </article>
-        <article class="servicio">
-            <h2>LOCATIVOS</h2>
-            <img src="{% static 'images/22.png'}" alt="Foto 3">
-            <p>Contactamos profesionales en servicios locativos para cubrir tus necesidades de mantenimiento, reparación y adecuación del hogar.</p>
-        </article>
-    </div>
-</section> {# Este cierre de sección estaba un poco fuera de lugar, asumiendo que es el cierre de 'seccion-servicios' #}
+<h2>Servicios:</h2>
+<div>
+    <h4>🕘 Últimos 3 servicios solicitados</h4>
+    <ul>
+        {% for reserva in ultimas_reservas %}
+            <li style="margin-bottom: 10px;">
+                <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
+                <p><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</p>
+                <p><strong>Hora:</strong> {{ reserva.Hora|time:"h:i A" }}</p>
+                <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                <p><strong>Estado:</strong> {{ reserva.idEstado.Nombre }}</p>
+            </li>
+        {% empty %}
+            <li>No has hecho reservas recientes.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="servicios">
+    <article class="servicio">
+        <h2>CUIDADO PERSONAL</h2>
+        <img src="{% static 'images/20.jpg' %}" alt="Foto 1">
+        <p>Ofrecemos contactos con expertos en proporcionar momentos de relajación, realzar la belleza natural y ayudar a enfrentar cada día con más confianza.</p>
+    </article>
+    <article class="servicio">
+        <h2>CUIDADO HOGAR</h2>
+        <img src="{% static 'images/21.png' %}" alt="Foto 2">
+        <p>Doit te conecta con un equipo de profesionales capacitados que trabaja con dedicación, utilizando técnicas innovadoras, asegurándose que cada rincón brille y transmita armonía.</p>
+    </article>
+    <article class="servicio">
+        <h2>LOCATIVOS</h2>
+        <img src="{% static 'images/22.png'}" alt="Foto 3">
+        <p>Contactamos profesionales en servicios locativos para cubrir tus necesidades de mantenimiento, reparación y adecuación del hogar.</p>
+    </article>
+</div>
 
 <div class="servicios-populares">
     <div class="servicios-mas-solicitados">
