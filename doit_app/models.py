@@ -2,7 +2,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
 # Modelo Genero (SIN CAMBIOS)
 class Genero(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre del Género")
@@ -68,6 +67,15 @@ class CustomUser(AbstractUser):
     # Nuevo campo para la especialidad del experto (lo añadimos para el perfil del experto)
     especialidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Especialidad")
 
+    categoria_especialidad = models.ForeignKey(
+        'doit_app.Categorias',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Categoría de Especialidad"
+    )
+
+
     class Meta:
         verbose_name = "Usuario Personalizado"
         verbose_name_plural = "Usuarios Personalizados"
@@ -81,6 +89,9 @@ class CustomUser(AbstractUser):
 
     def is_experto(self):
         return self.tipo_usuario == 'experto'
+
+
+
 
 # Categorias (SIN CAMBIOS)
 class Categorias(models.Model):
@@ -275,4 +286,5 @@ class Reserva(models.Model):
         app_label = "doit_app"
 
     def __str__(self):
-        return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"
+        return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"    
+    

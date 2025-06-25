@@ -38,43 +38,55 @@ class TipoDocAdmin(admin.ModelAdmin):
     list_display = ('Nombre',)
     search_fields = ('Nombre',)
 
+
+
+
+
 # Registra CustomUser (tu modelo de usuario personalizado)
 @admin.register(CustomUser)
 class CustomUserAdmin(BaseUserAdmin):
-    # fieldsets y add_fieldsets para organizar los campos en el formulario de edición/creación del admin
     fieldsets = BaseUserAdmin.fieldsets + (
-        (('Información Adicional', {'fields': (
-            'genero',
-            'tipo_usuario',
-            'nacionalidad',
-            'numDoc',
-            'telefono',
-            'fechaNacimiento',
-            'evidenciaTrabajo',
-            'experienciaTrabajo',
-            'hojaVida',
-            'tipo_documento',
-            'foto_perfil'
-        )}),)
+        ('Información Adicional', {
+            'fields': (
+                'genero',
+                'tipo_usuario',
+                'nacionalidad',
+                'numDoc',
+                'telefono',
+                'fechaNacimiento',
+                'evidenciaTrabajo',
+                'experienciaTrabajo',
+                'hojaVida',
+                'hojaVida_file',
+                'tipo_documento',
+                'foto_perfil',
+                'especialidad',
+                'categoria_especialidad',  # AÑADIDO
+            )
+        }),
     )
 
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        (('Información Adicional', {'fields': (
-            'genero',
-            'tipo_usuario',
-            'nacionalidad',
-            'numDoc',
-            'telefono',
-            'fechaNacimiento',
-            'evidenciaTrabajo',
-            'experienciaTrabajo',
-            'hojaVida',
-            'tipo_documento',
-            'foto_perfil'
-        )}),)
+        ('Información Adicional', {
+            'fields': (
+                'genero',
+                'tipo_usuario',
+                'nacionalidad',
+                'numDoc',
+                'telefono',
+                'fechaNacimiento',
+                'evidenciaTrabajo',
+                'experienciaTrabajo',
+                'hojaVida',
+                'hojaVida_file',
+                'tipo_documento',
+                'foto_perfil',
+                'especialidad',
+                'categoria_especialidad',  # AÑADIDO
+            )
+        }),
     )
 
-    # list_display para las columnas que se muestran en la lista de usuarios
     list_display = (
         'username',
         'email',
@@ -82,9 +94,8 @@ class CustomUserAdmin(BaseUserAdmin):
         'last_name',
         'is_staff',
         'tipo_usuario',
-        'genero' # Muestra el género directamente en la lista
+        'genero',
     )
-    # search_fields para la barra de búsqueda
     search_fields = (
         'username',
         'email',
@@ -92,17 +103,16 @@ class CustomUserAdmin(BaseUserAdmin):
         'last_name',
         'numDoc'
     )
-    # list_filter para los filtros laterales
     list_filter = (
         'is_staff',
         'is_superuser',
         'is_active',
-        'groups', # Si usas grupos de Django
+        'groups',
         'tipo_usuario',
-        'genero' # Permite filtrar por género
+        'genero',
     )
-    # ordering para el orden por defecto
     ordering = ('username',)
+
 
 
 # ---------------------------------------------------------------------
