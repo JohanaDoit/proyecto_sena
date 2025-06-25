@@ -66,4 +66,7 @@ urlpatterns = [
     path('sentencias_dml/', views.sentencias_dml, name='sentencias_dml'),
     path('diccionario_de_datos/', views.diccionario_de_datos, name='diccionario_de_datos'),
     path('diagrama_de_clases/', views.diagrama_de_clases, name='diagrama_de_clases'),
+
+
+    path('api/ciudades_por_pais/', views.ciudades_por_pais, name='ciudades_por_pais'),
 ]
