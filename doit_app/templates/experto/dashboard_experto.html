@@ -45,9 +45,7 @@
                                     <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
                                     <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
                                     <p><strong>Descripción:</strong> {{ reserva.descripcion|default:"Sin descripción." }}</p>
-                                    {% if reserva.detallesAdicionales %}
-                                        <p><strong>Detalles adicionales:</strong> {{ reserva.detallesAdicionales }}</p>
-                                    {% endif %}
+
                                     {% if reserva.pago_ofrecido %}
                                         <p><strong>Pago ofrecido:</strong> ${{ reserva.pago_ofrecido }}</p>
                                     {% endif %}
@@ -89,6 +87,11 @@
                                     <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
                                     <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
                                     <p><strong>Estado:</strong> <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span></p>
+
+                                    {% if reserva.idEstado.Nombre == 'Cancelada' and reserva.motivo_cancelacion %}
+                                        <p class="text-danger"><strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}</p>
+                                    {% endif %}
+
                                     <a href="#" class="btn btn-outline-primary btn-sm disabled">Gestionar</a>
                                 </li>
                             {% endfor %}
@@ -98,6 +101,30 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- RESERVAS CANCELADAS -->
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h3>Reservas Canceladas <span class="badge bg-light text-danger">{{ reservas_canceladas.count }}</span></h3>
+        </div>
+        <div class="card-body">
+            {% if reservas_canceladas %}
+                <ul class="list-group">
+                    {% for reserva in reservas_canceladas %}
+                        <li class="list-group-item">
+                            <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
+                            <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
+                            <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
+                            <p class="text-danger"><strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-danger">{{ reserva.idEstado.Nombre }}</span></p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No tienes reservas canceladas recientemente.</p>
+            {% endif %}
         </div>
     </div>
 

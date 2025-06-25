@@ -233,58 +233,77 @@ class Ciudad(models.Model):
     def __str__(self):
         return self.Nombre
 
+
 # Modelo Reserva (MANTENIDO, PERO CON CAMPOS ADICIONALES PARA SOLICITUDES DE EXPERTO)
 class Reserva(models.Model):
-    # Campos existentes:
-    Fecha = models.DateField(verbose_name="Fecha de Reserva") # Puede ser la fecha solicitada para el servicio
-    Hora = models.TimeField(verbose_name="Hora de Reserva") # Hora solicitada para el servicio
+    # Campos existentes
+    Fecha = models.DateField(verbose_name="Fecha de Reserva")
+    Hora = models.TimeField(verbose_name="Hora de Reserva")
     direccion = models.CharField(max_length=255, verbose_name="Dirección del Servicio")
-    descripcion = models.TextField(verbose_name="Descripción del Servicio") # Cambiado a TextField para más detalle
-    detallesAdicionales = models.TextField(blank=True, null=True, verbose_name="Detalles Adicionales") # Cambiado a TextField
+    descripcion = models.TextField(verbose_name="Descripción del Servicio")
+    detallesAdicionales = models.TextField(blank=True, null=True, verbose_name="Detalles Adicionales")
     ciudad = models.ForeignKey(Ciudad, on_delete=models.CASCADE, verbose_name="Ciudad del Servicio")
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="País del Servicio") 
-    
-    # Este campo debe ser un ForeignKey a Metodo si quieres coherencia con el formulario
-    # Asumo que quieres que este sea el método de pago PREFERIDO del cliente al hacer la reserva
-    metodoDePago = models.ForeignKey(Metodo, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Método de Pago Preferido")
-    
+    pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="País del Servicio")
+
+    metodoDePago = models.ForeignKey(
+        Metodo,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Método de Pago Preferido"
+    )
+
     idUsuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        related_name='reservas_realizadas', 
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reservas_realizadas',
         verbose_name="Cliente que Reserva"
     )
     idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE, verbose_name="Servicio Solicitado")
-    idEstado = models.ForeignKey(Estado, on_delete=models.SET_DEFAULT, default=1, verbose_name="Estado de la Reserva")
 
-    # CAMPOS NUEVOS PARA LA FUNCIONALIDAD DE EXPERTO
+    idEstado = models.ForeignKey(
+        Estado,
+        on_delete=models.SET_DEFAULT,
+        default=1,
+        verbose_name="Estado de la Reserva"
+    )
+
+    # 🔴 NUEVO CAMPO agregado
+    motivo_cancelacion = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Motivo de Cancelación"
+    )
+
+    # Experto asignado
     experto_asignado = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name='reservas_aceptadas', 
-        limit_choices_to={'tipo_usuario': 'experto'}, # Solo se pueden asignar expertos
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reservas_aceptadas',
+        limit_choices_to={'tipo_usuario': 'experto'},
         verbose_name="Experto Asignado"
     )
+
     pago_ofrecido = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        blank=True, 
-        null=True, 
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
         verbose_name="Pago Ofrecido por el Cliente"
     )
-    
-    # Campos de auditoría (opcional, pero útil)
+
+    # Auditoría
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Reserva"
         verbose_name_plural = "Reservas"
-        db_table = "Reserva" # Manteniendo el nombre de la tabla
+        db_table = "Reserva"
         app_label = "doit_app"
 
     def __str__(self):
-        return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"    
-    
+        return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"
