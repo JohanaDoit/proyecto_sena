@@ -35,29 +35,40 @@ def home(request):
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
 
+    # Verificar que el usuario autenticado sea el dueño de la reserva
     if reserva.idUsuario != request.user:
         messages.error(request, "No tienes permiso para cancelar esta reserva.")
         return redirect('principal')
 
     if request.method == 'POST':
-        estado_cancelada = Estado.objects.get(Nombre='Cancelada')
-        reserva.idEstado = estado_cancelada
-        reserva.save()
-        messages.success(request, f'Has cancelado la reserva #{reserva.id}.')
-    
-    return redirect('principal')
+        motivo = request.POST.get('motivo')
+        if motivo == 'otra':
+            motivo = request.POST.get('otro_motivo', '').strip()
 
+        try:
+            estado_cancelada = Estado.objects.get(Nombre='Cancelada')
+        except Estado.DoesNotExist:
+            messages.error(request, "No se pudo cancelar la reserva. Estado 'Cancelada' no existe.")
+            return redirect('principal')
+
+        reserva.idEstado = estado_cancelada
+        reserva.motivo_cancelacion = motivo
+        reserva.save()
+
+        messages.success(request, f'Has cancelado la reserva #{reserva.id}.')
+        return redirect('principal')
+
+    return redirect('principal')
 
 
 
 
 @login_required
 def principal(request):
-    # Redirigir a los expertos a su propio dashboard
+    # Redirección según tipo de usuario
     if request.user.tipo_usuario == 'experto':
         return redirect('dashboard_experto')
-    
-    # Redirigir a los administradores a su propio dashboard
+
     if request.user.tipo_usuario == 'admin':
         return redirect('admin_principal')
 
@@ -65,28 +76,29 @@ def principal(request):
     servicios = Servicios.objects.all()
 
     # Agrupar servicios por categoría
-    servicios_por_categoria = {}
-    for cat in categorias:
-        servicios_por_categoria[cat.Nombre] = list(servicios.filter(idCategorias=cat))
+    servicios_por_categoria = {
+        cat.Nombre: list(servicios.filter(idCategorias=cat))
+        for cat in categorias
+    }
 
-    # Últimas 3 reservas activas (sin cancelar ni completadas)
+    # Últimas 3 reservas no canceladas ni completadas
     ultimas_reservas = Reserva.objects.filter(
         idUsuario=request.user
     ).exclude(
         Q(idEstado__Nombre='Cancelada') | Q(idEstado__Nombre='Completada')
     ).order_by('-Fecha', '-Hora')[:3]
 
-    # Buscar si hay alguna reserva aceptada para mostrar el mensaje especial
+    # Última reserva aceptada (para mostrar mensaje de confirmación)
     reserva_aceptada = Reserva.objects.filter(
         idUsuario=request.user,
         idEstado__Nombre='Aceptada'
-    ).order_by('-Fecha', '-Hora').first()  # Solo la más reciente
+    ).order_by('-Fecha', '-Hora').first()
 
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
         'ultimas_reservas': ultimas_reservas,
-        'reserva_aceptada': reserva_aceptada,  # Pasamos esto al template
+        'reserva_aceptada': reserva_aceptada,
     })
 
 
@@ -227,6 +239,13 @@ def servicioCanceladoexpe(request):
 
 
 # ESTA ES LA ÚNICA DEFINICIÓN DE dashboard_experto QUE DEBE QUEDAR
+from django.contrib.auth.decorators import user_passes_test
+from django.urls import reverse_lazy
+from django.db.models import Q
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Reserva, Estado
+
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Is Authenticated: {request.user.is_authenticated}, Tipo: {request.user.tipo_usuario}")
@@ -240,26 +259,36 @@ def dashboard_experto(request):
         estado_activa = Estado.objects.get(Nombre='Activa')
     except Estado.DoesNotExist:
         messages.error(request, "Error de configuración de estados. Contacte al administrador.")
-        return redirect('principal') 
+        return redirect('principal')
 
+    # Reservas pendientes
     reservas_pendientes = Reserva.objects.filter(
         (Q(experto_asignado__isnull=True) | Q(experto_asignado=request.user)),
         Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa),
         idServicios__idCategorias=request.user.categoria_especialidad
     ).order_by('Fecha', 'Hora')
 
+    # Reservas aceptadas o en proceso (por ejemplo: "En progreso", si manejas ese estado)
     reservas_asignadas = Reserva.objects.filter(
-        experto_asignado=request.user
-    ).exclude(
-        Q(idEstado__Nombre='Completada') | Q(idEstado__Nombre='Cancelada') |
-        Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa)
+        experto_asignado=request.user,
+        idEstado__Nombre__in=['Aceptada', 'En progreso']
     ).order_by('Fecha', 'Hora')
+
+    # ✅ Reservas canceladas (para mostrar motivo)
+    reservas_canceladas = Reserva.objects.filter(
+        experto_asignado=request.user,
+        idEstado__Nombre='Cancelada'
+    ).order_by('-Fecha', '-Hora')
 
     return render(request, 'experto/dashboard_experto.html', {
         'reservas_pendientes': reservas_pendientes,
         'reservas_asignadas': reservas_asignadas,
+        'reservas_canceladas': reservas_canceladas,
         'user_especialidad': request.user.especialidad
     })
+
+
+
 
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))

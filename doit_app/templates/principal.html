@@ -29,14 +29,19 @@
     </div>
 </div>
 
-{# ✅ Bloque de mensaje si la reserva fue aceptada #}
+{# Mensajes de éxito o error #}
+{% if messages %}
+    <div class="mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{# Bloque de mensaje si la reserva fue aceptada #}
 {% if reserva_aceptada %}
-<div class="alert alert-success d-flex align-items-center mt-4" role="alert" style="gap: 15px;">
-    <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
-                {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
-            {% else %}
-                {% static 'img/default_profile.png' %}
-            {% endif %}"
+<div id="mensaje-reserva" class="alert alert-success d-flex align-items-center mt-4" role="alert" style="gap: 15px;">
+    <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}{{ reserva_aceptada.experto_asignado.foto_perfil.url }}{% else %}{% static 'img/default_profile.png' %}{% endif %}"
         alt="Foto del experto"
         class="rounded-circle"
         width="80"
@@ -49,12 +54,37 @@
 
         <div class="mt-2">
             <a href="#" class="btn btn-outline-primary btn-sm">Contactar</a>
-            <form action="{% url 'cancelar_reserva' reserva_aceptada.id %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger btn-sm">Cancelar</button>
-            </form>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="mostrarFormularioCancelar()">Cancelar</button>
         </div>
     </div>
+</div>
+
+<!-- FORMULARIO OCULTO PARA CANCELAR (FUERA DEL DIV DE MENSAJE) -->
+<div id="form-cancelar" class="alert alert-warning mt-4" style="display: none; max-width: 400px;">
+    <form method="post" action="{% url 'cancelar_reserva' reserva_aceptada.id %}">
+        {% csrf_token %}
+        <p><strong>¿Por qué deseas cancelar esta reserva?</strong></p>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo1" value="Ya no necesito el servicio" required>
+            <label class="form-check-label" for="motivo1">Ya no necesito el servicio</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo2" value="Lo pedí por equivocación">
+            <label class="form-check-label" for="motivo2">Lo pedí por equivocación</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo3" value="otra">
+            <label class="form-check-label" for="motivo3">Otra (especifica)</label>
+        </div>
+        <div class="form-group mt-2" id="otro_motivo_container" style="display: none;">
+            <label for="otro_motivo">Especifica el motivo:</label>
+            <textarea name="otro_motivo" id="otro_motivo" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+            <button type="button" class="btn btn-secondary" onclick="volverAlMensaje()">Volver al mensaje</button>
+        </div>
+    </form>
 </div>
 {% endif %}
 
@@ -115,7 +145,7 @@
     </article>
     <article class="servicio">
         <h2>LOCATIVOS</h2>
-        <img src="{% static 'images/22.png'}" alt="Foto 3">
+        <img src="{% static 'images/22.png' %}" alt="Foto 3">
         <p>Contactamos profesionales en servicios locativos para cubrir tus necesidades de mantenimiento, reparación y adecuación del hogar.</p>
     </article>
 </div>
@@ -143,11 +173,14 @@
 
 {% block extra_js %}
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Referencias a elementos del DOM para la sección de reserva de servicios
     const categoriaSelect = document.getElementById('categoria');
     const servicioSelect = document.getElementById('servicio');
     const reservarBtn = document.getElementById('reservarBtn');
     const reservarLink = document.getElementById('reservarLink');
 
+    // Datos de servicios por categoría (generados por Django)
     const serviciosPorCategoria = {
         {% for categoria, servicios in servicios_por_categoria.items %}
             "{{ categoria }}": [
@@ -158,35 +191,87 @@
         {% endfor %}
     };
 
-    categoriaSelect.addEventListener('change', () => {
-        const seleccionada = categoriaSelect.value;
-        servicioSelect.innerHTML = '<option value="">-- Elige un servicio --</option>';
+    // Lógica para el selector de categoría y servicio
+    if (categoriaSelect) {
+        categoriaSelect.addEventListener('change', () => {
+            const seleccionada = categoriaSelect.value;
+            servicioSelect.innerHTML = '<option value="">-- Elige un servicio --</option>'; // Restablece opciones
 
-        if (serviciosPorCategoria[seleccionada]) {
-            serviciosPorCategoria[seleccionada].forEach(serv => {
-                const option = document.createElement('option');
-                option.value = serv.id;
-                option.textContent = serv.nombre;
-                servicioSelect.appendChild(option);
+            if (serviciosPorCategoria[seleccionada]) {
+                serviciosPorCategoria[seleccionada].forEach(serv => {
+                    const option = document.createElement('option');
+                    option.value = serv.id;
+                    option.textContent = serv.nombre;
+                    servicioSelect.appendChild(option);
+                });
+                servicioSelect.disabled = false; // Habilita el selector de servicio
+                reservarBtn.disabled = true; // Deshabilita el botón de reservar hasta que se elija un servicio
+                reservarLink.href = "{% url 'reserva' %}"; // Resetea el enlace
+            } else {
+                servicioSelect.disabled = true; // Deshabilita el selector de servicio si no hay categoría
+                reservarBtn.disabled = true; // Deshabilita el botón
+            }
+        });
+    }
+
+    if (servicioSelect) {
+        servicioSelect.addEventListener('change', () => {
+            const servicioSeleccionado = servicioSelect.value;
+            if (servicioSeleccionado) {
+                reservarBtn.disabled = false; // Habilita el botón si se selecciona un servicio
+                // Actualiza el enlace de reserva con el ID del servicio
+                reservarLink.href = "{% url 'reserva' %}?servicio_id=" + encodeURIComponent(servicioSeleccionado);
+            } else {
+                reservarBtn.disabled = true; // Deshabilita el botón si no hay servicio seleccionado
+                reservarLink.href = "{% url 'reserva' %}"; // Resetea el enlace
+            }
+        });
+    }
+
+    // Funciones para mostrar/ocultar el formulario de cancelación de reserva
+    const mensajeReserva = document.getElementById('mensaje-reserva');
+    const formCancelar = document.getElementById('form-cancelar');
+
+    window.mostrarFormularioCancelar = function() {
+        if (mensajeReserva && formCancelar) {
+            mensajeReserva.style.display = 'none';
+            formCancelar.style.display = 'block';
+        }
+    }
+
+    window.volverAlMensaje = function() {
+        if (mensajeReserva && formCancelar) {
+            formCancelar.style.display = 'none';
+            mensajeReserva.style.display = 'flex'; // Vuelve a mostrar como flex para mantener el diseño
+            
+            // Limpiar el formulario de cancelación al volver
+            const radios = document.querySelectorAll('input[name="motivo"]');
+            radios.forEach(radio => radio.checked = false); // Desmarca todos los radio buttons
+            const otroMotivoContainer = document.getElementById('otro_motivo_container');
+            if (otroMotivoContainer) otroMotivoContainer.style.display = 'none'; // Oculta el campo "Otra"
+            const otroMotivo = document.getElementById('otro_motivo');
+            if (otroMotivo) otroMotivo.value = ''; // Borra el texto del campo "Otra"
+        }
+    }
+
+    // Lógica para mostrar u ocultar el textarea "Otra" en el formulario de cancelación
+    const motivo3 = document.getElementById('motivo3'); // El radio button "Otra"
+    const otroMotivoContainer = document.getElementById('otro_motivo_container'); // El div que contiene el textarea
+
+    if (motivo3 && otroMotivoContainer) {
+        document.querySelectorAll('input[name="motivo"]').forEach(input => {
+            input.addEventListener('change', () => {
+                // Muestra el contenedor de "Otro motivo" solo si el radio button "Otra" está seleccionado
+                otroMotivoContainer.style.display = motivo3.checked ? 'block' : 'none';
+                // Si "Otra" está marcado, asegúrate de que el campo de texto sea requerido
+                if (motivo3.checked) {
+                    document.getElementById('otro_motivo').setAttribute('required', 'required');
+                } else {
+                    document.getElementById('otro_motivo').removeAttribute('required');
+                }
             });
-            servicioSelect.disabled = false;
-            reservarBtn.disabled = true;
-            reservarLink.href = "{% url 'reserva' %}";
-        } else {
-            servicioSelect.disabled = true;
-            reservarBtn.disabled = true;
-        }
-    });
-
-    servicioSelect.addEventListener('change', () => {
-        const servicioSeleccionado = servicioSelect.value;
-        if (servicioSeleccionado) {
-            reservarBtn.disabled = false;
-            reservarLink.href = "{% url 'reserva' %}?servicio_id=" + encodeURIComponent(servicioSeleccionado);
-        } else {
-            reservarBtn.disabled = true;
-            reservarLink.href = "{% url 'reserva' %}";
-        }
-    });
+        });
+    }
+});
 </script>
 {% endblock extra_js %}
