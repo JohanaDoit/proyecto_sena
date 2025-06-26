@@ -3,6 +3,10 @@
 
 {% block title %}DOIT | Dashboard de Experto{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard_experto.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
@@ -26,7 +30,7 @@
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h3>Reservas Pendientes <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span></h3>
+                    <h3 class="mb-0">Reservas Pendientes <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span></h3>
                 </div>
                 <div class="card-body">
                     {% if reservas_pendientes %}
@@ -75,7 +79,7 @@
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h3>Tus Reservas Asignadas <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span></h3>
+                    <h3 class="mb-0">Tus Reservas Asignadas <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span></h3>
                 </div>
                 <div class="card-body">
                     {% if reservas_asignadas %}
@@ -107,7 +111,7 @@
     <!-- RESERVAS CANCELADAS -->
     <div class="card mb-4">
         <div class="card-header bg-danger text-white">
-            <h3>Reservas Canceladas <span class="badge bg-light text-danger">{{ reservas_canceladas.count }}</span></h3>
+            <h3 class="mb-0">Reservas Canceladas <span class="badge bg-light text-danger">{{ reservas_canceladas.count }}</span></h3>
         </div>
         <div class="card-body">
             {% if reservas_canceladas %}
@@ -131,7 +135,6 @@
     <div class="text-center mt-4">
         <a href="{% url 'historial_experto' %}" class="btn btn-secondary me-2">Ver Historial de Reservas</a>
         <a href="{% url 'editar_perfil' %}" class="btn btn-info">Editar Perfil</a>
-        <a href="{% url 'user_logout' %}" class="btn btn-danger">Cerrar Sesión</a>
     </div>
 </div>
 {% endblock %}

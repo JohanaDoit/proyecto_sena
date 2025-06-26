@@ -1,0 +1,121 @@
+/* Variables base */
+:root {
+    --blanco: #ffffff;
+    --azul-pastel: #d0e6f7;
+    --verde-pastel: #c7e9e5;
+    --gris-pastel: #d7e3f2;
+    --azul-oscuro: #01304a;
+    --sombra-suave: rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background-color: #f5f1dd;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 20px;
+}
+
+h1, h3 {
+    color: var(--azul-oscuro);
+}
+
+.card {
+    background-color: var(--azul-pastel);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px var(--sombra-suave);
+}
+
+.card-header {
+    padding: 15px 20px;
+    border-radius: 12px 12px 0 0;
+    font-weight: bold;
+}
+
+.card-header.bg-primary {
+    background-color: #a8d0f0 !important;
+    color: var(--azul-oscuro) !important;
+}
+
+.card-header.bg-success {
+    background-color: var(--verde-pastel) !important;
+    color: #014236 !important;
+}
+
+.card-header.bg-danger {
+    background-color: var(--gris-pastel) !important;
+    color: #5c2b2b !important;
+}
+
+.card-body {
+    background-color: var(--blanco);
+    padding: 20px;
+    border-radius: 0 0 12px 12px;
+}
+
+.list-group-item {
+    background-color: #f5faff;
+    border: 1px solid #e1eef5;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.badge {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+    border-radius: 12px;
+}
+
+.btn {
+    font-size: 0.9rem;
+    padding: 8px 14px;
+    border-radius: 6px;
+}
+
+.btn-success {
+    background-color: #7cc6ba;
+    border: none;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #ff8a8a;
+    border: none;
+    color: #fff;
+}
+
+.btn-outline-primary {
+    border-color: #7fa8cf;
+    color: #517ba3;
+}
+
+.btn-outline-primary.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.alert {
+    border-radius: 6px;
+    padding: 10px 15px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
