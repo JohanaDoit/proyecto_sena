@@ -2,7 +2,8 @@
 
 from django.urls import path
 from . import views
-from django.contrib.auth import views as auth_views # Importar las vistas de autenticación de Django
+from django.contrib.auth import views as auth_views
+from .views import chat_view   # Importar las vistas de autenticación de Django
 
 urlpatterns = [
     # --- Vistas Generales ---
@@ -56,7 +57,6 @@ urlpatterns = [
     path('servicioCanceladoexpe/', views.servicioCanceladoexpe, name='servicioCanceladoexpe'), # Podría ser un template con mensaje de éxito
 
     # --- Otras Vistas (revisar si son necesarias o consolidar) ---
-    path('chat/', views.chat, name='chat'), # Si es una vista real para un sistema de chat
     path('fin/', views.fin, name='fin'), # ¿Es una página de finalización general?
 
     # --- Vistas de Documentación/Contenido Estático (mantener si son informativas) ---
@@ -73,5 +73,8 @@ urlpatterns = [
     path('experto/reserva/rechazar/<int:reserva_id>/', views.rechazar_reserva_experto, name='rechazar_reserva_experto'),
     path('reserva/cancelar/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
     path('cancelar-reserva/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
+    path('chat/<int:receptor_id>/', chat_view, name='chat'),
+
+
 ]
 

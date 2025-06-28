@@ -81,43 +81,59 @@
             </div>
         </div>
 
-        <!-- RESERVAS ASIGNADAS -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Tus Reservas Asignadas 
-                        <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    {% if reservas_asignadas %}
-                        <ul class="list-group">
-                            {% for reserva in reservas_asignadas %}
-                                <li class="list-group-item">
-                                    <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
-                                    <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
-                                    <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
-                                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
-                                    <p><strong>Estado:</strong> 
-                                        <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span>
-                                    </p>
+<!-- RESERVAS ASIGNADAS -->
+<div class="col-md-6">
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">
+                Tus Reservas Asignadas 
+                <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span>
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if reservas_asignadas %}
+                <ul class="list-group">
+                    {% for reserva in reservas_asignadas %}
+                        <li class="list-group-item">
+                            <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
+                            <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
+                            <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
+                            <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                            <p><strong>Estado:</strong> 
+                                <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span>
+                            </p>
 
-                                    {% if reserva.idEstado.Nombre == 'Cancelada' and reserva.motivo_cancelacion %}
-                                        <p class="text-danger"><strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}</p>
-                                    {% endif %}
+                            {% if reserva.idEstado.Nombre == 'Cancelada' and reserva.motivo_cancelacion %}
+                                <p class="text-danger">
+                                    <strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}
+                                </p>
+                            {% endif %}
 
-                                    <a href="#" class="btn btn-outline-primary btn-sm disabled">Gestionar</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No tienes reservas asignadas actualmente.</p>
-                    {% endif %}
-                </div>
-            </div>
+                            <div class="mt-2">
+                                {% if reserva.idUsuario.id in mensajes_no_leidos %}
+                                    <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado mensaje-nuevo">
+                                        🔴 Nuevo mensaje 💬
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado">
+                                        💬 Chatear
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No tienes reservas asignadas actualmente.</p>
+            {% endif %}
         </div>
     </div>
+</div>
 
+
+
+
+    
     <!-- RESERVAS CANCELADAS -->
     <div class="card mb-4">
         <div class="card-header bg-danger text-white">
