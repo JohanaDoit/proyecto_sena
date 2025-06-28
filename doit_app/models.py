@@ -89,6 +89,8 @@ class CustomUser(AbstractUser):
 
     def is_experto(self):
         return self.tipo_usuario == 'experto'
+    
+
 
 
 
@@ -105,6 +107,23 @@ class Categorias(models.Model):
 
     def __str__(self):
         return self.Nombre
+
+class Servicios(models.Model):
+    NombreServicio = models.CharField(max_length=50, verbose_name="Nombre del servicio")
+    idCategorias = models.ForeignKey(Categorias, on_delete=models.CASCADE, verbose_name="Categoría del servicio")
+
+    class Meta:
+        verbose_name = "Servicio"
+        verbose_name_plural = "Servicios"
+        db_table = "Servicios"
+        app_label = "doit_app"
+
+    def __str__(self):
+        return self.NombreServicio
+
+
+
+
 
 # Metodo (SIN CAMBIOS)
 class Metodo(models.Model):
@@ -165,18 +184,6 @@ class Profesion(models.Model):
         return self.Nombre
 
 # Servicios (SIN CAMBIOS)
-class Servicios(models.Model):
-    NombreServicio = models.CharField(max_length=50, verbose_name="Nombre del servicio")
-    idCategorias = models.ForeignKey(Categorias, on_delete=models.CASCADE, verbose_name="Categoría del servicio")
-
-    class Meta:
-        verbose_name = "Servicio"
-        verbose_name_plural = "Servicios"
-        db_table = "Servicios"
-        app_label = "doit_app"
-
-    def __str__(self):
-        return self.NombreServicio
 
 # Calificaciones (SIN CAMBIOS)
 class Calificaciones(models.Model):
