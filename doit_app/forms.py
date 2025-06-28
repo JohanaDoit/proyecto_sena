@@ -88,13 +88,16 @@ class RegistroForm(UserCreationForm):
         label="Foto de Perfil", 
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-    especialidad = forms.CharField(
-        max_length=100,
-        required=False, # Este campo DEBERÍA ser obligatorio para EXPERTOS
-        label="Especialidad (ej. Electricista, Plomero)",
-        widget=forms.TextInput(attrs={'class': 'form-control'})
+    # Reemplaza tu campo actual por este:
+    especialidad = forms.ModelChoiceField(
+        queryset=Servicios.objects.all().order_by('NombreServicio'),
+        required=False,  # o True si quieres forzarlo
+        label="Especialidad (Servicio)",
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
 
+
+    
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         # UserCreationForm.Meta.fields ya incluye 'username', 'password', 'password2'.
@@ -199,7 +202,9 @@ class RegistroForm(UserCreationForm):
             user.hojaVida = self.cleaned_data.get('hojaVida')
             user.hojaVida_file = self.cleaned_data.get('hojaVida_file')
             user.foto_perfil = self.cleaned_data.get('foto_perfil')
-            user.especialidad = self.cleaned_data.get('especialidad')
+            user.especialidad = self.cleaned_data.get('especialidad').NombreServicio if self.cleaned_data.get('especialidad') else None
+
+
         else:
             # Si no es experto, asegúrate de que estos campos estén vacíos/nulos
             user.experienciaTrabajo = None
