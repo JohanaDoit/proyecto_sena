@@ -1,31 +1,33 @@
+{% extends 'base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Chat de Servicio</title>
-  <link rel="stylesheet" href="{% static 'css/chat.css' %}">
-</head>
-<body>
-  <div class="chat-container">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
     <div class="chat-header">
-      💬 Chat con Laura Pérez (Electricista)
+        Conversación con {{ receptor.get_full_name|default:receptor.username }}
     </div>
 
-    <div class="chat-body">
-      <div class="mensaje mensaje-otro">
-        <div class="contenido">Hola, estoy en camino. 🚗</div>
-      </div>
-      <div class="mensaje mensaje-propio">
-        <div class="contenido">¡Perfecto! Te espero. 😊</div>
-      </div>
+    <div class="chat-box">
+        {% for mensaje in mensajes %}
+            <div class="message {% if mensaje.emisor == request.user %}sent{% else %}received{% endif %}">
+                <strong>{{ mensaje.emisor.username }}</strong><br>
+                {{ mensaje.contenido|linebreaksbr }}
+                <small>{{ mensaje.fecha_envio|date:"d/m/Y H:i" }}</small>
+            </div>
+            <div class="clearfix"></div>
+        {% empty %}
+            <p class="no-mensajes">No hay mensajes aún.</p>
+        {% endfor %}
     </div>
 
-    <div class="chat-footer">
-      <input type="text" placeholder="Escribe tu mensaje aquí...">
-      <button>Enviar</button>
-    </div>
-  </div>
-</body>
-</html>
+    <form method="POST" class="chat-form">
+        {% csrf_token %}
+        <textarea name="contenido" rows="2" placeholder="Escribe tu mensaje..." required></textarea>
+        <button type="submit">Enviar</button>
+    </form>
+</div>
+{% endblock %}

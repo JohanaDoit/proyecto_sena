@@ -318,3 +318,15 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"
+
+
+
+class Mensaje(models.Model):
+    emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
+    receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE)
+    contenido = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    leido = models.BooleanField(default=False)  # NUEVO CAMPO
+
+    def __str__(self):
+        return f"{self.emisor} → {self.receptor}: {self.contenido[:30]}"

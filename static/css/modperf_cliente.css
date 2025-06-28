@@ -42,4 +42,115 @@
 
 .modificar-perfil-btn:hover {
     background-color: #0056b3;
+
+
+}
+
+
+
+/* estilos de la reserva despues de aceptada */
+.mensaje-reserva-exitosa {
+    background-color: #e6f4ea;
+    border-left: 5px solid #28a745;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: 15px;
+    color: #155724;
+    margin-top: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.mensaje-reserva-exitosa .mensaje-titulo {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.mensaje-reserva-exitosa .mensaje-detalles {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.mensaje-reserva-exitosa .mensaje-detalles li {
+    margin-bottom: 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* chat */
+
+#mensaje-reserva {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    align-items: center;
+}
+
+#mensaje-reserva img {
+    object-fit: cover;
+    border: 2px solid #28a745;
+}
+
+.boton-chat-animado {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.3s ease;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.boton-chat-animado:hover {
+    background-color: #0056b3;
+}
+
+.boton-chat-animado.mensaje-nuevo {
+    background-color: #dc3545;
+    animation: pulse 1s infinite;
+    font-weight: bold;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+.boton-cancelar-animado {
+    background-color: #ffc107;
+    color: #212529;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.boton-cancelar-animado:hover {
+    background-color: #e0a800;
+}
+
+.botones-acciones-reserva {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
 }

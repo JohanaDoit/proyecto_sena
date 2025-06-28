@@ -13,6 +13,52 @@ from .models import Ciudad
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q  # ← Esto soluciona lo de Q
+from .models import Mensaje  # ← Asegúrate de importar tu modelo correctamente
+from django.http import HttpResponseForbidden
+
+
+
+@login_required
+def chat_view(request, receptor_id):
+    receptor = get_object_or_404(CustomUser, id=receptor_id)
+
+    # Validar si hay una reserva aceptada entre ellos (cliente o experto)
+    reserva_aceptada = Reserva.objects.filter(
+        Q(idUsuario=request.user, experto_asignado=receptor) |
+        Q(idUsuario=receptor, experto_asignado=request.user),
+        idEstado__Nombre='Aceptada'
+    ).exists()
+
+    if not reserva_aceptada:
+        return HttpResponseForbidden("❌ No tienes permiso para chatear con este usuario.")
+
+    if request.method == 'POST':
+        contenido = request.POST.get('contenido')
+        if contenido:
+            Mensaje.objects.create(emisor=request.user, receptor=receptor, contenido=contenido)
+
+    # Marcar mensajes como leídos
+    Mensaje.objects.filter(receptor=request.user, emisor=receptor, leido=False).update(leido=True)
+
+    mensajes = Mensaje.objects.filter(
+        Q(emisor=request.user, receptor=receptor) |
+        Q(emisor=receptor, receptor=request.user)
+    ).order_by('fecha_envio')
+
+    return render(request, 'chat.html', {
+        'receptor': receptor,
+        'mensajes': mensajes
+    })
+
+
+
+
+
+
 
 # Funciones de test para @user_passes_test
 def is_cliente(user):
@@ -62,8 +108,6 @@ def cancelar_reserva(request, reserva_id):
     return redirect('principal')
 
 
-
-
 @login_required
 def principal(request):
     # Redirección según tipo de usuario
@@ -95,13 +139,25 @@ def principal(request):
         idEstado__Nombre='Aceptada'
     ).order_by('-Fecha', '-Hora').first()
 
+    # 🔴 Mensajes no leídos del experto hacia el cliente
+    mensajes_no_leidos = {}
+    if reserva_aceptada and reserva_aceptada.experto_asignado:
+        experto = reserva_aceptada.experto_asignado
+        count = Mensaje.objects.filter(
+            emisor=experto,
+            receptor=request.user,
+            leido=False
+        ).count()
+        if count > 0:
+            mensajes_no_leidos[experto.id] = count
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
         'ultimas_reservas': ultimas_reservas,
         'reserva_aceptada': reserva_aceptada,
+        'mensajes_no_leidos': mensajes_no_leidos,  # ✅ ahora sí está en el contexto
     })
-
 
 
 @login_required
@@ -114,12 +170,11 @@ def reserva(request):
         return redirect('principal')
 
     servicio = get_object_or_404(Servicios, id=servicio_id)
-    request.session['servicio_id'] = servicio_id  # Guardar en sesión para POST
+    request.session['servicio_id'] = servicio_id
 
     if request.method == 'POST':
         form = ReservaForm(request.POST)
 
-        # Ajustar queryset dinámico de ciudad basado en el país enviado
         pais_id = request.POST.get('pais')
         if pais_id:
             form.fields['ciudad'].queryset = Ciudad.objects.filter(departamento__pais_id=pais_id)
@@ -130,7 +185,7 @@ def reserva(request):
             reserva = form.save(commit=False)
             reserva.idUsuario = request.user
             reserva.idServicios = servicio
-            
+
             try:
                 estado_pendiente = Estado.objects.get(Nombre='Pendiente')
                 reserva.idEstado = estado_pendiente
@@ -140,18 +195,27 @@ def reserva(request):
 
             reserva.save()
 
-            messages.success(request, '✅ ¡Tu reserva ha sido creada con éxito y está pendiente de un experto!')
+            # Guarda datos en sesión para mostrar mensaje en la siguiente vista
+            request.session['mensaje_reserva'] = {
+                'servicio': servicio.NombreServicio,
+                'fecha': reserva.Fecha.strftime('%d/%m/%Y'),
+                'hora': reserva.Hora.strftime('%H:%M'),
+                'direccion': reserva.direccion,
+                'ciudad': reserva.ciudad.Nombre if reserva.ciudad else 'No especificada'
+            }
+
             return redirect('principal')
         else:
             messages.error(request, '❌ Hubo un error al procesar tu reserva. Por favor, revisa los datos.')
-            print(form.errors) 
     else:
         form = ReservaForm(initial={'idServicios': servicio})
-    
+
     return render(request, 'reserva.html', {
         'form': form,
         'servicio': servicio
     })
+
+
 
 def ciudades_por_pais(request):
     pais_id = request.GET.get('pais_id')
@@ -224,9 +288,6 @@ def servicioAceptado(request):
 def servicioAceptadoexpe(request):
     return render(request, 'servicioAceptadoexpe.html')
 
-@login_required
-def chat(request):
-    return render(request, 'chat.html')
 
 @login_required
 def servicioCancelado(request):
@@ -249,7 +310,7 @@ from .models import Reserva, Estado
 
 
 
-user_passes_test(is_experto, login_url=reverse_lazy('login'))
+@user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Is Authenticated: {request.user.is_authenticated}, Tipo: {request.user.tipo_usuario}")
 
@@ -276,20 +337,32 @@ def dashboard_experto(request):
     reservas_asignadas = Reserva.objects.filter(
         experto_asignado=request.user,
         idEstado__Nombre__in=['Aceptada', 'En progreso']
-    ).order_by('Fecha', 'Hora')
+    ).select_related('idUsuario', 'idServicios')
 
     reservas_canceladas = Reserva.objects.filter(
         experto_asignado=request.user,
         idEstado__Nombre='Cancelada'
     ).order_by('-Fecha', '-Hora')
 
+    # NUEVO: verificar mensajes no leídos por cada cliente
+    mensajes_no_leidos = {}
+    for reserva in reservas_asignadas:
+        cliente = reserva.idUsuario
+        count = Mensaje.objects.filter(
+            emisor=cliente,
+            receptor=request.user,
+            leido=False
+        ).count()
+        if count > 0:
+            mensajes_no_leidos[cliente.id] = count
+
     return render(request, 'experto/dashboard_experto.html', {
         'reservas_pendientes': reservas_pendientes,
         'reservas_asignadas': reservas_asignadas,
         'reservas_canceladas': reservas_canceladas,
-        'user_especialidad': request.user.especialidad
+        'user_especialidad': request.user.especialidad,
+        'mensajes_no_leidos': mensajes_no_leidos  # 👈 lo pasamos al template
     })
-
 
 
 
@@ -320,7 +393,6 @@ def aceptar_reserva_experto(request, reserva_id):
             reserva.idEstado = estado_aceptada
             reserva.save()
 
-            messages.success(request, f'✅ ¡Has aceptado la reserva #{reserva.id}!')
             return redirect('dashboard_experto')
 
         except Estado.DoesNotExist:
@@ -352,10 +424,8 @@ def rechazar_reserva_experto(request, reserva_id):
             reserva.idEstado = estado_rechazada
 
             reserva.save()
-            messages.info(request, f'❌ Has rechazado la reserva #{reserva.id}.')
             return redirect('dashboard_experto')
         except Estado.DoesNotExist:
-            messages.error(request, "Error de configuración de estados. Contacte al administrador.")
             return redirect('dashboard_experto')
         except Exception as e:
             messages.error(request, f"Ocurrió un error al rechazar la reserva: {e}")
@@ -449,15 +519,12 @@ def user_login_view(request):
                 return redirect(reverse_lazy('admin_principal'))
             else: # Fallback
                 return redirect(reverse_lazy('principal'))
-        else:
-            messages.error(request, "Usuario o contraseña incorrectos.")
     else:
         form = AuthenticationForm()
     return render(request, 'sign-in/login.html', {'form': form})
 
 def user_logout_view(request):
     auth_logout(request)
-    messages.info(request, "Has cerrado sesión correctamente.")
     return redirect(reverse_lazy('home'))
 
 def login_experto(request):
@@ -478,11 +545,6 @@ def login_experto(request):
                 if next_url:
                     return redirect(next_url)
                 return redirect(reverse_lazy('dashboard_experto'))
-            else:
-                form.add_error(None, "Las credenciales no corresponden a un experto.")
-                messages.error(request, "Acceso denegado: Usuario no es un experto.")
-        else:
-            messages.error(request, "Usuario o contraseña incorrectos.")
     else:
         form = AuthenticationForm()
     return render(request, 'sign-in/login_experto.html', {'form': form})
@@ -611,6 +673,5 @@ def terminos_condiciones(request):
 
 def tratamiento_datos(request):
     return render(request, 'tratamiento_datos.html')
-
 
 

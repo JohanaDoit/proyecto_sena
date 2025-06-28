@@ -119,3 +119,93 @@ h1, h3 {
 .me-2 {
     margin-right: 0.5rem;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#mensaje-reserva {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #e6ffed;
+    border-left: 6px solid #28a745;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+#mensaje-reserva img {
+    border-radius: 50%;
+    border: 3px solid #28a745;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#mensaje-reserva p {
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+.botones-acciones-reserva {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.boton-chat-animado {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s ease;
+}
+
+.boton-chat-animado:hover {
+    background-color: #0056b3;
+}
+
+.boton-chat-animado.mensaje-nuevo {
+    background-color: #dc3545;
+    animation: pulse 1s infinite;
+    font-weight: bold;
+}
+
+@keyframes pulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.07); }
+    100% { transform: scale(1); }
+}
+
+.boton-cancelar-animado {
+    background-color: transparent;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.boton-cancelar-animado:hover {
+    background-color: #dc3545;
+    color: white;
+}
