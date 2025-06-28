@@ -10,7 +10,9 @@
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
-    <p class="lead">Tu especialidad: <strong>{{ user_especialidad|default:"No especificada" }}</strong></p>
+    <p class="lead">Tu especialidad: 
+        <strong>{{ request.user.especialidad.NombreServicio|default:"No especificada" }}</strong>
+    </p>
 
     {% if messages %}
         <div class="messages">
@@ -30,7 +32,9 @@
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Reservas Pendientes <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span></h3>
+                    <h3 class="mb-0">Reservas Pendientes 
+                        <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span>
+                    </h3>
                 </div>
                 <div class="card-body">
                     {% if reservas_pendientes %}
@@ -39,7 +43,7 @@
                                 <li class="list-group-item">
                                     <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
 
-                                    {% if reserva.idServicios.idCategorias.Nombre != request.user.categoria_especialidad.Nombre %}
+                                    {% if request.user.especialidad and reserva.idServicios.idCategorias.Nombre != request.user.especialidad.idCategorias.Nombre %}
                                         <div class="alert alert-warning mt-2">
                                             No estás calificado para aceptar este tipo de servicio.
                                         </div>
@@ -53,9 +57,11 @@
                                     {% if reserva.pago_ofrecido %}
                                         <p><strong>Pago ofrecido:</strong> ${{ reserva.pago_ofrecido }}</p>
                                     {% endif %}
-                                    <p><strong>Estado:</strong> <span class="badge bg-warning text-dark">{{ reserva.idEstado.Nombre }}</span></p>
+                                    <p><strong>Estado:</strong> 
+                                        <span class="badge bg-warning text-dark">{{ reserva.idEstado.Nombre }}</span>
+                                    </p>
 
-                                    {% if reserva.idServicios.idCategorias.Nombre == request.user.categoria_especialidad.Nombre %}
+                                    {% if request.user.especialidad and reserva.idServicios.idCategorias.Nombre == request.user.especialidad.idCategorias.Nombre %}
                                         <form action="{% url 'aceptar_reserva_experto' reserva.id %}" method="post" class="d-inline">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-success btn-sm me-2">Aceptar</button>
@@ -79,7 +85,9 @@
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">Tus Reservas Asignadas <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span></h3>
+                    <h3 class="mb-0">Tus Reservas Asignadas 
+                        <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span>
+                    </h3>
                 </div>
                 <div class="card-body">
                     {% if reservas_asignadas %}
@@ -90,7 +98,9 @@
                                     <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
                                     <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
                                     <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
-                                    <p><strong>Estado:</strong> <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span></p>
+                                    <p><strong>Estado:</strong> 
+                                        <span class="badge bg-info">{{ reserva.idEstado.Nombre }}</span>
+                                    </p>
 
                                     {% if reserva.idEstado.Nombre == 'Cancelada' and reserva.motivo_cancelacion %}
                                         <p class="text-danger"><strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}</p>
@@ -111,7 +121,9 @@
     <!-- RESERVAS CANCELADAS -->
     <div class="card mb-4">
         <div class="card-header bg-danger text-white">
-            <h3 class="mb-0">Reservas Canceladas <span class="badge bg-light text-danger">{{ reservas_canceladas.count }}</span></h3>
+            <h3 class="mb-0">Reservas Canceladas 
+                <span class="badge bg-light text-danger">{{ reservas_canceladas.count }}</span>
+            </h3>
         </div>
         <div class="card-body">
             {% if reservas_canceladas %}
@@ -122,7 +134,9 @@
                             <p><strong>Cliente:</strong> {{ reserva.idUsuario.first_name }} {{ reserva.idUsuario.last_name }}</p>
                             <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
                             <p class="text-danger"><strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}</p>
-                            <p><strong>Estado:</strong> <span class="badge bg-danger">{{ reserva.idEstado.Nombre }}</span></p>
+                            <p><strong>Estado:</strong> 
+                                <span class="badge bg-danger">{{ reserva.idEstado.Nombre }}</span>
+                            </p>
                         </li>
                     {% endfor %}
                 </ul>

@@ -31,6 +31,7 @@ def home(request):
     return render(request, 'home.html')
 
 
+
 @login_required
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
@@ -246,7 +247,9 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Reserva, Estado
 
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+
+
+user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Is Authenticated: {request.user.is_authenticated}, Tipo: {request.user.tipo_usuario}")
 
@@ -261,20 +264,20 @@ def dashboard_experto(request):
         messages.error(request, "Error de configuración de estados. Contacte al administrador.")
         return redirect('principal')
 
-    # Reservas pendientes
-    reservas_pendientes = Reserva.objects.filter(
-        (Q(experto_asignado__isnull=True) | Q(experto_asignado=request.user)),
-        Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa),
-        idServicios__idCategorias=request.user.categoria_especialidad
-    ).order_by('Fecha', 'Hora')
+    reservas_pendientes = Reserva.objects.none()
 
-    # Reservas aceptadas o en proceso (por ejemplo: "En progreso", si manejas ese estado)
+    if request.user.especialidad:
+        reservas_pendientes = Reserva.objects.filter(
+            (Q(experto_asignado__isnull=True) | Q(experto_asignado=request.user)),
+            Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa),
+            idServicios=request.user.especialidad
+        ).order_by('Fecha', 'Hora')
+
     reservas_asignadas = Reserva.objects.filter(
         experto_asignado=request.user,
         idEstado__Nombre__in=['Aceptada', 'En progreso']
     ).order_by('Fecha', 'Hora')
 
-    # ✅ Reservas canceladas (para mostrar motivo)
     reservas_canceladas = Reserva.objects.filter(
         experto_asignado=request.user,
         idEstado__Nombre='Cancelada'
@@ -291,7 +294,7 @@ def dashboard_experto(request):
 
 
 @login_required
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+@user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url=reverse_lazy('login'))
 def aceptar_reserva_experto(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
 
@@ -299,9 +302,13 @@ def aceptar_reserva_experto(request, reserva_id):
     if reserva.experto_asignado and reserva.experto_asignado != request.user:
         messages.warning(request, "Esta reserva ya ha sido aceptada por otro experto.")
         return redirect('dashboard_experto')
-    
-    # 🔁 Validación por categoría de especialidad
-    if reserva.idServicios.idCategorias != request.user.categoria_especialidad:
+
+    # 🔁 Validación por categoría de especialidad del servicio del experto
+    if not request.user.especialidad or not request.user.especialidad.idCategorias:
+        messages.error(request, "Tu perfil no tiene una especialidad o categoría válida.")
+        return redirect('dashboard_experto')
+
+    if reserva.idServicios.idCategorias != request.user.especialidad.idCategorias:
         messages.error(request, "No estás cualificado para aceptar este tipo de servicio.")
         return redirect('dashboard_experto')
 
@@ -324,6 +331,8 @@ def aceptar_reserva_experto(request, reserva_id):
             return redirect('dashboard_experto')
 
     return render(request, 'experto/confirmar_aceptar_reserva.html', {'reserva': reserva})
+
+
 
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))

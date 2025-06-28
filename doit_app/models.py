@@ -28,73 +28,6 @@ class TipoDoc(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Modelo CustomUser (AJUSTES MENORES)
-class CustomUser(AbstractUser):
-    tipo_usuario_choices = [
-        ('cliente', 'Cliente'),
-        ('experto', 'Experto'),
-    ]
-    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
-    
-    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
-    
-    nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
-    numDoc = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="Número de Documento")
-    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
-    
-    evidenciaTrabajo = models.ImageField(
-        upload_to='evidencia_trabajo/', 
-        blank=True,
-        null=True,
-        verbose_name="Evidencia de Trabajo (Imagen)"
-    )
-    
-    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
-    
-    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
-    hojaVida_file = models.FileField(
-        upload_to='hojas_de_vida/', 
-        blank=True,
-        null=True,
-        verbose_name="Archivo de Hoja de Vida"
-    )
-    
-    foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
-    
-    tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
-
-    # Nuevo campo para la especialidad del experto (lo añadimos para el perfil del experto)
-    especialidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Especialidad")
-
-    categoria_especialidad = models.ForeignKey(
-        'doit_app.Categorias',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name="Categoría de Especialidad"
-    )
-
-
-    class Meta:
-        verbose_name = "Usuario Personalizado"
-        verbose_name_plural = "Usuarios Personalizados"
-        app_label = "doit_app"
-
-    def __str__(self):
-        return self.username
-
-    def is_usuario_normal(self):
-        return self.tipo_usuario == 'cliente'
-
-    def is_experto(self):
-        return self.tipo_usuario == 'experto'
-    
-
-
-
-
-
 # Categorias (SIN CAMBIOS)
 class Categorias(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre de la categoría")
@@ -120,6 +53,71 @@ class Servicios(models.Model):
 
     def __str__(self):
         return self.NombreServicio
+
+
+
+
+
+
+
+
+
+
+
+
+
+class CustomUser(AbstractUser):
+    tipo_usuario_choices = [
+        ('cliente', 'Cliente'),
+        ('experto', 'Experto'),
+    ]
+
+    genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
+    tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
+    nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
+    numDoc = models.CharField(max_length=100, unique=True, blank=True, null=True, verbose_name="Número de Documento")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
+
+    evidenciaTrabajo = models.ImageField(
+        upload_to='evidencia_trabajo/', 
+        blank=True,
+        null=True,
+        verbose_name="Evidencia de Trabajo (Imagen)"
+    )
+    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
+    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
+    hojaVida_file = models.FileField(upload_to='hojas_de_vida/', blank=True, null=True, verbose_name="Archivo de Hoja de Vida")
+    foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
+    tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
+
+    # CAMBIO AQUÍ: Especialidad ya no es CharField, sino ForeignKey a Servicios
+    especialidad = models.ForeignKey(
+        Servicios,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Servicio que ofrece el experto"
+    )
+
+    class Meta:
+        verbose_name = "Usuario Personalizado"
+        verbose_name_plural = "Usuarios Personalizados"
+        app_label = "doit_app"
+
+    def __str__(self):
+        return self.username
+
+    def is_usuario_normal(self):
+        return self.tipo_usuario == 'cliente'
+
+    def is_experto(self):
+        return self.tipo_usuario == 'experto'
+        
+
+
+
+
 
 
 
@@ -182,6 +180,11 @@ class Profesion(models.Model):
 
     def __str__(self):
         return self.Nombre
+
+
+
+
+
 
 # Servicios (SIN CAMBIOS)
 
@@ -275,14 +278,6 @@ class Reserva(models.Model):
         verbose_name="Estado de la Reserva"
     )
 
-    # 🔴 NUEVO CAMPO agregado
-    motivo_cancelacion = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        verbose_name="Motivo de Cancelación"
-    )
-
     # Experto asignado
     experto_asignado = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -301,6 +296,15 @@ class Reserva(models.Model):
         null=True,
         verbose_name="Pago Ofrecido por el Cliente"
     )
+
+
+    motivo_cancelacion = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Motivo de Cancelación"
+    )
+
+
 
     # Auditoría
     creado_en = models.DateTimeField(auto_now_add=True)

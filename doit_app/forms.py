@@ -6,20 +6,15 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
 from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva
 
-# --- REGISTRO FORM ---
-class RegistroForm(UserCreationForm):
-    # NOTA: NO es necesario definir 'password' o 'password2' aquí,
-    # UserCreationForm los provee automáticamente con sus validaciones.
 
-    # Asegúrate de que 'email' sea requerido y único si lo usas como campo principal
-    # UserCreationForm no hace el email requerido por defecto, pero tu lo has puesto.
+
+class RegistroForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         label="Correo Electrónico",
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
 
-    # Campos adicionales del usuario (comunes a clientes y expertos)
     genero = forms.ModelChoiceField(
         queryset=Genero.objects.all().order_by('Nombre'),
         empty_label="Selecciona tu género",
@@ -27,14 +22,14 @@ class RegistroForm(UserCreationForm):
         label="Género",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     tipo_usuario = forms.ChoiceField(
         choices=CustomUser.tipo_usuario_choices, 
         initial='cliente', 
         label="Tipo de Usuario",
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_tipo_usuario'})
     )
-    
+
     nacionalidad = forms.CharField(
         max_length=100, 
         required=False, 
@@ -58,7 +53,7 @@ class RegistroForm(UserCreationForm):
         label="Fecha de Nacimiento", 
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
-    
+
     tipo_documento = forms.ModelChoiceField(
         queryset=TipoDoc.objects.all().order_by('Nombre'),
         empty_label="Selecciona tipo de documento",
@@ -67,7 +62,6 @@ class RegistroForm(UserCreationForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    # --- CAMPOS ESPECÍFICOS PARA EXPERTOS ---
     evidenciaTrabajo = forms.ImageField( 
         required=False, 
         label="Evidencia de Trabajo (Imagen)",
@@ -78,33 +72,28 @@ class RegistroForm(UserCreationForm):
         label="Experiencia de Trabajo", 
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
     )
-    hojaVida_file = forms.FileField( # Archivo de CV
+    hojaVida_file = forms.FileField( 
         required=False, 
         label="Subir Hoja de Vida (PDF, DOCX, etc.)", 
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
     foto_perfil = forms.ImageField( 
-        required=False, # Este campo DEBERÍA ser obligatorio para EXPERTOS si se quiere forzar una imagen de perfil
+        required=False,
         label="Foto de Perfil", 
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-    # Reemplaza tu campo actual por este:
+
     especialidad = forms.ModelChoiceField(
         queryset=Servicios.objects.all().order_by('NombreServicio'),
-        required=False,  # o True si quieres forzarlo
+        required=False,
         label="Especialidad (Servicio)",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-
-    
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        # UserCreationForm.Meta.fields ya incluye 'username', 'password', 'password2'.
-        # Asegúrate de que 'email' NO esté aquí si lo has definido explícitamente arriba,
-        # para evitar duplicación. UserCreationForm.Meta.fields NO incluye 'email' por defecto.
         fields = UserCreationForm.Meta.fields + (
-            'email', # Aseguramos que 'email' esté aquí, ya que no viene por defecto en UserCreationForm.Meta.fields
+            'email', 
             'tipo_usuario', 
             'first_name',
             'last_name',
@@ -137,8 +126,6 @@ class RegistroForm(UserCreationForm):
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
-            # 'email': forms.EmailInput(attrs={'class': 'form-control'}), # Ya definido arriba
-            # Los widgets para 'password' y 'password2' son manejados por UserCreationForm
         }
 
     def clean(self):
@@ -146,46 +133,27 @@ class RegistroForm(UserCreationForm):
         tipo_usuario = cleaned_data.get('tipo_usuario')
 
         if tipo_usuario == 'experto':
-            # Hacemos los campos de experto requeridos condicionalmente
-            # NOTA: 'required=False' en la definición del campo es para el comportamiento por defecto,
-            # aquí lo forzamos a ser requerido si el tipo de usuario es 'experto'.
             if not cleaned_data.get('evidenciaTrabajo'):
                 self.add_error('evidenciaTrabajo', 'Este campo es obligatorio para expertos.')
             if not cleaned_data.get('experienciaTrabajo'):
                 self.add_error('experienciaTrabajo', 'Este campo es obligatorio para expertos.')
-            
-            # Validación para hojaVida (uno de los dos debe estar)
             if not cleaned_data.get('hojaVida') and not cleaned_data.get('hojaVida_file'):
-                # Añadimos un error no de campo (non_field_errors) o a un campo general si no quieres duplicar
-                # self.add_error(None, 'Debe proporcionar un link o subir un archivo de Hoja de Vida para expertos.')
                 self.add_error('hojaVida', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
-                self.add_error('hojaVida_file', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.') # Este es un error duplicado, considera si quieres ambos.
-            
+                self.add_error('hojaVida_file', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
             if not cleaned_data.get('foto_perfil'):
                 self.add_error('foto_perfil', 'Este campo es obligatorio para expertos.')
-            
             if not cleaned_data.get('especialidad'):
                 self.add_error('especialidad', 'Este campo es obligatorio para expertos.')
-
         return cleaned_data
 
-    # UserCreationForm ya tiene clean_username y clean_email, pero puedes sobreescribirlos si necesitas
-    # lógica adicional o mensajes de error personalizados.
-    # El clean_email de UserCreationForm por defecto no verifica unicidad si el campo no es `unique=True` en el modelo User.
-    # Si CustomUser tiene email unique=True, Django ya lo validará. Si no, tu clean_email es útil.
     def clean_email(self):
         email = self.cleaned_data['email']
-        # Verifica si el correo ya existe, excluyendo el usuario actual si es una actualización
         if CustomUser.objects.filter(email=email).exists():
             raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
 
     def save(self, commit=True):
-        # UserCreationForm se encarga de crear el usuario base (username, password, email, first_name, last_name)
-        # y de hashear la contraseña.
         user = super().save(commit=False)
-        
-        # Asignamos los campos adicionales del CustomUser
         user.genero = self.cleaned_data.get('genero')
         user.tipo_usuario = self.cleaned_data.get('tipo_usuario')
         user.nacionalidad = self.cleaned_data.get('nacionalidad')
@@ -194,19 +162,15 @@ class RegistroForm(UserCreationForm):
         user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
         user.tipo_documento = self.cleaned_data.get('tipo_documento')
 
-        # Asigna los campos de experto solo si están presentes en cleaned_data
-        # y si el tipo de usuario es experto.
         if user.tipo_usuario == 'experto':
             user.experienciaTrabajo = self.cleaned_data.get('experienciaTrabajo')
             user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo')
             user.hojaVida = self.cleaned_data.get('hojaVida')
             user.hojaVida_file = self.cleaned_data.get('hojaVida_file')
             user.foto_perfil = self.cleaned_data.get('foto_perfil')
-            user.especialidad = self.cleaned_data.get('especialidad').NombreServicio if self.cleaned_data.get('especialidad') else None
-
+            user.especialidad = self.cleaned_data.get('especialidad')  # <- CORRECTO
 
         else:
-            # Si no es experto, asegúrate de que estos campos estén vacíos/nulos
             user.experienciaTrabajo = None
             user.evidenciaTrabajo = None
             user.hojaVida = None
@@ -217,8 +181,11 @@ class RegistroForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
 
 
+
+    
 # --- PERFIL USUARIO FORM (para edición de perfil) ---
 # Esta clase es para editar un usuario existente, no para crear uno nuevo.
 class PerfilUsuarioForm(UserChangeForm): 
