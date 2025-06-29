@@ -89,6 +89,20 @@ class RegistroForm(UserCreationForm):
         label="Especialidad (Servicio)",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    
+    direccion = forms.CharField(
+        max_length=255,
+        required=False, # Cambia a True si quieres que la dirección sea obligatoria
+        label="Dirección de Residencia",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    
+    barrio = forms.CharField(
+        max_length=100,
+        required=False, # Cambia a True si quieres que el barrio sea obligatorio
+        label="Barrio",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
 
     class Meta(UserCreationForm.Meta):
         model = CustomUser
@@ -108,6 +122,8 @@ class RegistroForm(UserCreationForm):
             'hojaVida_file', 
             'foto_perfil',
             'especialidad',
+            'direccion', # Añadido aquí
+            'barrio',    # Añadido aquí
         )
         labels = {
             'username': 'Nombre de Usuario',
@@ -121,7 +137,11 @@ class RegistroForm(UserCreationForm):
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'foto_perfil': 'Foto de Perfil',
             'especialidad': 'Especialidad (Solo para Expertos)',
+            'direccion': 'Dirección de Residencia', # Añadido aquí
+            'barrio': 'Barrio',    # Añadido aquí
+        
         }
+        
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -161,7 +181,10 @@ class RegistroForm(UserCreationForm):
         user.telefono = self.cleaned_data.get('telefono')
         user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
         user.tipo_documento = self.cleaned_data.get('tipo_documento')
-
+        user.direccion = self.cleaned_data.get('direccion') # Guardando la dirección
+        user.barrio = self.cleaned_data.get('barrio') 
+        
+        
         if user.tipo_usuario == 'experto':
             user.experienciaTrabajo = self.cleaned_data.get('experienciaTrabajo')
             user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo')
@@ -236,6 +259,20 @@ class PerfilUsuarioForm(UserChangeForm):
         label="Especialidad",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+    
+    # --- Campos de Dirección y Barrio para Edición ---
+    direccion = forms.CharField(
+        max_length=255,
+        required=False,
+        label="Dirección de Residencia",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    barrio = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Barrio",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = CustomUser
@@ -246,8 +283,12 @@ class PerfilUsuarioForm(UserChangeForm):
             'username', 'first_name', 'last_name', 'email',
             'genero', 'tipo_usuario', 'nacionalidad', 'numDoc', 'telefono',
             'fechaNacimiento', 'experienciaTrabajo', 'evidenciaTrabajo', 'hojaVida',
-            'hojaVida_file', 'tipo_documento', 'foto_perfil', 'especialidad'
+            'hojaVida_file', 'tipo_documento', 'foto_perfil', 'especialidad',
+            'direccion', # Añadido aquí
+            'barrio',    # Añadido aquí
+        
         )
+        
         labels = {
             'username': 'Nombre de Usuario',
             'first_name': 'Nombres',
@@ -256,6 +297,9 @@ class PerfilUsuarioForm(UserChangeForm):
             'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'especialidad': 'Especialidad',
+            'direccion': 'Dirección de Residencia',
+            'barrio': 'Barrio',    # Añadido aquí
+        
         }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
@@ -269,6 +313,9 @@ class PerfilUsuarioForm(UserChangeForm):
             'experienciaTrabajo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'hojaVida': forms.URLInput(attrs={'class': 'form-control'}),
             'especialidad': forms.TextInput(attrs={'class': 'form-control'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control'}),
+            'barrio': forms.TextInput(attrs={'class': 'form-control'}), # Añadido aquí
+        
         }
         
     def __init__(self, *args, **kwargs):

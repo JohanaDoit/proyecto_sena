@@ -99,7 +99,7 @@
 
 <!-- FORMULARIO OCULTO PARA CANCELAR -->
 <div id="form-cancelar" class="alert alert-warning mt-4" style="display: none; max-width: 400px;">
-    <form method="post" action="{% url 'cancelar_reserva' reserva_aceptada.id %}">
+
         {% csrf_token %}
         <p><strong>¿Por qué deseas cancelar esta reserva?</strong></p>
 

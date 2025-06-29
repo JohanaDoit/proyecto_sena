@@ -56,16 +56,6 @@ class Servicios(models.Model):
 
 
 
-
-
-
-
-
-
-
-
-
-
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
         ('cliente', 'Cliente'),
@@ -99,6 +89,10 @@ class CustomUser(AbstractUser):
         blank=True,
         verbose_name="Servicio que ofrece el experto"
     )
+    
+    direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
+    barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
+
 
     class Meta:
         verbose_name = "Usuario Personalizado"
