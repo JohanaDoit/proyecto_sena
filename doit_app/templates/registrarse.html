@@ -159,6 +159,26 @@
                 {% endif %}
             </div>
 
+            
+            <div class="form-group">
+                {{ form.direccion.label_tag }}
+                {{ form.direccion }}
+                {% if form.direccion.errors %}
+                    <div class="text-danger">
+                        {% for error in form.direccion.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.barrio.label_tag }}
+                {{ form.barrio }}
+                {% if form.barrio.errors %}
+                    <div class="text-danger">
+                        {% for error in form.barrio.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
             {# EL CAMPO foto_perfil ESTÁ AQUÍ. Si es solo para expertos, deberías moverlo al div de experto-fields #}
             {# Pero si puede ser para todos, déjalo aquí. El JavaScript lo manejará para ocultarlo si eres cliente. #}
             <div class="form-group">
