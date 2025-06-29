@@ -5,16 +5,16 @@ body {
     display: flex;
     justify-content: center;
     min-height: 100vh;
-    background-color: #01304a; /* Fondo principal: Azul oscuro */
-    color: #fdfdfd; /* Color de texto general */
+    background-color: #f2f5f7; /* Fondo principal: Azul oscuro */
+    color: #121111; /* Color de texto general */
 }
 
 .contenedor {
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo del contenedor*/
+    background-color: rgba(249, 244, 244, 0.4); /* Fondo del contenedor*/
     border-radius: 15px;
     padding: 40px;
     text-align: center;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 20px rgba(232, 230, 230, 0.99);
     max-width: 1000px;
     width: 97%;
 }
@@ -55,13 +55,13 @@ body {
 
 .texto-boton {
     font-size: 0.95em;
-    color: #fffbfb;
+    color: #0e0e0e;
     margin-bottom: 8px;
 }
 
 .boton {
     background-color: #f27f00; /* Botones*/
-    color: #092727   ;
+    color: #e6ecec   ;
     padding: 15px 30px;
     border: none;
     border-radius: 10px;
@@ -74,7 +74,7 @@ body {
 }
 
 .boton.secundario {
-    background-color: #93dc93; /* Botón secundario*/
+    background-color: #0c0721; /* Botón secundario*/
 }
 
 .boton:hover {
