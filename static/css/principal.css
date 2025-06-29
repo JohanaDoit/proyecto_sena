@@ -277,29 +277,38 @@ button:hover:not(:disabled) {
 
 /* --- Sección de Servicios (CUIDADO PERSONAL, HOGAR, LOCATIVOS) --- */
 .servicios {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px; /* Reducido de 40px */
+    display: flex; /* Ya lo tienes, ¡perfecto! */
+    flex-wrap: wrap; /* Permite que se envuelvan en pantallas pequeñas */
+    justify-content: center; /* Centra los elementos horizontalmente */
+    gap: 30px; /* Reducido de 40px - Espacio entre los elementos */
     width: 100%;
-    max-width: 900px; /* Ligeramente reducido */
+    max-width: 900px; /* Mantén un ancho máximo para el contenedor de los servicios */
+    margin: 0 auto; /* Centra el contenedor de servicios en la página */
+    padding: 20px; /* Añade un poco de padding alrededor del contenedor de servicios */
 }
 
 .servicio {
     background-color: var(--fondo);
     padding: 1.2rem; /* Ligeramente reducido */
-    box-shadow: 5px 5px 15px #ccae76;
+    box-shadow: 5px 5px 15px #a9c4f0;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 20px; /* Reducido de 30px */
-    flex: 1;
-    min-width: 250px; /* Ligeramente reducido */
-    max-width: 300px; /* Ligeramente reducido */
+    /* Elimina o reduce drásticamente margin-bottom si quieres que estén en una sola fila sin "saltos" */
+    margin-bottom: 0; /* O un valor pequeño como 10px si quieres un poco de separación vertical en móviles */
+
+    /* La clave es que cada uno ocupe aproximadamente 1/3 del espacio disponible */
+    flex: 1 1 calc(33.333% - 40px); /* flex-grow flex-shrink flex-basis */
+                                    /* 33.333% para que quepan 3, y resta el gap para evitar desbordamiento */
+                                    /* Aquí restamos (2/3) * gap. Si el gap es 30px, restamos 20px (30*2/3) = 20*/
+    min-width: 250px; /* Mantén un min-width para evitar que se hagan demasiado pequeños */
+    max-width: 300px; /* Limita su tamaño máximo */
     border-radius: 10px;
     transition: transform 0.3s ease;
+    box-sizing: border-box; /* Asegura que padding y border se incluyan en el ancho/alto */
 }
+
 
 .servicio img {
     width: 100%;
@@ -312,7 +321,7 @@ button:hover:not(:disabled) {
 
 .servicio p {
     font-size: 18px; /* Ligeramente reducido */
-    color: #8a7012;
+    color: #05070e;
     text-align: justify;
 }
 
