@@ -63,10 +63,10 @@
                                     {% if request.user.especialidad and reserva.idServicios.idCategorias == request.user.especialidad.idCategorias %}
                                         <form method="post" class="d-inline">
                                             {% csrf_token %}
+                                            <input type="hidden" name="accion" value="aceptar">
                                             <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
                                             <button type="submit" class="btn btn-success btn-sm me-2">Aceptar</button>
-                                        </form>
-                                        <form action="{% url 'rechazar_reserva_experto' reserva.id %}" method="post" class="d-inline">
+                                        </form>                                        <form action="{% url 'rechazar_reserva_experto' reserva.id %}" method="post" class="d-inline">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
                                         </form>
@@ -81,54 +81,102 @@
             </div>
         </div>
 
-        <!-- RESERVAS ASIGNADAS -->
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h3 class="mb-0">
-                        Tus Reservas Asignadas 
-                        <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    {% if reservas_asignadas %}
-                        <ul class="list-group">
-                            {% for reserva in reservas_asignadas %}
-                                <li class="list-group-item position-relative">
-                                    <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
+<!-- RESERVAS ASIGNADAS -->
+<div class="col-md-6">
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">
+                Tus Reservas Asignadas 
+                <span class="badge bg-light text-success">{{ reservas_asignadas.count }}</span>
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if reservas_asignadas %}
+                <ul class="list-group">
+                    {% for reserva in reservas_asignadas %}
+                        <li class="list-group-item position-relative">
+                            <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
 
-                                    <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
-                                    <p><strong>Cliente:</strong> {{ reserva.idUsuario.get_full_name|default:reserva.idUsuario.username }}</p>
-                                    <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
-                                    <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                            <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
+                            <p><strong>Cliente:</strong> {{ reserva.idUsuario.get_full_name|default:reserva.idUsuario.username }}</p>
+                            <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
+                            <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
 
-                                    {% if reserva.motivo_cancelacion %}
-                                        <p class="text-danger">
-                                            <strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}
+                            {% if reserva.motivo_cancelacion %}
+                                <p class="text-danger">
+                                    <strong>Motivo de cancelación:</strong> {{ reserva.motivo_cancelacion }}
+                                </p>
+                            {% endif %}
+
+                            <!-- ESTADO DE SERVICIO -->
+                            <div class="mt-2">
+                                {% if not reserva.servicio_iniciado %}
+                                    <!-- Botón para iniciar servicio -->
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="iniciar_servicio">
+                                        <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
+                                        <button type="submit" class="btn-iniciar">Iniciar Servicio</button>
+                                    </form>
+
+                                {% elif reserva.servicio_iniciado and not reserva.servicio_finalizado %}
+                                    <!-- Formulario para finalizar servicio -->
+                                    <form method="post" class="form-finalizar-servicio">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="finalizar_servicio">
+                                        <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
+
+                                        <label for="comentario_{{ reserva.id }}"><strong>Comentario:</strong></label><br>
+                                        <textarea name="comentario" id="comentario_{{ reserva.id }}" rows="3" cols="40" placeholder="Escribe un comentario..."></textarea><br><br>
+
+                                        <label for="duracion_{{ reserva.id }}"><strong>Duración (HH:MM):</strong></label><br>
+                                        <input type="text" name="duracion" id="duracion_{{ reserva.id }}" placeholder="Ej: 1 hora o 30 minutos">
+
+                                        <button type="submit" class="btn-finalizar">Finalizar Servicio</button>
+                                    </form>
+
+                                {% elif reserva.servicio_finalizado %}
+                                    <div class="resumen-servicio">
+                                        <p><strong>✅ Servicio Finalizado</strong></p>
+                                        <p><strong>Comentario:</strong> {{ reserva.comentario_durante_servicio|default:"Sin comentario" }}</p>
+                                        <p><strong>Duración:</strong>
+                                            {% if reserva.duracion_estimada %}
+                                                {{ reserva.duracion_estimada }}
+                                            {% else %}
+                                                No especificada
+                                            {% endif %}
                                         </p>
-                                    {% endif %}
-
-                                    <div class="mt-2">
-                                        {% if reserva.idUsuario.id in mensajes_no_leidos %}
-                                            <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado mensaje-nuevo">
-                                                🔴 Nuevo mensaje 💬
-                                            </a>
-                                        {% else %}
-                                            <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado">
-                                                💬 Chatear
-                                            </a>
-                                        {% endif %}
                                     </div>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No tienes reservas asignadas actualmente.</p>
-                    {% endif %}
-                </div>
-            </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Chat -->
+                            {% if not reserva.servicio_finalizado %}
+                                <div class="mt-2">
+                                    {% if reserva.idUsuario.id in mensajes_no_leidos %}
+                                        <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado mensaje-nuevo">
+                                            🔴 Nuevo mensaje 💬
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'chat' reserva.idUsuario.id %}" class="boton-chat-animado">
+                                            💬 Chatear
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No tienes reservas asignadas actualmente.</p>
+            {% endif %}
         </div>
     </div>
+</div>
+
+
+
+
 
     <!-- RESERVAS CANCELADAS -->
     <div class="card mb-4">

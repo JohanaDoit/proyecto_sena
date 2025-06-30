@@ -11,7 +11,7 @@
 {% block content %}
 <div class="banner-bienvenida">
     <div class="contenido-banner">
-        <h1>👋 ¡Bienvenid@
+        <h1>👋 ¡Bienvenid@ 
             {% if user.is_authenticated %}
                 {% if user.first_name %}
                     {{ user.first_name }}
@@ -19,7 +19,7 @@
                     {{ user.username }}
                 {% endif %}
             {% endif %}
-            a
+            a 
             <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
         </h1>
         <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form">
@@ -37,7 +37,6 @@
         {% endfor %}
     </div>
 {% endif %}
-
 
 {% if request.session.mensaje_reserva %}
     {% with datos=request.session.mensaje_reserva %}
@@ -57,53 +56,101 @@
 
 
 
-
 {% if reserva_aceptada %}
-<div id="mensaje-reserva" class="alert alert-success d-flex align-items-center mt-4 p-3 rounded" role="alert" style="gap: 15px;">
-    
-    <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
-                {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
-            {% else %}
-                {% static 'img/default_profile.png' %}
-            {% endif %}"
-        alt="Foto del experto"
-        class="rounded-circle border"
-        width="80" height="80">
+    {% if reserva_aceptada.servicio_iniciado and not reserva_aceptada.servicio_finalizado %}
+    <!-- 🟢 SERVICIO EN CURSO -->
+    <div class="alert alert-info d-flex align-items-center mt-4 p-3 rounded" role="alert" style="gap: 15px;">
+        <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
+                    {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
+                {% else %}
+                    {% static 'img/default_profile.png' %}
+                {% endif %}"
+            alt="Foto del experto"
+            class="rounded-circle border"
+            width="80" height="80">
 
-    <div>
-        <h5 class="mb-2">✔️ ¡Tu reserva fue aceptada!</h5>
-        <p class="mb-1">
-            El experto <strong>{{ reserva_aceptada.experto_asignado.get_full_name }}</strong>
-            ({{ reserva_aceptada.experto_asignado.especialidad.NombreServicio|default:"Especialidad no registrada" }})
-            ha aceptado tu solicitud <strong>#{{ reserva_aceptada.id }}</strong>.
-        </p>
+        <div>
+            <h5 class="mb-2">🔧 {{ reserva_aceptada.experto_asignado.get_full_name }} está realizando tu servicio</h5>
+            <p class="mb-2">Tu servicio está en curso. Puedes comunicarte con el experto si necesitas algo adicional.</p>
 
-        <ul class="mb-2 ps-3">
-            <li><strong>📅 Fecha:</strong> {{ reserva_aceptada.Fecha|date:"d/m/Y" }}</li>
-            <li><strong>⏰ Hora:</strong> {{ reserva_aceptada.Hora|time:"H:i" }}</li>
-            <li><strong>📞 Teléfono:</strong> {{ reserva_aceptada.experto_asignado.telefono|default:"No disponible" }}</li>
-            <li><strong>📍 Dirección:</strong> {{ reserva_aceptada.experto_asignado.direccion|default:"No registrada" }}</li>
-        </ul>
+            <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="btn btn-primary mb-2">
+                💬 Chatear
+            </a>
 
-        <div class="botones-acciones-reserva d-flex gap-2">
-            {% if reserva_aceptada.experto_asignado.id in mensajes_no_leidos %}
-                <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado mensaje-nuevo">
-                    🔴 Nuevo mensaje 💬
-                </a>
-            {% else %}
-                <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado">
-                    💬 Chatear
-                </a>
-            {% endif %}
-            <button type="button" class="boton-cancelar-animado" onclick="mostrarFormularioCancelar()">
-                ❌ Cancelar
-            </button>
+            <div class="progress mt-2" style="height: 20px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                    role="progressbar"
+                    style="width: 70%;">
+                    Servicio en curso...
+                </div>
+            </div>
         </div>
     </div>
-</div>
+    {% else %}
+    <!-- 🟡 RESERVA ACEPTADA AÚN NO INICIADA -->
+    <div id="mensaje-reserva" class="alert alert-success d-flex align-items-center mt-4 p-3 rounded" role="alert" style="gap: 15px;">
+        <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
+                    {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
+                {% else %}
+                    {% static 'img/default_profile.png' %}
+                {% endif %}"
+            alt="Foto del experto"
+            class="rounded-circle border"
+            width="80" height="80">
+
+        <div>
+            <h5 class="mb-2">✔️ ¡Tu reserva fue aceptada!</h5>
+            <p class="mb-1">
+                El experto <strong>{{ reserva_aceptada.experto_asignado.get_full_name }}</strong>
+                ({{ reserva_aceptada.experto_asignado.especialidad.NombreServicio|default:"Especialidad no registrada" }})
+                ha aceptado tu solicitud <strong>#{{ reserva_aceptada.id }}</strong>.
+            </p>
+
+            <ul class="mb-2 ps-3">
+                <li><strong>📅 Fecha:</strong> {{ reserva_aceptada.Fecha|date:"d/m/Y" }}</li>
+                <li><strong>⏰ Hora:</strong> {{ reserva_aceptada.Hora|time:"H:i" }}</li>
+                <li><strong>📞 Teléfono:</strong> {{ reserva_aceptada.experto_asignado.telefono|default:"No disponible" }}</li>
+                <li><strong>📍 Dirección:</strong> {{ reserva_aceptada.experto_asignado.direccion|default:"No registrada" }}</li>
+            </ul>
+
+            <div class="botones-acciones-reserva d-flex gap-2">
+                {% if reserva_aceptada.experto_asignado.id in mensajes_no_leidos %}
+                    <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado mensaje-nuevo">
+                        🔴 Nuevo mensaje 💬
+                    </a>
+                {% else %}
+                    <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado">
+                        💬 Chatear
+                    </a>
+                {% endif %}
+                <button type="button" class="boton-cancelar-animado" onclick="mostrarFormularioCancelar()">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endif %}
 
 
+
+<!-- Formulario de comentario del cliente -->
+{% if reserva_aceptada.servicio_iniciado and not reserva_aceptada.servicio_finalizado %}
+<div class="alert alert-info mt-3">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="reserva_id" value="{{ reserva_aceptada.id }}">
+
+        <label for="comentario_cliente"><strong>📝 Comentario para el experto:</strong></label><br>
+        <textarea name="comentario_cliente"
+                id="comentario_cliente"
+                rows="3"
+                cols="50"
+                placeholder="Escribe algo importante que el experto deba saber..."></textarea>
+        <button type="submit" class="btn btn-primary mt-2">Enviar comentario</button>
+    </form>
+</div>
+{% endif %}
 
 
 
@@ -139,6 +186,7 @@
     </div>
 </form>
 {% endif %}
+
 
 
 

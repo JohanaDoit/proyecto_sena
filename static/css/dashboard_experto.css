@@ -336,5 +336,34 @@ h1, h3 {
     transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-
 /*aca acabaX */
+
+/*iniciar servicio - finalizar servicio*/
+.btn-iniciar,
+.btn-finalizar {
+    padding: 6px 12px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+    display: inline-block;
+}
+.btn-iniciar {
+    background-color: #28a745;
+}
+.btn-finalizar {
+    background-color: #dc3545;
+}
+.form-finalizar-servicio textarea,
+.form-finalizar-servicio input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 8px;
+}
+.resumen-servicio {
+    background-color: #f3f3f3;
+    padding: 10px;
+    margin-top: 10px;
+    border-left: 4px solid #28a745;
+}
+

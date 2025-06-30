@@ -20,6 +20,7 @@ from django.db.models import Q  # ← Esto soluciona lo de Q
 from .models import Mensaje  # ← Asegúrate de importar tu modelo correctamente
 from django.http import HttpResponseForbidden
 from django.urls import reverse
+from datetime import timedelta
 
 
 
@@ -144,6 +145,30 @@ def principal(request):
             experto_asignado__isnull=False
         ).order_by('-Fecha', '-Hora').first()
 
+    # === GUARDAR COMENTARIO DEL CLIENTE SI EL SERVICIO ESTÁ INICIADO ===
+    if request.method == 'POST':
+        comentario_cliente = request.POST.get('comentario_cliente', '').strip()
+        reserva_id = request.POST.get('reserva_id')
+
+        print("🟡 POST recibido con comentario:", comentario_cliente)
+        print("🟡 Reserva ID recibida:", reserva_id)
+
+        if comentario_cliente and reserva_id:
+            try:
+                reserva = Reserva.objects.get(id=reserva_id, idUsuario=request.user)
+                print("🔵 Reserva encontrada:", reserva.id)
+
+                if reserva.servicio_iniciado and not reserva.servicio_finalizado:
+                    print("🟢 Condiciones válidas para guardar comentario")
+                    reserva.comentario_cliente = comentario_cliente
+                    reserva.save()
+                    print("✅ Comentario del cliente guardado")
+                else:
+                    print("🔴 Servicio no iniciado o ya finalizado")
+            except Reserva.DoesNotExist:
+                print("❌ No se encontró la reserva con ID", reserva_id)
+
+    # === MENSAJES NO LEÍDOS ===
     mensajes_no_leidos = {}
     if reserva_aceptada:
         experto = reserva_aceptada.experto_asignado
@@ -163,6 +188,12 @@ def principal(request):
         'reserva_aceptada': reserva_aceptada,
         'mensajes_no_leidos': mensajes_no_leidos
     })
+
+
+
+
+
+
 
 
 
@@ -397,29 +428,51 @@ from django.views.decorators.http import require_http_methods
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
 
-    # === LÓGICA PARA ACEPTAR RESERVA DESDE FORM POST ===
+    # === LÓGICA PARA FORMULARIOS POST (Aceptar, Iniciar, Finalizar) ===
     if request.method == 'POST':
+        accion = request.POST.get('accion')
         reserva_id = request.POST.get('reserva_id')
+
+        print(f"POST recibido | Acción: {accion}, Reserva ID: {reserva_id}")
+
         try:
             reserva = Reserva.objects.get(id=reserva_id)
 
-            if reserva.experto_asignado:
-                messages.warning(request, "Esta reserva ya fue asignada a otro experto.")
-            elif reserva.idServicios.idCategorias != request.user.especialidad.idCategorias:
-                messages.error(request, "No puedes aceptar reservas fuera de tu categoría.")
-            else:
-                reserva.experto_asignado = request.user
-                estado_aceptada = Estado.objects.get(Nombre='Aceptada')  # ✅ CAMBIO IMPORTANTE
-                reserva.idEstado = estado_aceptada                       # ✅ CAMBIO IMPORTANTE
-                reserva.save()
-                messages.success(request, f"✅ Aceptaste la reserva #{reserva.id} exitosamente.")
+            if accion == 'aceptar':
+                if not reserva.experto_asignado and reserva.idServicios.idCategorias == request.user.especialidad.idCategorias:
+                    reserva.experto_asignado = request.user
+                    estado_aceptada = Estado.objects.get(Nombre='Aceptada')
+                    reserva.idEstado = estado_aceptada
+                    reserva.save()
+                    print(f"Reserva {reserva_id} aceptada por {request.user.username}")
+
+            elif accion == 'iniciar_servicio':
+                if reserva.experto_asignado == request.user and not reserva.servicio_iniciado:
+                    reserva.servicio_iniciado = True
+                    reserva.save()
+                    print(f"Servicio iniciado para reserva {reserva_id}")
+
+            elif accion == 'finalizar_servicio':
+                if reserva.experto_asignado == request.user and reserva.servicio_iniciado and not reserva.servicio_finalizado:
+                    comentario = request.POST.get('comentario', '').strip()
+                    duracion = request.POST.get('duracion', '').strip()
+
+                    print(f"Finalizando servicio. Comentario: {comentario}, Duración: {duracion}")
+
+                    reserva.comentario_durante_servicio = comentario
+                    reserva.duracion_estimada = duracion
+                    reserva.servicio_finalizado = True
+                    estado_finalizado = Estado.objects.get(Nombre='Finalizado')
+                    reserva.idEstado = estado_finalizado
+                    reserva.save()
+                    print(f"Servicio finalizado para reserva {reserva_id}")
 
         except Reserva.DoesNotExist:
-            messages.error(request, "La reserva no existe.")
+            print(f"❌ Reserva con ID {reserva_id} no encontrada.")
         except Estado.DoesNotExist:
-            messages.error(request, "El estado 'Aceptada' no existe. Contacte al administrador.")
+            print(f"❌ Estado correspondiente no encontrado.")
         except Exception as e:
-            messages.error(request, f"Error inesperado: {e}")
+            print(f"⚠️ Error inesperado: {e}")
 
     # === RESERVAS PENDIENTES (que coincidan con su especialidad) ===
     reservas_pendientes = Reserva.objects.none()
@@ -460,6 +513,8 @@ def dashboard_experto(request):
         'user_especialidad': request.user.especialidad,
         'mensajes_no_leidos': mensajes_no_leidos
     })
+
+
 
 
 
