@@ -40,7 +40,9 @@
                     {% if reservas_pendientes %}
                         <ul class="list-group">
                             {% for reserva in reservas_pendientes %}
-                                <li class="list-group-item">
+                                <li class="list-group-item position-relative">
+                                    <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
+
                                     <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
 
                                     {% if request.user.especialidad and reserva.idServicios.idCategorias != request.user.especialidad.idCategorias %}
@@ -63,7 +65,8 @@
                                             {% csrf_token %}
                                             <input type="hidden" name="reserva_id" value="{{ reserva.id }}">
                                             <button type="submit" class="btn btn-success btn-sm me-2">Aceptar</button>
-                                        </form>                                        <form action="{% url 'rechazar_reserva_experto' reserva.id %}" method="post" class="d-inline">
+                                        </form>
+                                        <form action="{% url 'rechazar_reserva_experto' reserva.id %}" method="post" class="d-inline">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger btn-sm">Rechazar</button>
                                         </form>
@@ -91,7 +94,9 @@
                     {% if reservas_asignadas %}
                         <ul class="list-group">
                             {% for reserva in reservas_asignadas %}
-                                <li class="list-group-item">
+                                <li class="list-group-item position-relative">
+                                    <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
+
                                     <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
                                     <p><strong>Cliente:</strong> {{ reserva.idUsuario.get_full_name|default:reserva.idUsuario.username }}</p>
                                     <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
@@ -136,7 +141,9 @@
             {% if reservas_canceladas %}
                 <ul class="list-group">
                     {% for reserva in reservas_canceladas %}
-                        <li class="list-group-item">
+                        <li class="list-group-item position-relative">
+                            <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
+
                             <h5>Reserva #{{ reserva.id }} - {{ reserva.idServicios.NombreServicio }}</h5>
                             <p><strong>Cliente:</strong> {{ reserva.idUsuario.get_full_name|default:reserva.idUsuario.username }}</p>
                             <p><strong>Fecha y Hora:</strong> {{ reserva.Fecha|date:"d/m/Y" }} a las {{ reserva.Hora|time:"H:i" }}</p>
@@ -156,4 +163,26 @@
         <a href="{% url 'editar_perfil' %}" class="btn btn-info">Editar Perfil</a>
     </div>
 </div>
+
+<!-- Script para ocultar reservas y actualizar contador -->
+<script>
+    function cerrarReserva(btn) {
+        const item = btn.closest('li');
+        item.classList.add('reserva-oculta');
+
+        // Después de la animación, eliminar y actualizar contador
+        setTimeout(() => {
+            const card = btn.closest('.card');
+            const badge = card.querySelector('.badge');
+            if (badge) {
+                let count = parseInt(badge.textContent.trim());
+                if (count > 0) {
+                    badge.textContent = count - 1;
+                }
+            }
+            item.remove();
+        }, 400);
+    }
+</script>
 {% endblock %}
+

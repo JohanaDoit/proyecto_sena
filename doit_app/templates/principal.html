@@ -108,38 +108,40 @@
 
 
 
-<!-- FORMULARIO OCULTO PARA CANCELAR -->
-<div id="form-cancelar" class="alert alert-warning mt-4" style="display: none; max-width: 400px;">
+{% if reserva_aceptada and reserva_aceptada.id %}
+<form id="form-cancelar" class="alert alert-warning mt-4" style="display: none; max-width: 400px;" method="post" action="{% url 'cancelar_reserva' reserva_aceptada.id %}">
+    {% csrf_token %}
+    <p><strong>¿Por qué deseas cancelar esta reserva?</strong></p>
 
-        {% csrf_token %}
-        <p><strong>¿Por qué deseas cancelar esta reserva?</strong></p>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="motivo" id="motivo1" value="Ya no necesito el servicio" required>
+        <label class="form-check-label" for="motivo1">Ya no necesito el servicio</label>
+    </div>
 
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="motivo" id="motivo1" value="Ya no necesito el servicio" required>
-            <label class="form-check-label" for="motivo1">Ya no necesito el servicio</label>
-        </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="motivo" id="motivo2" value="Lo pedí por equivocación">
+        <label class="form-check-label" for="motivo2">Lo pedí por equivocación</label>
+    </div>
 
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="motivo" id="motivo2" value="Lo pedí por equivocación">
-            <label class="form-check-label" for="motivo2">Lo pedí por equivocación</label>
-        </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="motivo" id="motivo3" value="otra">
+        <label class="form-check-label" for="motivo3">Otra (especifica)</label>
+    </div>
 
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="motivo" id="motivo3" value="otra">
-            <label class="form-check-label" for="motivo3">Otra (especifica)</label>
-        </div>
+    <div class="form-group mt-2" id="otro_motivo_container" style="display: none;">
+        <label for="otro_motivo">Especifica el motivo:</label>
+        <textarea name="otro_motivo" id="otro_motivo" class="form-control" rows="3"></textarea>
+    </div>
 
-        <div class="form-group mt-2" id="otro_motivo_container" style="display: none;">
-            <label for="otro_motivo">Especifica el motivo:</label>
-            <textarea name="otro_motivo" id="otro_motivo" class="form-control" rows="3"></textarea>
-        </div>
+    <div class="mt-3 d-flex gap-2">
+        <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+        <button type="button" class="btn btn-secondary" onclick="volverAlMensaje()">Volver al mensaje</button>
+    </div>
+</form>
+{% endif %}
 
-        <div class="mt-3 d-flex gap-2">
-            <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
-            <button type="button" class="btn btn-secondary" onclick="volverAlMensaje()">Volver al mensaje</button>
-        </div>
-    </form>
-</div>
+
+
 
 
 
