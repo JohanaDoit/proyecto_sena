@@ -61,7 +61,6 @@ class CustomUserAdmin(BaseUserAdmin):
                 'tipo_documento',
                 'foto_perfil',
                 'especialidad',
-                'categoria_especialidad',  # AÑADIDO
             )
         }),
     )
@@ -82,7 +81,6 @@ class CustomUserAdmin(BaseUserAdmin):
                 'tipo_documento',
                 'foto_perfil',
                 'especialidad',
-                'categoria_especialidad',  # AÑADIDO
             )
         }),
     )
@@ -161,17 +159,21 @@ class CalificacionesAdmin(admin.ModelAdmin):
 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):
-    list_display = ('Fecha', 'Hora', 'direccion', 'idUsuario', 'idServicios', 'metodoDePago', 'ciudad')
-    list_filter = ('Fecha', 'metodoDePago', 'idServicios', 'ciudad', 'pais')
+    list_display = (
+        'Fecha', 'Hora', 'direccion', 'idUsuario', 'idServicios',
+        'metodoDePago', 'ciudad', 'idEstado', 'experto_asignado'
+    )
+    list_filter = ('Fecha', 'metodoDePago', 'idServicios', 'ciudad', 'pais', 'idEstado')
     search_fields = (
         'direccion',
         'descripcion',
         'idUsuario__username',
         'idServicios__NombreServicio',
         'ciudad__Nombre',
-        'pais__Nombre'
+        'pais__Nombre',
+        'idEstado__Nombre',
+        'experto_asignado__username',
     )
-    # Si añades un campo de estado para Reserva, agrégalo a list_display y list_filter
 
 
 @admin.register(Pais)

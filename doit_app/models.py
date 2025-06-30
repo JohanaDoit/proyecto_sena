@@ -315,6 +315,9 @@ class Reserva(models.Model):
 
 
 
+
+
+
 class Mensaje(models.Model):
     emisor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_enviados', on_delete=models.CASCADE)
     receptor = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='mensajes_recibidos', on_delete=models.CASCADE)
