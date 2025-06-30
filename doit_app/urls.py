@@ -1,9 +1,10 @@
 # doit_app/urls.py
 
+
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-from .views import chat_view   # Importar las vistas de autenticación de Django
+from .views import chat_view
 
 urlpatterns = [
     # --- Vistas Generales ---
@@ -69,12 +70,8 @@ urlpatterns = [
 
 
     path('api/ciudades_por_pais/', views.ciudades_por_pais, name='ciudades_por_pais'),
-    path('experto/reserva/aceptar/<int:reserva_id>/', views.aceptar_reserva_experto, name='aceptar_reserva_experto'),
-    path('experto/reserva/rechazar/<int:reserva_id>/', views.rechazar_reserva_experto, name='rechazar_reserva_experto'),
-
+    path('cancelar-reserva/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
 
     path('chat/<int:receptor_id>/', chat_view, name='chat'),
-
-
 ]
 

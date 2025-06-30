@@ -125,7 +125,7 @@ AUTH_USER_MODEL = 'doit_app.CustomUser' # ¡Esto es CORRECTO y VITAL! Le dice a 
 
 # Authentication redirects
 LOGIN_URL = 'login' # Nombre de la URL para el login
-LOGIN_REDIRECT_URL = 'principal' # URL a la que redirigir después de un login exitoso (general)
+LOGIN_REDIRECT_URL = 'redireccionar_por_rol'
 LOGOUT_REDIRECT_URL = 'home' # URL a la que redirigir después del logout.
 
 # MEDIA_URL y MEDIA_ROOT: ¡Excelente! Estas configuraciones son cruciales para subir y servir archivos (fotos de perfil, evidencias).

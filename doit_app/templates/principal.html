@@ -58,30 +58,34 @@
 
 
 
-{# Bloque de mensaje si la reserva fue aceptada #}
 {% if reserva_aceptada %}
-<div id="mensaje-reserva" class="alert alert-success d-flex align-items-center mt-4" role="alert" style="gap: 15px;">
+<div id="mensaje-reserva" class="alert alert-success d-flex align-items-center mt-4 p-3 rounded" role="alert" style="gap: 15px;">
+    
     <img src="{% if reserva_aceptada.experto_asignado.foto_perfil %}
                 {{ reserva_aceptada.experto_asignado.foto_perfil.url }}
             {% else %}
                 {% static 'img/default_profile.png' %}
             {% endif %}"
         alt="Foto del experto"
-        class="rounded-circle"
-        width="80"
-        height="80">
+        class="rounded-circle border"
+        width="80" height="80">
 
     <div>
-        <p>
-            <strong>{{ reserva_aceptada.experto_asignado.get_full_name }}</strong> ha aceptado tu reserva 
-            <strong>#{{ reserva_aceptada.id }}</strong>.
-        </p>
-        <p>
-            Servicio: <strong>{{ reserva_aceptada.idServicios.NombreServicio }}</strong><br>
-            Fecha: {{ reserva_aceptada.Fecha|date:"d/m/Y" }} a las {{ reserva_aceptada.Hora|time:"H:i" }}
+        <h5 class="mb-2">✔️ ¡Tu reserva fue aceptada!</h5>
+        <p class="mb-1">
+            El experto <strong>{{ reserva_aceptada.experto_asignado.get_full_name }}</strong>
+            ({{ reserva_aceptada.experto_asignado.especialidad.NombreServicio|default:"Especialidad no registrada" }})
+            ha aceptado tu solicitud <strong>#{{ reserva_aceptada.id }}</strong>.
         </p>
 
-        <div class="botones-acciones-reserva mt-2">
+        <ul class="mb-2 ps-3">
+            <li><strong>📅 Fecha:</strong> {{ reserva_aceptada.Fecha|date:"d/m/Y" }}</li>
+            <li><strong>⏰ Hora:</strong> {{ reserva_aceptada.Hora|time:"H:i" }}</li>
+            <li><strong>📞 Teléfono:</strong> {{ reserva_aceptada.experto_asignado.telefono|default:"No disponible" }}</li>
+            <li><strong>📍 Dirección:</strong> {{ reserva_aceptada.experto_asignado.direccion|default:"No registrada" }}</li>
+        </ul>
+
+        <div class="botones-acciones-reserva d-flex gap-2">
             {% if reserva_aceptada.experto_asignado.id in mensajes_no_leidos %}
                 <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado mensaje-nuevo">
                     🔴 Nuevo mensaje 💬
@@ -91,11 +95,18 @@
                     💬 Chatear
                 </a>
             {% endif %}
-            <button type="button" class="boton-cancelar-animado" onclick="mostrarFormularioCancelar()">Cancelar</button>
+            <button type="button" class="boton-cancelar-animado" onclick="mostrarFormularioCancelar()">
+                ❌ Cancelar
+            </button>
         </div>
     </div>
 </div>
 {% endif %}
+
+
+
+
+
 
 <!-- FORMULARIO OCULTO PARA CANCELAR -->
 <div id="form-cancelar" class="alert alert-warning mt-4" style="display: none; max-width: 400px;">

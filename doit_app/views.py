@@ -19,6 +19,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q  # ← Esto soluciona lo de Q
 from .models import Mensaje  # ← Asegúrate de importar tu modelo correctamente
 from django.http import HttpResponseForbidden
+from django.urls import reverse
 
 
 
@@ -108,56 +109,62 @@ def cancelar_reserva(request, reserva_id):
     return redirect('principal')
 
 
+
+
 @login_required
 def principal(request):
-    # Redirección según tipo de usuario
     if request.user.tipo_usuario == 'experto':
         return redirect('dashboard_experto')
-
-    if request.user.tipo_usuario == 'admin':
+    elif request.user.tipo_usuario == 'admin':
         return redirect('admin_principal')
 
     categorias = Categorias.objects.all()
     servicios = Servicios.objects.all()
-
-    # Agrupar servicios por categoría
     servicios_por_categoria = {
         cat.Nombre: list(servicios.filter(idCategorias=cat))
         for cat in categorias
     }
 
-    # Últimas 3 reservas no canceladas ni completadas
     ultimas_reservas = Reserva.objects.filter(
         idUsuario=request.user
     ).exclude(
         Q(idEstado__Nombre='Cancelada') | Q(idEstado__Nombre='Completada')
     ).order_by('-Fecha', '-Hora')[:3]
 
-    # Última reserva aceptada (para mostrar mensaje de confirmación)
-    reserva_aceptada = Reserva.objects.filter(
-        idUsuario=request.user,
-        idEstado__Nombre='Aceptada'
-    ).order_by('-Fecha', '-Hora').first()
+    try:
+        estado_aceptada = Estado.objects.get(Nombre='Aceptada')
+    except Estado.DoesNotExist:
+        estado_aceptada = None
 
-    # 🔴 Mensajes no leídos del experto hacia el cliente
+    reserva_aceptada = None
+    if estado_aceptada:
+        reserva_aceptada = Reserva.objects.filter(
+            idUsuario=request.user,
+            idEstado=estado_aceptada,
+            experto_asignado__isnull=False
+        ).order_by('-Fecha', '-Hora').first()
+
     mensajes_no_leidos = {}
-    if reserva_aceptada and reserva_aceptada.experto_asignado:
+    if reserva_aceptada:
         experto = reserva_aceptada.experto_asignado
-        count = Mensaje.objects.filter(
+        mensajes_sin_leer = Mensaje.objects.filter(
             emisor=experto,
             receptor=request.user,
             leido=False
         ).count()
-        if count > 0:
-            mensajes_no_leidos[experto.id] = count
+
+        if mensajes_sin_leer > 0:
+            mensajes_no_leidos[experto.id] = mensajes_sin_leer
 
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
         'ultimas_reservas': ultimas_reservas,
         'reserva_aceptada': reserva_aceptada,
-        'mensajes_no_leidos': mensajes_no_leidos,  # ✅ ahora sí está en el contexto
+        'mensajes_no_leidos': mensajes_no_leidos
     })
+
+
 
 
 @login_required
@@ -224,32 +231,91 @@ def ciudades_por_pais(request):
         return JsonResponse(list(ciudades), safe=False)
     return JsonResponse({'error': 'No se proporcionó un ID de país'}, status=400)
 
-@require_POST
+
+
+
+def is_experto(user):
+    return user.is_authenticated and user.tipo_usuario == 'experto'
+
+@login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def aceptar_reserva_experto(request, reserva_id):
-    reserva = get_object_or_404(Reserva, pk=reserva_id, experto_asignado__isnull=True)
+    reserva = get_object_or_404(Reserva, id=reserva_id)
 
-    try:
-        estado_activa = Estado.objects.get(Nombre='Activa')
-    except Estado.DoesNotExist:
-        messages.error(request, "Error interno: Estado 'Activa' no existe.")
+    if reserva.idEstado.Nombre == "Aceptada" and reserva.experto_asignado:
+        messages.warning(request, "Esta reserva ya fue aceptada por otro experto.")
         return redirect('dashboard_experto')
 
+    try:
+        estado_aceptada = Estado.objects.get(Nombre="Aceptada")
+    except Estado.DoesNotExist:
+        messages.error(request, "Error interno: el estado 'Aceptada' no está registrado.")
+        return redirect('dashboard_experto')
+
+    reserva.idEstado = estado_aceptada
     reserva.experto_asignado = request.user
-    reserva.idEstado = estado_activa
     reserva.save()
 
-    messages.success(request, "✅ Has aceptado la reserva correctamente.")
+    messages.success(request, "Has aceptado la reserva exitosamente.")
     return redirect('dashboard_experto')
 
 
+
+
+
+
+@login_required
+def cancelar_reserva(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, idUsuario=request.user)
+
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo')
+        if motivo == 'otra':
+            motivo = request.POST.get('otro_motivo', 'No especificado')
+
+        try:
+            estado_cancelada = Estado.objects.get(Nombre='Cancelada')
+        except Estado.DoesNotExist:
+            messages.error(request, "Error interno: el estado 'Cancelada' no está registrado.")
+            return redirect('principal')
+
+        reserva.idEstado = estado_cancelada
+        reserva.motivo_cancelacion = motivo
+        reserva.save()
+
+        messages.success(request, "Has cancelado tu reserva.")
+        return redirect('principal')
+
+    messages.error(request, "Acción inválida.")
+    return redirect('principal')
+
+
+
+
+@login_required
+@user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url=reverse_lazy('login'))
 @require_POST
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def rechazar_reserva_experto(request, reserva_id):
-    # Opcional: registrar rechazo, pero por ahora solo redireccionar
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    if reserva.experto_asignado and reserva.experto_asignado != request.user:
+        messages.warning(request, "Esta reserva ya ha sido asignada a otro experto.")
+        return redirect('dashboard_experto')
+
+    try:
+        estado_rechazada = Estado.objects.get(Nombre='Rechazada')
+    except Estado.DoesNotExist:
+        messages.error(request, "Error interno: el estado 'Rechazada' no está registrado.")
+        return redirect('dashboard_experto')
+
+    if reserva.experto_asignado == request.user:
+        reserva.experto_asignado = None
+
+    reserva.idEstado = estado_rechazada
+    reserva.save()
+
     messages.info(request, "Has rechazado la reserva.")
     return redirect('dashboard_experto')
-
 
 
 
@@ -270,6 +336,9 @@ def rechazar_reserva_experto(request, reserva_id):
 def mis_reservas_cliente(request):
     reservas = Reserva.objects.filter(idUsuario=request.user).order_by('-creado_en')
     return render(request, 'cliente/mis_reservas.html', {'reservas': reservas})
+
+
+
 
 
 @login_required
@@ -310,41 +379,54 @@ from .models import Reserva, Estado
 
 
 
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+
+from django.views.decorators.http import require_http_methods
+
+@login_required(login_url='login')
+@user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url='login')
+@require_http_methods(["GET", "POST"])
 def dashboard_experto(request):
-    print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Is Authenticated: {request.user.is_authenticated}, Tipo: {request.user.tipo_usuario}")
+    print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
 
-    if not is_experto(request.user):
-        print("DEBUG: is_experto regresó False para el usuario autenticado.")
-        return redirect('principal')
+    # === LÓGICA PARA ACEPTAR RESERVA DESDE FORM POST ===
+    if request.method == 'POST':
+        reserva_id = request.POST.get('reserva_id')
+        try:
+            reserva = Reserva.objects.get(id=reserva_id)
 
-    try:
-        estado_pendiente = Estado.objects.get(Nombre='Pendiente')
-        estado_activa = Estado.objects.get(Nombre='Activa')
-    except Estado.DoesNotExist:
-        messages.error(request, "Error de configuración de estados. Contacte al administrador.")
-        return redirect('principal')
+            if reserva.experto_asignado:
+                messages.warning(request, "Esta reserva ya fue asignada a otro experto.")
+            elif reserva.idServicios.idCategorias != request.user.especialidad.idCategorias:
+                messages.error(request, "No puedes aceptar reservas fuera de tu categoría.")
+            else:
+                reserva.experto_asignado = request.user
+                reserva.save()
+                messages.success(request, f"✅ Aceptaste la reserva #{reserva.id} exitosamente.")
 
+        except Reserva.DoesNotExist:
+            messages.error(request, "La reserva no existe.")
+
+    # === RESERVAS PENDIENTES (que coincidan con su especialidad) ===
     reservas_pendientes = Reserva.objects.none()
-
     if request.user.especialidad:
         reservas_pendientes = Reserva.objects.filter(
-            (Q(experto_asignado__isnull=True) | Q(experto_asignado=request.user)),
-            Q(idEstado=estado_pendiente) | Q(idEstado=estado_activa),
-            idServicios=request.user.especialidad
+            experto_asignado__isnull=True,
+            idServicios__idCategorias=request.user.especialidad.idCategorias
         ).order_by('Fecha', 'Hora')
 
+    # === RESERVAS YA ACEPTADAS ===
     reservas_asignadas = Reserva.objects.filter(
         experto_asignado=request.user,
-        idEstado__Nombre__in=['Aceptada', 'En progreso']
+        motivo_cancelacion__isnull=True
     ).select_related('idUsuario', 'idServicios')
 
+    # === RESERVAS CANCELADAS ===
     reservas_canceladas = Reserva.objects.filter(
         experto_asignado=request.user,
-        idEstado__Nombre='Cancelada'
+        motivo_cancelacion__isnull=False
     ).order_by('-Fecha', '-Hora')
 
-    # NUEVO: verificar mensajes no leídos por cada cliente
+    # === MENSAJES NO LEÍDOS ===
     mensajes_no_leidos = {}
     for reserva in reservas_asignadas:
         cliente = reserva.idUsuario
@@ -361,8 +443,14 @@ def dashboard_experto(request):
         'reservas_asignadas': reservas_asignadas,
         'reservas_canceladas': reservas_canceladas,
         'user_especialidad': request.user.especialidad,
-        'mensajes_no_leidos': mensajes_no_leidos  # 👈 lo pasamos al template
+        'mensajes_no_leidos': mensajes_no_leidos
     })
+
+
+
+
+
+
 
 
 
@@ -403,6 +491,7 @@ def aceptar_reserva_experto(request, reserva_id):
             return redirect('dashboard_experto')
 
     return render(request, 'experto/confirmar_aceptar_reserva.html', {'reserva': reserva})
+
 
 
 
@@ -578,10 +667,12 @@ def login_admin(request):
 
 def registrarse(request):
     if request.user.is_authenticated:
+        if request.user.tipo_usuario == 'experto':
+            return redirect('dashboard_experto')
         return redirect('principal')
 
     if request.method == 'POST':
-        form = RegistroForm(request.POST, request.FILES) 
+        form = RegistroForm(request.POST, request.FILES)
 
         recaptcha_response = request.POST.get('g-recaptcha-response')
         data = {
@@ -597,21 +688,42 @@ def registrarse(request):
             user = form.save()
             auth_login(request, user)
             messages.success(request, '🎉 ¡Registro exitoso! Bienvenido a DoIt.')
-            return redirect(reverse_lazy('principal'))
+
+            if user.tipo_usuario == 'experto':
+                return redirect('dashboard_experto')
+            return redirect('principal')
+
         else:
-            messages.error(request, 'Hubo un error al registrarte. Por favor, revisa los datos.')
-            print("Errores del formulario de registro:", form.errors)
+            messages.error(request, '❌ Error al registrarte. Revisa los datos.')
+            print("Errores del formulario:", form.errors)
     else:
-        form = RegistroForm(initial={'tipo_usuario': 'cliente'})
-    return render(request, 'registrarse.html', {'form': form, 'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY})
+        form = RegistroForm()
+
+    return render(request, 'registrarse.html', {
+        'form': form,
+        'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY
+    })
+
+
+
+
+
+
+
+
+
+
 
 def regisexperto(request):
     if request.user.is_authenticated:
-        return redirect('principal')
+        if request.user.tipo_usuario == 'experto':
+            return redirect('dashboard_experto')
+        else:
+            return redirect('principal')
 
     if request.method == 'POST':
         form = RegistroForm(request.POST, request.FILES)
-        
+
         recaptcha_response = request.POST.get('g-recaptcha-response')
         data = {
             'secret': settings.RECAPTCHA_PRIVATE_KEY,
@@ -624,17 +736,25 @@ def regisexperto(request):
             messages.error(request, '⚠️ Debes verificar que no eres un robot.')
         elif form.is_valid():
             user = form.save(commit=False)
-            user.tipo_usuario = 'experto'
+            user.tipo_usuario = 'experto'  # Aseguramos que sea experto
             user.save()
             auth_login(request, user)
             messages.success(request, '🎉 ¡Registro de experto exitoso! Bienvenido a DoIt.')
-            return redirect(reverse_lazy('dashboard_experto')) # Redirige directamente al dashboard del experto
+            return redirect('dashboard_experto')
         else:
             messages.error(request, 'Hubo un error al registrarte como experto. Por favor, revisa los datos.')
             print("Errores del formulario de registro de experto:", form.errors)
     else:
         form = RegistroForm(initial={'tipo_usuario': 'experto'})
-    return render(request, 'regisexperto.html', {'form': form, 'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY})
+
+    return render(request, 'regisexperto.html', {
+        'form': form,
+        'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY
+    })
+
+
+
+
 
 # --- Vistas de Perfil de Usuario ---
 @login_required
@@ -673,5 +793,7 @@ def terminos_condiciones(request):
 
 def tratamiento_datos(request):
     return render(request, 'tratamiento_datos.html')
+
+
 
 
