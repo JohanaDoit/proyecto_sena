@@ -266,28 +266,37 @@ def aceptar_reserva_experto(request, reserva_id):
 
 @login_required
 def cancelar_reserva(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id, idUsuario=request.user)
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    # Solo el cliente que creó la reserva puede cancelarla
+    if reserva.idUsuario != request.user:
+        messages.error(request, "No tienes permiso para cancelar esta reserva.")
+        return redirect('principal')
 
     if request.method == 'POST':
         motivo = request.POST.get('motivo')
-        if motivo == 'otra':
-            motivo = request.POST.get('otro_motivo', 'No especificado')
+        otro_motivo = request.POST.get('otro_motivo', '').strip()
 
-        try:
-            estado_cancelada = Estado.objects.get(Nombre='Cancelada')
-        except Estado.DoesNotExist:
-            messages.error(request, "Error interno: el estado 'Cancelada' no está registrado.")
+        # Determinar el motivo final
+        if motivo == 'otra' and otro_motivo:
+            motivo_final = otro_motivo
+        elif motivo:
+            motivo_final = motivo
+        else:
+            messages.error(request, "Debes seleccionar un motivo de cancelación.")
             return redirect('principal')
 
-        reserva.idEstado = estado_cancelada
-        reserva.motivo_cancelacion = motivo
+        # Cambiar estado a cancelado (ID 6, o el que uses)
+        estado_cancelado = Estado.objects.get(Nombre='Cancelada')  # o Estado.objects.get(id=6)
+        reserva.idEstado = estado_cancelado
+        reserva.motivo_cancelacion = motivo_final
         reserva.save()
 
-        messages.success(request, "Has cancelado tu reserva.")
+        messages.success(request, "La reserva ha sido cancelada correctamente.")
         return redirect('principal')
 
-    messages.error(request, "Acción inválida.")
     return redirect('principal')
+
 
 
 
@@ -400,11 +409,17 @@ def dashboard_experto(request):
                 messages.error(request, "No puedes aceptar reservas fuera de tu categoría.")
             else:
                 reserva.experto_asignado = request.user
+                estado_aceptada = Estado.objects.get(Nombre='Aceptada')  # ✅ CAMBIO IMPORTANTE
+                reserva.idEstado = estado_aceptada                       # ✅ CAMBIO IMPORTANTE
                 reserva.save()
                 messages.success(request, f"✅ Aceptaste la reserva #{reserva.id} exitosamente.")
 
         except Reserva.DoesNotExist:
             messages.error(request, "La reserva no existe.")
+        except Estado.DoesNotExist:
+            messages.error(request, "El estado 'Aceptada' no existe. Contacte al administrador.")
+        except Exception as e:
+            messages.error(request, f"Error inesperado: {e}")
 
     # === RESERVAS PENDIENTES (que coincidan con su especialidad) ===
     reservas_pendientes = Reserva.objects.none()
@@ -445,6 +460,7 @@ def dashboard_experto(request):
         'user_especialidad': request.user.especialidad,
         'mensajes_no_leidos': mensajes_no_leidos
     })
+
 
 
 
