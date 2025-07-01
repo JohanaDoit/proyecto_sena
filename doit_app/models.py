@@ -298,7 +298,11 @@ class Reserva(models.Model):
         verbose_name="Motivo de Cancelación"
     )
 
-
+    servicio_iniciado = models.BooleanField(default=False, verbose_name="Servicio Iniciado")
+    servicio_finalizado = models.BooleanField(default=False, verbose_name="Servicio Finalizado")
+    comentario_durante_servicio = models.TextField(blank=True, null=True, verbose_name="Comentario del Experto")
+    duracion_estimada = models.CharField(max_length=50, null=True, blank=True, verbose_name="duracion del servicio")
+    comentario_cliente = models.TextField(blank=True, null=True, verbose_name="Comentario del Cliente")
 
     # Auditoría
     creado_en = models.DateTimeField(auto_now_add=True)
