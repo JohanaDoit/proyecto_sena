@@ -7,7 +7,7 @@
     --amarillo: #f8bb49;
     --verde: #93dc93;
     --palorosa: #eae7b1;
-    --fondo: #f5f1dd;
+    --fondo: #f0f2f5;
 }
 
 /* --- Estilos Generales --- */
@@ -150,32 +150,47 @@ button:hover:not(:disabled) {
     width: 95%; /* Ligeramente aumentado para ocupar más */
     max-width: 350px; /* Ligeramente reducido */
     border: none;
-    box-shadow: 5px 5px 15px #ccae76;
+    box-shadow: 5px 5px 15px var(--fondo);
     font-size: 15px; /* Ligeramente reducido */
     display: block;
     margin: 15px auto 0; /* Reducido el margen superior */
 }
 
 /* --- Botón "Buscar experto" --- */
-.boton-experto {
-    display: block;
-    width: fit-content;
-    margin: 15px auto 25px; /* Reducido de 5px arriba y 30px abajo */
-    padding: 9px 15px; /* Ligeramente reducido */
-    font-size: 18px; /* Ligeramente reducido */
-    background-color: var(--azul);
-    color: var(--blanco);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-align: center;
-    text-decoration: none;
+.search-experto-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
 }
 
-.boton-experto:hover {
-    background-color: #b89556;
+.search-experto-form input[type="text"] {
+    width: 300px; /* o el tamaño que prefieras */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
 }
+
+.search-experto-form button {
+    padding: 6px 12px;
+    font-size: 1rem;
+    width: fit-content;         /* Ancho automático según el contenido */
+    margin: 0 auto;             /* Centrado horizontal */
+    display: block;             /* Necesario para que margin funcione */
+    background-color: var(--azul);
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+
+.search-experto-form button:hover {
+    background-color: var(--azul);
+}
+
+
 
 /* --- Sección de Reserva (la que quieres centrar) --- */
 .seccion-servicios {
@@ -570,4 +585,162 @@ button:hover:not(:disabled) {
         font-size: 12px;
         padding: 3px 10px;
     }
+}
+
+.seccion-servicios-recentes {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    justify-content: center;
+    background-color: var(--fondo);
+    padding: 30px 20px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.seccion-servicios-recentes h2,
+.seccion-servicios-recentes h4 {
+    color: var(--azul);
+    margin-bottom: 15px;
+}
+
+.lista-servicios ul {
+    list-style: none;
+    padding: 0;
+    max-width: 600px; /* Limita el ancho para una mejor legibilidad */
+    margin: 0 auto;
+}
+
+.lista-servicios li {
+    background-color: var(--blanco);
+    border-radius: 12px;
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    margin-bottom: 15px;
+    text-align: left; /* Para alinear el contenido del <p> dentro */
+    color: #333;
+}
+
+/* --- Acordeón de servicios recientes (sin JS) --- */
+.contenedor-desplegable-servicios {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    background-color: var(--blanco);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.contenedor-desplegable-servicios summary {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 15px 20px;
+    color: var(--fondo);
+    background-color: var(--azul);
+    border-radius: 12px;
+    list-style: none;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+.contenedor-desplegable-servicios[open] summary {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: var(--azul);
+}
+
+.contenedor-desplegable-servicios summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Ajustes internos del contenido desplegado */
+.contenedor-desplegable-servicios .lista-servicios {
+    padding: 20px;
+    background-color: var(--fondo);
+    border-top: 1px solid #ccc;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Bloques personalizados para servicio en curso y comentario === */
+
+.alert.alert-info {
+    background-color: var(--fondo) !important;
+    border: 1px solid #dcd6f2;
+    color: var(--azul);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Espaciado interno consistente */
+.alert.alert-info h5 {
+    font-size: 18px;
+    color: var(--azul);
+}
+
+.alert.alert-info p {
+    font-size: 14px;
+}
+
+/* Estilo botón de chatear */
+.alert.alert-info .btn-primary {
+    background-color: var(--fondo);
+    border-color: var(--azul);
+    color: var(--azul);
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.alert.alert-info .btn-primary:hover {
+    background-color: var(--fondo);
+    border-color: var(--fondo);
+}
+
+/* Barra de progreso */
+.progress {
+    background-color:var(--fondo) !important;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Comentario para el experto */
+.alert.alert-info textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+/* Botón enviar comentario */
+.alert.alert-info button[type="submit"] {
+    background-color: var(--azul);
+    color: var(--blanco);
+    border: none;
+    padding: 10px 16px;
+    margin-top: 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    width: 100%;
+}
+
+.alert.alert-info button[type="submit"]:hover {
+    background-color: #025777;
 }

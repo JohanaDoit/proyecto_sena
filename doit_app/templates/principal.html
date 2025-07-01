@@ -119,9 +119,10 @@
                         🔴 Nuevo mensaje 💬
                     </a>
                 {% else %}
-                    <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="boton-chat-animado">
+                    <a href="{% url 'chat' reserva_aceptada.experto_asignado.id %}" class="btn btn-primary mb-3">
                         💬 Chatear
                     </a>
+
                 {% endif %}
                 <button type="button" class="boton-cancelar-animado" onclick="mostrarFormularioCancelar()">
                     ❌ Cancelar
@@ -221,23 +222,31 @@
     </div>
 </section>
 
-<h2>Servicios:</h2>
-<div>
-    <h4>🕘 Últimos 3 servicios solicitados</h4>
-    <ul>
-        {% for reserva in ultimas_reservas %}
-            <li style="margin-bottom: 10px;">
-                <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
-                <p><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</p>
-                <p><strong>Hora:</strong> {{ reserva.Hora|time:"h:i A" }}</p>
-                <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
-                <p><strong>Estado:</strong> {{ reserva.idEstado.Nombre }}</p>
-            </li>
-        {% empty %}
-            <li>No has hecho reservas recientes.</li>
-        {% endfor %}
-    </ul>
+<div class="seccion-servicios-recentes">
+    <h2>Servicios:</h2>
+
+    <details class="contenedor-desplegable-servicios">
+        <summary>🕘 Últimos 3 servicios solicitados</summary>
+
+        <div class="lista-servicios">
+            <ul>
+                {% for reserva in ultimas_reservas %}
+                    <li>
+                        <p><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</p>
+                        <p><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</p>
+                        <p><strong>Hora:</strong> {{ reserva.Hora|time:"h:i A" }}</p>
+                        <p><strong>Dirección:</strong> {{ reserva.direccion }}</p>
+                        <p><strong>Estado:</strong> {{ reserva.idEstado.Nombre }}</p>
+                    </li>
+                {% empty %}
+                    <li>No has hecho reservas recientes.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </details>
 </div>
+
+
 
 <div class="servicios">
     <article class="servicio">
