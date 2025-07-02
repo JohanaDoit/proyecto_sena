@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Historial de Servicios Finalizados</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Fecha</th>
+            <th>Calificación recibida</th>
+            <th>Comentario del cliente</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in historial %}
+        <tr>
+            <td>{{ item.reserva.idUsuario.get_full_name|default:item.reserva.idUsuario.username }}</td>
+            <td>{{ item.reserva.idServicios.NombreServicio }}</td>
+            <td>{{ item.reserva.Fecha|date:"d/m/Y" }}</td>
+            <td>
+                {% if item.calif_cliente %}
+                    {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}<span class="star">★</span>{% endfor %}
+                    {% for i in "12345"|slice:item.calif_cliente.puntuacion|stringformat:"d" %}<span class="star">☆</span>{% endfor %}
+                {% else %}
+                    Sin calificar
+                {% endif %}
+            </td>
+            <td>
+                {% if item.calif_cliente and item.calif_cliente.comentario %}
+                    {{ item.calif_cliente.comentario }}
+                {% else %}
+                    ---
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

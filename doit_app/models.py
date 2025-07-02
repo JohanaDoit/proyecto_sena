@@ -184,11 +184,17 @@ class Profesion(models.Model):
 
 # Calificaciones (SIN CAMBIOS)
 class Calificaciones(models.Model):
-    puntuacion = models.CharField(max_length=50, verbose_name="Puntuación del servicio")
-    Comentario = models.CharField(max_length=150, verbose_name="Comentario del servicio")
-    Fecha = models.DateField(verbose_name="Fecha del comentario")
-    idUsuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones_recibidas', verbose_name="Usuario que recibe la calificación")
-    idServicios = models.ForeignKey(Servicios, on_delete=models.CASCADE, verbose_name="Servicio calificado")
+    CALIFICADOR_CHOICES = [
+        ("cliente_a_experto", "Cliente a Experto"),
+        ("experto_a_cliente", "Experto a Cliente"),
+    ]
+    reserva = models.ForeignKey('Reserva', on_delete=models.CASCADE, verbose_name="Reserva calificada")
+    calificado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones_realizadas', verbose_name="Usuario que califica")
+    calificado_a = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='calificaciones_recibidas', verbose_name="Usuario calificado")
+    tipo = models.CharField(max_length=20, choices=CALIFICADOR_CHOICES, verbose_name="Tipo de calificación")
+    puntuacion = models.PositiveSmallIntegerField(verbose_name="Puntuación (1-5)")
+    comentario = models.CharField(max_length=150, verbose_name="Comentario del servicio", blank=True, null=True)
+    fecha = models.DateField(auto_now_add=True, verbose_name="Fecha del comentario")
 
     class Meta:
         verbose_name = "Calificación"
@@ -197,7 +203,7 @@ class Calificaciones(models.Model):
         app_label = "doit_app"
 
     def __str__(self):
-        return f"Calificación #{self.id} - Puntuación: {self.puntuacion}"
+        return f"Calificación #{self.id} - {self.calificado_por} a {self.calificado_a} - Puntuación: {self.puntuacion}"
 
 # Pais (SIN CAMBIOS)
 class Pais(models.Model):

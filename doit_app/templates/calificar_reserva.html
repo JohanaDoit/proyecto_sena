@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Calificar {{ calificado_a.get_full_name|default:calificado_a.username }}</h2>
+    <p>Reserva: {{ reserva }}</p>
+    <div class="alert alert-info" role="alert" style="font-size:1.1em;">
+        ¡Por favor califica el servicio recibido! Tu opinión ayuda a mejorar la calidad de los expertos en la plataforma.
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.puntuacion.label_tag }}<br>
+            {{ form.puntuacion }}
+        </div>
+        <div class="mb-3">
+            {{ form.comentario.label_tag }}<br>
+            {{ form.comentario }}
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar calificación</button>
+    </form>
+</div>
+{% endblock %}

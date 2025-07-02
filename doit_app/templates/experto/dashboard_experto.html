@@ -7,12 +7,25 @@
 <link rel="stylesheet" href="{% static 'css/dashboard_experto.css' %}">
 {% endblock %}
 
+
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
     <p class="lead">Tu especialidad:
         <strong>{{ request.user.especialidad.NombreServicio|default:"No especificada" }}</strong>
     </p>
+    <div style="margin-bottom: 20px;">
+        <span style="font-weight:bold;">Calificación promedio:</span>
+        <span>
+            {% for i in "12345"|slice:":estrellas" %}
+                <span style="color: gold; font-size: 1.3em;">&#9733;</span>
+            {% endfor %}
+            {% for i in "12345"|slice:estrellas|stringformat:"d" %}
+                <span style="color: #ccc; font-size: 1.3em;">&#9733;</span>
+            {% endfor %}
+            <span style="margin-left: 6px; font-weight: bold; color: #333;">{{ promedio_calificacion|floatformat:1 }}/5</span>
+        </span>
+    </div>
 
     {% if messages %}
         <div class="messages">
@@ -162,6 +175,14 @@
                                             💬 Chatear
                                         </a>
                                     {% endif %}
+                                </div>
+                            {% endif %}
+
+                            {% if reserva.servicio_finalizado and puede_calificar_experto.reserva.id %}
+                                <div class="alert alert-info mt-2">
+                                    <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning">
+                                        Calificar al cliente
+                                    </a>
                                 </div>
                             {% endif %}
                         </li>

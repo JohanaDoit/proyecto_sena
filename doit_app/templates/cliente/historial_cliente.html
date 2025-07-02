@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Mi Historial de Servicios</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Experto</th>
+            <th>Servicio</th>
+            <th>Fecha</th>
+            <th>Calificación que diste</th>
+            <th>Calificación que recibiste</th>
+            <th>Comentarios</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in historial %}
+        <tr>
+            <td>{{ item.reserva.experto_asignado.get_full_name|default:item.reserva.experto_asignado.username }}</td>
+            <td>{{ item.reserva.idServicios.NombreServicio }}</td>
+            <td>{{ item.reserva.Fecha|date:"d/m/Y" }}</td>
+            <td>
+                {% if item.calif_cliente and item.calif_cliente.calificado_por == user %}
+                    {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}<span class="star">★</span>{% endfor %}
+                    {% for i in "12345"|slice:"item.calif_cliente.puntuacion:" %}<span class="star">☆</span>{% endfor %}
+                {% else %}
+                    Sin calificar
+                {% endif %}
+            </td>
+            <td>
+                {% if item.calif_experto and item.calif_experto.calificado_a == user %}
+                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star">★</span>{% endfor %}
+                    {% for i in "12345"|slice:"item.calif_experto.puntuacion:" %}<span class="star">☆</span>{% endfor %}
+                {% else %}
+                    Sin calificar
+                {% endif %}
+            </td>
+            <td>
+                {% if item.calif_cliente and item.calif_cliente.comentario %}
+                    <strong>Tú:</strong> {{ item.calif_cliente.comentario }}<br>
+                {% endif %}
+                {% if item.calif_experto and item.calif_experto.comentario %}
+                    <strong>Experto:</strong> {{ item.calif_experto.comentario }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
