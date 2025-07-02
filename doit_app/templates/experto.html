@@ -17,9 +17,15 @@
             <div class="contenido">
                 <div class="texto-boton">
                     <div class="info">
-                        <h2>Juan Pérez</h2>
-                        <p>Reparación de electrodomésticos</p>
-                        <p>Calificación: ⭐⭐⭐⭐⭐</p>
+                        <h2>{{ user.username }}</h2>
+                        <p>{{ user.especialidad }}</p>
+                        <p>Calificación promedio: 
+                            {% if promedio_calificacion %}
+                                {{ promedio_calificacion|floatformat:1 }} / 5
+                            {% else %}
+                                Sin calificaciones
+                            {% endif %}
+                        </p>
                     </div>
                     <a href="{% url 'modificar' %}" class="btn modificar btn_posicion">Modificar Perfil</a>
                 </div>

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from .utils import obtener_promedio_calificaciones_experto
 from django.urls import reverse_lazy
 from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -21,6 +22,7 @@ from .models import Mensaje  # ← Asegúrate de importar tu modelo correctament
 from django.http import HttpResponseForbidden
 from django.urls import reverse
 from datetime import timedelta
+from .models import Calificaciones
 
 
 
@@ -111,7 +113,6 @@ def cancelar_reserva(request, reserva_id):
 
 
 
-
 @login_required
 def principal(request):
     if request.user.tipo_usuario == 'experto':
@@ -181,12 +182,23 @@ def principal(request):
         if mensajes_sin_leer > 0:
             mensajes_no_leidos[experto.id] = mensajes_sin_leer
 
+    puede_calificar = False
+    if reserva_aceptada and reserva_aceptada.servicio_finalizado and reserva_aceptada.experto_asignado:
+        ya_calificado = Calificaciones.objects.filter(
+            reserva=reserva_aceptada,
+            calificado_por=request.user,
+            tipo='cliente_a_experto'
+        ).exists()
+        if not ya_calificado and request.user == reserva_aceptada.idUsuario:
+            puede_calificar = True
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
         'ultimas_reservas': ultimas_reservas,
         'reserva_aceptada': reserva_aceptada,
-        'mensajes_no_leidos': mensajes_no_leidos
+        'mensajes_no_leidos': mensajes_no_leidos,
+        'puede_calificar': puede_calificar,
     })
 
 
@@ -374,7 +386,12 @@ def rechazar_reserva_experto(request, reserva_id):
 @login_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def mis_reservas_cliente(request):
+    from doit_app.models import Calificaciones
     reservas = Reserva.objects.filter(idUsuario=request.user).order_by('-creado_en')
+    # Anexar si ya fue calificado por el cliente
+    for reserva in reservas:
+        calif = Calificaciones.objects.filter(reserva=reserva, calificado_por=request.user, tipo='cliente_a_experto').first()
+        reserva.calificacion_cliente = calif
     return render(request, 'cliente/mis_reservas.html', {'reservas': reservas})
 
 
@@ -467,6 +484,9 @@ def dashboard_experto(request):
                     reserva.save()
                     print(f"Servicio finalizado para reserva {reserva_id}")
 
+                    # Redirigir al cliente a la calificación si está autenticado
+                    if reserva.idUsuario:
+                        return redirect('calificar_reserva', reserva_id=reserva.id)
         except Reserva.DoesNotExist:
             print(f"❌ Reserva con ID {reserva_id} no encontrada.")
         except Estado.DoesNotExist:
@@ -506,12 +526,33 @@ def dashboard_experto(request):
         if count > 0:
             mensajes_no_leidos[cliente.id] = count
 
+    # === LÓGICA PARA CALIFICACIÓN DEL EXPERTO AL CLIENTE ===
+    puede_calificar_experto = {}
+    from doit_app.models import Calificaciones
+    for reserva in reservas_asignadas:
+        if reserva.servicio_finalizado:
+            ya_calificado = Calificaciones.objects.filter(
+                reserva=reserva,
+                calificado_por=request.user,
+                tipo='experto_a_cliente'
+            ).exists()
+            puede_calificar_experto[reserva.id] = not ya_calificado
+        else:
+            puede_calificar_experto[reserva.id] = False
+
+    # Calcular el promedio de calificaciones del experto
+    promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
+    estrellas = int(round(promedio_calificacion or 0))
+
     return render(request, 'experto/dashboard_experto.html', {
         'reservas_pendientes': reservas_pendientes,
         'reservas_asignadas': reservas_asignadas,
         'reservas_canceladas': reservas_canceladas,
         'user_especialidad': request.user.especialidad,
-        'mensajes_no_leidos': mensajes_no_leidos
+        'mensajes_no_leidos': mensajes_no_leidos,
+        'puede_calificar_experto': puede_calificar_experto,
+        'promedio_calificacion': promedio_calificacion,
+        'estrellas': estrellas,
     })
 
 
@@ -600,12 +641,23 @@ def rechazar_reserva_experto(request, reserva_id):
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
-    reservas_completadas_canceladas = Reserva.objects.filter(
+    from doit_app.models import Calificaciones
+    reservas_finalizadas = Reserva.objects.filter(
         experto_asignado=request.user,
-        idEstado__Nombre__in=['Completada', 'Cancelada']
+        servicio_finalizado=True
     ).order_by('-Fecha', '-Hora')
+    # Obtener calificaciones recibidas y realizadas para cada reserva
+    historial = []
+    for reserva in reservas_finalizadas:
+        calif_cliente = Calificaciones.objects.filter(reserva=reserva, tipo='cliente_a_experto').first()
+        calif_experto = Calificaciones.objects.filter(reserva=reserva, tipo='experto_a_cliente').first()
+        historial.append({
+            'reserva': reserva,
+            'calif_cliente': calif_cliente,
+            'calif_experto': calif_experto
+        })
     return render(request, 'experto/historial_experto.html', {
-        'reservas': reservas_completadas_canceladas
+        'historial': historial
     })
 
 
@@ -864,6 +916,26 @@ def terminos_condiciones(request):
 
 def tratamiento_datos(request):
     return render(request, 'tratamiento_datos.html')
+
+@login_required
+def historial_cliente(request):
+    from doit_app.models import Calificaciones
+    reservas_finalizadas = Reserva.objects.filter(
+        idUsuario=request.user,
+        servicio_finalizado=True
+    ).order_by('-Fecha', '-Hora')
+    historial = []
+    for reserva in reservas_finalizadas:
+        calif_cliente = Calificaciones.objects.filter(reserva=reserva, tipo='cliente_a_experto').first()
+        calif_experto = Calificaciones.objects.filter(reserva=reserva, tipo='experto_a_cliente').first()
+        historial.append({
+            'reserva': reserva,
+            'calif_cliente': calif_cliente,
+            'calif_experto': calif_experto
+        })
+    return render(request, 'cliente/historial_cliente.html', {
+        'historial': historial
+    })
 
 
 

@@ -153,9 +153,9 @@ class ProfesionAdmin(admin.ModelAdmin):
 
 @admin.register(Calificaciones)
 class CalificacionesAdmin(admin.ModelAdmin):
-    list_display = ('puntuacion', 'Comentario', 'Fecha', 'idUsuario', 'idServicios')
-    list_filter = ('puntuacion', 'Fecha', 'idServicios', 'idUsuario')
-    search_fields = ('Comentario', 'idUsuario__username', 'idServicios__NombreServicio')
+    list_display = ('puntuacion', 'comentario', 'fecha', 'calificado_por', 'calificado_a', 'reserva', 'tipo')
+    list_filter = ('puntuacion', 'fecha', 'calificado_por', 'calificado_a', 'tipo')
+    search_fields = ('comentario', 'calificado_por__username', 'calificado_a__username', 'reserva__id')
 
 @admin.register(Reserva)
 class ReservaAdmin(admin.ModelAdmin):

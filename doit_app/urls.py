@@ -5,6 +5,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from .views import chat_view
+from .views_calificaciones import calificar_reserva
 
 urlpatterns = [
     # --- Vistas Generales ---
@@ -73,5 +74,9 @@ urlpatterns = [
     path('cancelar-reserva/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
 
     path('chat/<int:receptor_id>/', chat_view, name='chat'),
+]
+
+urlpatterns += [
+    path('reserva/<int:reserva_id>/calificar/', calificar_reserva, name='calificar_reserva'),
 ]
 

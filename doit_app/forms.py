@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 # Importa todos los modelos necesarios
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
-from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva
+from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones
 
 
 
@@ -513,3 +513,18 @@ class ReservaForm(forms.ModelForm):
                 forms.widgets.URLInput,
             )) and 'class' not in field.widget.attrs:
                 field.widget.attrs.update({'class': 'form-control'})
+
+# --- FORMULARIO DE CALIFICACION ---
+# Este formulario es para que los usuarios califiquen un servicio con estrellas y un comentario.
+class CalificacionForm(forms.ModelForm):
+    class Meta:
+        model = Calificaciones
+        fields = ['puntuacion', 'comentario']
+        widgets = {
+            'puntuacion': forms.RadioSelect(choices=[(i, f'{i} estrella' if i == 1 else f'{i} estrellas') for i in range(1, 6)]),
+            'comentario': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Comentario (opcional)'}),
+        }
+        labels = {
+            'puntuacion': 'Calificación',
+            'comentario': 'Comentario',
+        }

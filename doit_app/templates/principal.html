@@ -192,7 +192,15 @@
 
 
 
-
+{% if reserva_aceptada and reserva_aceptada.servicio_finalizado %}
+    {% if puede_calificar %}
+        <div class="alert alert-success mt-3">
+            <a href="{% url 'calificar_reserva' reserva_aceptada.id %}" class="btn btn-warning">
+                Calificar al experto
+            </a>
+        </div>
+    {% endif %}
+{% endif %}
 
 
 
