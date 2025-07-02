@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 
-{# Sobreescribe el bloque de la barra lateral para que esté vacío #}
 {% block sidebar_content %}{% endblock sidebar_content %} 
 
 {% block title %}DOIT | Registrarse{% endblock %}
@@ -11,177 +10,51 @@
 {% endblock %}
 
 {% block content %}
-    <div class="register-form-container">
+<div class="register-form-container">
+    <h2 class="text-center mb-4">Nuevo Registro</h2>
 
-        <h2 class="text-center mb-4">Nuevo Registro</h2>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+    <form method="post" enctype="multipart/form-data"> 
+        {% csrf_token %}
 
-        <form method="post" enctype="multipart/form-data"> 
-            {% csrf_token %} 
-            
-            {# Campo Tipo de Usuario (siempre visible y primero) #}
-            <div class="form-group">
-                {{ form.tipo_usuario.label_tag }}
-                {{ form.tipo_usuario }}
-                {% if form.tipo_usuario.errors %}
-                    <div class="text-danger">
-                        {% for error in form.tipo_usuario.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+        <!-- Campo tipo de usuario -->
+        <div class="form-group">
+            {{ form.tipo_usuario.label_tag }}
+            {{ form.tipo_usuario }}
+            {% if form.tipo_usuario.errors %}
+                <div class="text-danger">
+                    {% for error in form.tipo_usuario.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
-            {# Campos comunes a todos los usuarios #}
-            <div class="form-group">
-                {{ form.username.label_tag }}
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="text-danger">
-                        {% for error in form.username.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+        <!-- Campos comunes -->
+        {% for field in form.visible_fields %}
+            {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger">
+                            {% for error in field.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
 
-            <div class="form-group">
-                {{ form.email.label_tag }}
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <div class="text-danger">
-                        {% for error in form.email.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+        <!-- Campos solo para expertos -->
+        <div id="experto-fields" style="display: none;">
+            <h3>Campos para Expertos</h3>
 
-{# CAMPO DE CONTRASEÑA PRINCIPAL #}
-            <div class="form-group">
-                {{ form.password1.label_tag }} {# ¡Cambiado de 'password' a 'password1'! #}
-                {{ form.password1 }} {# ¡Cambiado de 'password' a 'password1'! #}
-                {% if form.password1.errors %} {# ¡Cambiado de 'password' a 'password1'! #}
-                    <div class="text-danger">
-                        {% for error in form.password1.errors %}{{ error }}{% endfor %} {# ¡Cambiado de 'password' a 'password1'! #}
-                    </div>
-                {% endif %}
-            </div>
-
-            {# ESTE ES EL CAMPO DE CONFIRMACIÓN DE CONTRASEÑA #}
-            <div class="form-group">
-                {{ form.password2.label_tag }} 
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                    <div class="text-danger">
-                        {% for error in form.password2.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.first_name.label_tag }}
-                {{ form.first_name }}
-                {% if form.first_name.errors %}
-                    <div class="text-danger">
-                        {% for error in form.first_name.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.last_name.label_tag }}
-                {{ form.last_name }}
-                {% if form.last_name.errors %}
-                    <div class="text-danger">
-                        {% for error in form.last_name.errors %}{{ error }}{{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.genero.label_tag }}
-                {{ form.genero }}
-                {% if form.genero.errors %}
-                    <div class="text-danger">
-                        {% for error in form.genero.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.nacionalidad.label_tag }}
-                {{ form.nacionalidad }}
-                {% if form.nacionalidad.errors %}
-                    <div class="text-danger">
-                        {% for error in form.nacionalidad.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.fechaNacimiento.label_tag }}
-                {{ form.fechaNacimiento }}
-                {% if form.fechaNacimiento.errors %}
-                    <div class="text-danger">
-                        {% for error in form.fechaNacimiento.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.tipo_documento.label_tag }}
-                {{ form.tipo_documento }}
-                {% if form.tipo_documento.errors %}
-                    <div class="text-danger">
-                        {% for error in form.tipo_documento.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.numDoc.label_tag }}
-                {{ form.numDoc }}
-                {% if form.numDoc.errors %}
-                    <div class="text-danger">
-                        {% for error in form.numDoc.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.telefono.label_tag }}
-                {{ form.telefono }}
-                {% if form.telefono.errors %}
-                    <div class="text-danger">
-                        {% for error in form.telefono.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            
-            <div class="form-group">
-                {{ form.direccion.label_tag }}
-                {{ form.direccion }}
-                {% if form.direccion.errors %}
-                    <div class="text-danger">
-                        {% for error in form.direccion.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
-                {{ form.barrio.label_tag }}
-                {{ form.barrio }}
-                {% if form.barrio.errors %}
-                    <div class="text-danger">
-                        {% for error in form.barrio.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-            {# EL CAMPO foto_perfil ESTÁ AQUÍ. Si es solo para expertos, deberías moverlo al div de experto-fields #}
-            {# Pero si puede ser para todos, déjalo aquí. El JavaScript lo manejará para ocultarlo si eres cliente. #}
-            <div class="form-group">
+            <div class="form-group mt-4">
                 {{ form.foto_perfil.label_tag }}
                 {{ form.foto_perfil }}
                 {% if form.foto_perfil.errors %}
@@ -191,84 +64,147 @@
                 {% endif %}
             </div>
 
-            {# DIV para los campos específicos de EXPERTO #}
-            <div id="experto-fields" style="display: none;"> 
-                <h3>Campos para Expertos</h3>
-                <div class="form-group">
-                    {{ form.experienciaTrabajo.label_tag }}
-                    {{ form.experienciaTrabajo }}
-                    {% if form.experienciaTrabajo.errors %}
-                        <div class="text-danger">
-                            {% for error in form.experienciaTrabajo.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+            <div class="form-group">
+                {{ form.experienciaTrabajo.label_tag }}
+                {{ form.experienciaTrabajo }}
+                {% if form.experienciaTrabajo.errors %}
+                    <div class="text-danger">
+                        {% for error in form.experienciaTrabajo.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="form-group">
-                    {{ form.evidenciaTrabajo.label_tag }}
-                    {{ form.evidenciaTrabajo }}
-                    {% if form.evidenciaTrabajo.errors %}
-                        <div class="text-danger">
-                            {% for error in form.evidenciaTrabajo.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+            <div class="form-group">
+                {{ form.evidenciaTrabajo.label_tag }}
+                {{ form.evidenciaTrabajo }}
+                {% if form.evidenciaTrabajo.errors %}
+                    <div class="text-danger">
+                        {% for error in form.evidenciaTrabajo.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="form-group">
-                    {{ form.hojaVida.label_tag }} 
-                    {{ form.hojaVida }}
-                    {% if form.hojaVida.errors %}
-                        <div class="text-danger">
-                            {% for error in form.hojaVida.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+            <div class="form-group">
+                {{ form.hojaVida_file.label_tag }}
+                {{ form.hojaVida_file }}
+                {% if form.hojaVida_file.errors %}
+                    <div class="text-danger">
+                        {% for error in form.hojaVida_file.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-                <div class="form-group">
-                    {{ form.hojaVida_file.label_tag }} 
-                    {{ form.hojaVida_file }}
-                    {% if form.hojaVida_file.errors %}
-                        <div class="text-danger">
-                            {% for error in form.hojaVida_file.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+            <div class="form-group">
+                {{ form.especialidad.label_tag }}
+                <select id="id_especialidad_custom" class="form-control">
+                    <option value="">Selecciona un servicio</option>
+                    {% for servicio in form.fields.especialidad.queryset %}
+                        <option value="{{ servicio.id }}">{{ servicio }}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">Puedes seleccionar hasta 3 servicios.</small>
+                <div id="especialidades-seleccionadas" class="mt-2"></div>
+            </div>
 
-                {# AQUÍ VA EL CAMPO DE ESPECIALIDAD QUE FALTABA #}
-                <div class="form-group">
-                    {{ form.especialidad.label_tag }} 
-                    {{ form.especialidad }}
-                    {% if form.especialidad.errors %}
-                        <div class="text-danger">
-                            {% for error in form.especialidad.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div> {# Cierre del DIV para experto-fields #}
 
-            <div class="g-recaptcha mt-3" data-sitekey="6LeM6WErAAAAANOcyEIgUK299_4HaIMzgGDNsVo0"></div>
+<!-- Campo oculto real para el formulario -->
+            <div id="hidden-especialidades">
+                {{ form.especialidad.as_widget }}
+            </div>
+            </div> <!-- ← Esta cierra el div de experto-fields correctamente -->
+
+            <!-- CAPTCHA fuera del bloque experto -->
+            <div class="g-recaptcha mt-3" data-sitekey="{{ RECAPTCHA_SITE_KEY }}"></div>
+
+            <!-- Botón de registro -->
             <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
-        </form>
-    </div>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
+
+
+
+
+
+<!-- Mostrar campos solo si se elige "experto" -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const tipoUsuarioSelect = document.getElementById('id_tipo_usuario');
         const expertoFields = document.getElementById('experto-fields');
 
         function toggleExpertoFields() {
-            if (tipoUsuarioSelect.value === 'experto') {
-                expertoFields.style.display = 'block';
-            } else {
-                expertoFields.style.display = 'none';
-            }
+            expertoFields.style.display = tipoUsuarioSelect.value === 'experto' ? 'block' : 'none';
         }
 
-        toggleExpertoFields(); // Ejecutar al cargar la página
+        toggleExpertoFields();
         tipoUsuarioSelect.addEventListener('change', toggleExpertoFields);
     });
 </script>
 
-{% endblock content %}
+<!-- Limitar selección de especialidades a 3 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const select = document.getElementById('id_especialidad_custom');
+        const displayContainer = document.getElementById('especialidades-seleccionadas');
+        const realSelect = document.getElementById('id_especialidad');
+        const maxSeleccion = 3;
+
+        // Ocultar el select original de Django
+        realSelect.style.display = 'none';
+
+        // Cada vez que se seleccione algo del desplegable
+        select.addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedValue = selectedOption.value;
+            const selectedText = selectedOption.text;
+
+            if (!selectedValue || Array.from(realSelect.options).filter(o => o.selected).length >= maxSeleccion) {
+                return;
+            }
+
+            // Verifica si ya está seleccionado
+            if ([...realSelect.selectedOptions].some(opt => opt.value === selectedValue)) {
+                return;
+            }
+
+            // Añadir al real select (el escondido)
+            for (let opt of realSelect.options) {
+                if (opt.value === selectedValue) {
+                    opt.selected = true;
+                    break;
+                }
+            }
+
+            // Mostrar visualmente
+            const badge = document.createElement('div');
+            badge.className = 'badge badge-pill badge-info d-inline-block mr-2 mb-2 p-2';
+            badge.textContent = selectedText;
+            badge.dataset.value = selectedValue;
+
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = ' ×';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.style.marginLeft = '8px';
+            removeBtn.style.color = '#dc3545';
+
+            removeBtn.addEventListener('click', () => {
+                // Quitar del DOM
+                badge.remove();
+                // Quitar del select real
+                for (let opt of realSelect.options) {
+                    if (opt.value === selectedValue) {
+                        opt.selected = false;
+                        break;
+                    }
+                }
+            });
+
+            badge.appendChild(removeBtn);
+            displayContainer.appendChild(badge);
+        });
+    });
+</script>
+
+
+{% endblock %}
+

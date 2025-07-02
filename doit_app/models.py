@@ -28,7 +28,6 @@ class TipoDoc(models.Model):
     def __str__(self):
         return self.Nombre
 
-# Categorias (SIN CAMBIOS)
 class Categorias(models.Model):
     Nombre = models.CharField(max_length=50, unique=True, verbose_name="Nombre de la categoría")
 
@@ -41,6 +40,7 @@ class Categorias(models.Model):
     def __str__(self):
         return self.Nombre
 
+
 class Servicios(models.Model):
     NombreServicio = models.CharField(max_length=50, verbose_name="Nombre del servicio")
     idCategorias = models.ForeignKey(Categorias, on_delete=models.CASCADE, verbose_name="Categoría del servicio")
@@ -52,7 +52,9 @@ class Servicios(models.Model):
         app_label = "doit_app"
 
     def __str__(self):
-        return self.NombreServicio
+        # Incluye la categoría en la representación del servicio
+        return f"{self.NombreServicio} ({self.idCategorias.Nombre})"
+    
 
 
 
@@ -69,25 +71,25 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
 
-    evidenciaTrabajo = models.ImageField(
-        upload_to='evidencia_trabajo/', 
+
+
+    evidenciaTrabajo = models.FileField(
+        upload_to='evidencia_trabajo/',
         blank=True,
         null=True,
-        verbose_name="Evidencia de Trabajo (Imagen)"
+        verbose_name="Evidencia de Trabajo"
     )
-    experienciaTrabajo = models.TextField(blank=True, null=True, verbose_name="Experiencia de Trabajo")
+
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
     hojaVida_file = models.FileField(upload_to='hojas_de_vida/', blank=True, null=True, verbose_name="Archivo de Hoja de Vida")
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
     tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
     # CAMBIO AQUÍ: Especialidad ya no es CharField, sino ForeignKey a Servicios
-    especialidad = models.ForeignKey(
+    especialidad = models.ManyToManyField(
         Servicios,
-        on_delete=models.SET_NULL,
-        null=True,
         blank=True,
-        verbose_name="Servicio que ofrece el experto"
+        verbose_name="Servicios que ofrece el experto"
     )
     
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")

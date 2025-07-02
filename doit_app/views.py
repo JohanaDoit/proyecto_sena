@@ -433,11 +433,10 @@ from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Reserva, Estado
-
-
-
-
 from django.views.decorators.http import require_http_methods
+
+
+
 
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url='login')
@@ -445,90 +444,99 @@ from django.views.decorators.http import require_http_methods
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
 
-    # === LÓGICA PARA FORMULARIOS POST (Aceptar, Iniciar, Finalizar) ===
     if request.method == 'POST':
         accion = request.POST.get('accion')
         reserva_id = request.POST.get('reserva_id')
-
         print(f"POST recibido | Acción: {accion}, Reserva ID: {reserva_id}")
 
         try:
             reserva = Reserva.objects.get(id=reserva_id)
 
             if accion == 'aceptar':
-                if not reserva.experto_asignado and reserva.idServicios.idCategorias == request.user.especialidad.idCategorias:
-                    reserva.experto_asignado = request.user
-                    estado_aceptada = Estado.objects.get(Nombre='Aceptada')
-                    reserva.idEstado = estado_aceptada
-                    reserva.save()
-                    print(f"Reserva {reserva_id} aceptada por {request.user.username}")
+                conflicto = Reserva.objects.filter(
+                    experto_asignado=request.user,
+                    Fecha=reserva.Fecha,
+                    Hora=reserva.Hora,
+                    servicio_finalizado=False
+                ).exists()
+
+                if conflicto:
+                    messages.warning(request, "Ya tienes una reserva aceptada a esa hora y aún no la has finalizado.")
+                    print(f"❌ Conflicto de horario para {request.user.username} en {reserva.Fecha} {reserva.Hora}")
+                    return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
+                else:
+                    if not reserva.experto_asignado and reserva.idServicios in request.user.especialidad.all():
+                        reserva.experto_asignado = request.user
+                        estado_aceptada = Estado.objects.get(Nombre='Aceptada')
+                        reserva.idEstado = estado_aceptada
+                        reserva.save()
+                        messages.success(request, "Has aceptado correctamente la reserva.")
+                        print(f"✅ Reserva {reserva_id} aceptada por {request.user.username}")
+                        return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
 
             elif accion == 'iniciar_servicio':
                 if reserva.experto_asignado == request.user and not reserva.servicio_iniciado:
                     reserva.servicio_iniciado = True
                     reserva.save()
-                    print(f"Servicio iniciado para reserva {reserva_id}")
+                    messages.info(request, "Has iniciado el servicio.")
+                    return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
 
             elif accion == 'finalizar_servicio':
                 if reserva.experto_asignado == request.user and reserva.servicio_iniciado and not reserva.servicio_finalizado:
                     comentario = request.POST.get('comentario', '').strip()
                     duracion = request.POST.get('duracion', '').strip()
-
-                    print(f"Finalizando servicio. Comentario: {comentario}, Duración: {duracion}")
-
                     reserva.comentario_durante_servicio = comentario
                     reserva.duracion_estimada = duracion
                     reserva.servicio_finalizado = True
                     estado_finalizado = Estado.objects.get(Nombre='Finalizado')
                     reserva.idEstado = estado_finalizado
                     reserva.save()
-                    print(f"Servicio finalizado para reserva {reserva_id}")
-
-                    # Redirigir al cliente a la calificación si está autenticado
+                    messages.success(request, "Has finalizado correctamente el servicio.")
                     if reserva.idUsuario:
                         return redirect('calificar_reserva', reserva_id=reserva.id)
+                    return redirect('dashboard_experto')  # Seguridad extra
+
+            return redirect('dashboard_experto')  # Redirección por defecto si no entra en ninguno
+
         except Reserva.DoesNotExist:
-            print(f"❌ Reserva con ID {reserva_id} no encontrada.")
+            messages.error(request, "La reserva no existe.")
         except Estado.DoesNotExist:
-            print(f"❌ Estado correspondiente no encontrado.")
+            messages.error(request, "Estado no encontrado.")
         except Exception as e:
             print(f"⚠️ Error inesperado: {e}")
+            messages.error(request, "Ocurrió un error inesperado.")
 
-    # === RESERVAS PENDIENTES (que coincidan con su especialidad) ===
-    reservas_pendientes = Reserva.objects.none()
-    if request.user.especialidad:
-        reservas_pendientes = Reserva.objects.filter(
-            experto_asignado__isnull=True,
-            idServicios__idCategorias=request.user.especialidad.idCategorias
-        ).order_by('Fecha', 'Hora')
+        return redirect('dashboard_experto')  # Redirección por error
 
-    # === RESERVAS YA ACEPTADAS ===
+    # --- Lógica GET (SIN CAMBIOS) ---
+    reservas_pendientes = Reserva.objects.filter(
+        experto_asignado__isnull=True,
+        idServicios__in=request.user.especialidad.all()
+    ).select_related('idUsuario', 'idServicios').order_by('Fecha', 'Hora')
+
+    for reserva in reservas_pendientes:
+        categorias_experto = set(request.user.especialidad.values_list('idCategorias', flat=True))
+        categoria_reserva = reserva.idServicios.idCategorias_id
+        reserva.especialidad_permitida = categoria_reserva in categorias_experto
+
     reservas_asignadas = Reserva.objects.filter(
         experto_asignado=request.user,
         motivo_cancelacion__isnull=True
     ).select_related('idUsuario', 'idServicios')
 
-    # === RESERVAS CANCELADAS ===
     reservas_canceladas = Reserva.objects.filter(
         experto_asignado=request.user,
         motivo_cancelacion__isnull=False
     ).order_by('-Fecha', '-Hora')
 
-    # === MENSAJES NO LEÍDOS ===
     mensajes_no_leidos = {}
     for reserva in reservas_asignadas:
         cliente = reserva.idUsuario
-        count = Mensaje.objects.filter(
-            emisor=cliente,
-            receptor=request.user,
-            leido=False
-        ).count()
+        count = Mensaje.objects.filter(emisor=cliente, receptor=request.user, leido=False).count()
         if count > 0:
             mensajes_no_leidos[cliente.id] = count
 
-    # === LÓGICA PARA CALIFICACIÓN DEL EXPERTO AL CLIENTE ===
     puede_calificar_experto = {}
-    from doit_app.models import Calificaciones
     for reserva in reservas_asignadas:
         if reserva.servicio_finalizado:
             ya_calificado = Calificaciones.objects.filter(
@@ -540,7 +548,6 @@ def dashboard_experto(request):
         else:
             puede_calificar_experto[reserva.id] = False
 
-    # Calcular el promedio de calificaciones del experto
     promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
     estrellas = int(round(promedio_calificacion or 0))
 
@@ -554,6 +561,7 @@ def dashboard_experto(request):
         'promedio_calificacion': promedio_calificacion,
         'estrellas': estrellas,
     })
+
 
 
 
@@ -788,6 +796,9 @@ def login_admin(request):
         form = AuthenticationForm()
     return render(request, 'sign-in/login_admin.html', {'form': form})
 
+
+
+
 def registrarse(request):
     if request.user.is_authenticated:
         if request.user.tipo_usuario == 'experto':
@@ -826,6 +837,7 @@ def registrarse(request):
         'form': form,
         'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY
     })
+
 
 
 

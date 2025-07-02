@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 # Importa todos los modelos necesarios
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
 from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones
+from datetime import datetime, timedelta, time, date
 
 
 
@@ -24,33 +25,36 @@ class RegistroForm(UserCreationForm):
     )
 
     tipo_usuario = forms.ChoiceField(
-        choices=CustomUser.tipo_usuario_choices, 
-        initial='cliente', 
+        choices=CustomUser.tipo_usuario_choices,
+        initial='cliente',
         label="Tipo de Usuario",
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_tipo_usuario'})
     )
 
     nacionalidad = forms.CharField(
-        max_length=100, 
-        required=False, 
+        max_length=100,
+        required=False,
         label="Nacionalidad",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
     numDoc = forms.CharField(
-        max_length=100, 
-        required=False, 
-        label="Número de Documento", 
+        max_length=100,
+        required=False,
+        label="Número de Documento",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
     telefono = forms.CharField(
-        max_length=100, 
-        required=False, 
-        label="Teléfono", 
+        max_length=100,
+        required=False,
+        label="Teléfono",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
+
     fechaNacimiento = forms.DateField(
-        required=False, 
-        label="Fecha de Nacimiento", 
+        required=False,
+        label="Fecha de Nacimiento",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
 
@@ -62,53 +66,56 @@ class RegistroForm(UserCreationForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    evidenciaTrabajo = forms.ImageField( 
-        required=False, 
-        label="Evidencia de Trabajo (Imagen)",
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
-    experienciaTrabajo = forms.CharField(
-        required=False, 
-        label="Experiencia de Trabajo", 
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
-    )
-    hojaVida_file = forms.FileField( 
-        required=False, 
-        label="Subir Hoja de Vida (PDF, DOCX, etc.)", 
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
-    foto_perfil = forms.ImageField( 
+    evidenciaTrabajo = forms.FileField(
         required=False,
-        label="Foto de Perfil", 
+        label="Evidencia de Trabajo",
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}),
+    )
+    
+    hojaVida_file = forms.FileField(
+        required=False,
+        label="Subir Hoja de Vida (PDF, DOCX, etc.)",
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
 
-    especialidad = forms.ModelChoiceField(
-        queryset=Servicios.objects.all().order_by('NombreServicio'),
+    foto_perfil = forms.ImageField(
         required=False,
-        label="Especialidad (Servicio)",
-        widget=forms.Select(attrs={'class': 'form-control'})
+        label="Foto de Perfil",
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-    
+
+    especialidad = forms.ModelMultipleChoiceField(
+        queryset=Servicios.objects.select_related('idCategorias').order_by('NombreServicio'),
+        required=False,
+        label="Especialidades (máximo 3)",
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+
     direccion = forms.CharField(
         max_length=255,
-        required=False, # Cambia a True si quieres que la dirección sea obligatoria
+        required=False,
         label="Dirección de Residencia",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-    
+
     barrio = forms.CharField(
         max_length=100,
-        required=False, # Cambia a True si quieres que el barrio sea obligatorio
+        required=False,
         label="Barrio",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['especialidad'].label_from_instance = str
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         fields = UserCreationForm.Meta.fields + (
-            'email', 
-            'tipo_usuario', 
+            'email',
+            'tipo_usuario',
             'first_name',
             'last_name',
             'genero',
@@ -117,31 +124,28 @@ class RegistroForm(UserCreationForm):
             'tipo_documento',
             'numDoc',
             'telefono',
-            'experienciaTrabajo',
             'evidenciaTrabajo',
-            'hojaVida_file', 
+            'hojaVida_file',
             'foto_perfil',
             'especialidad',
-            'direccion', # Añadido aquí
-            'barrio',    # Añadido aquí
+            'direccion',
+            'barrio',
         )
         labels = {
             'username': 'Nombre de Usuario',
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
-            'password': 'Contraseña', 
+            'password': 'Contraseña',
             'password2': 'Confirmación de Contraseña',
             'tipo_usuario': 'Tipo de Usuario',
             'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'foto_perfil': 'Foto de Perfil',
-            'especialidad': 'Especialidad (Solo para Expertos)',
-            'direccion': 'Dirección de Residencia', # Añadido aquí
-            'barrio': 'Barrio',    # Añadido aquí
-        
+            'especialidad': 'Especialidades (Solo para Expertos)',
+            'direccion': 'Dirección de Residencia',
+            'barrio': 'Barrio',
         }
-        
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -153,17 +157,13 @@ class RegistroForm(UserCreationForm):
         tipo_usuario = cleaned_data.get('tipo_usuario')
 
         if tipo_usuario == 'experto':
-            if not cleaned_data.get('evidenciaTrabajo'):
-                self.add_error('evidenciaTrabajo', 'Este campo es obligatorio para expertos.')
-            if not cleaned_data.get('experienciaTrabajo'):
-                self.add_error('experienciaTrabajo', 'Este campo es obligatorio para expertos.')
-            if not cleaned_data.get('hojaVida') and not cleaned_data.get('hojaVida_file'):
-                self.add_error('hojaVida', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
-                self.add_error('hojaVida_file', 'Debe proporcionar un link o subir un archivo de Hoja de Vida.')
-            if not cleaned_data.get('foto_perfil'):
-                self.add_error('foto_perfil', 'Este campo es obligatorio para expertos.')
-            if not cleaned_data.get('especialidad'):
-                self.add_error('especialidad', 'Este campo es obligatorio para expertos.')
+            campos_requeridos = [
+                'evidenciaTrabajo', 'hojaVida_file',
+                'foto_perfil', 'especialidad'
+            ]
+            for campo in campos_requeridos:
+                if not cleaned_data.get(campo):
+                    self.add_error(campo, 'Este campo es obligatorio para expertos.')
         return cleaned_data
 
     def clean_email(self):
@@ -172,39 +172,38 @@ class RegistroForm(UserCreationForm):
             raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
 
+    def clean_especialidad(self):
+        especialidades = self.cleaned_data.get('especialidad')
+        tipo_usuario = self.cleaned_data.get('tipo_usuario')
+
+        if tipo_usuario == 'experto':
+            if not especialidades or len(especialidades) == 0:
+                raise forms.ValidationError("Debes seleccionar al menos un servicio.")
+            if len(especialidades) > 3:
+                raise forms.ValidationError("Solo puedes seleccionar hasta 3 servicios.")
+        return especialidades
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.genero = self.cleaned_data.get('genero')
-        user.tipo_usuario = self.cleaned_data.get('tipo_usuario')
-        user.nacionalidad = self.cleaned_data.get('nacionalidad')
-        user.numDoc = self.cleaned_data.get('numDoc')
-        user.telefono = self.cleaned_data.get('telefono')
-        user.fechaNacimiento = self.cleaned_data.get('fechaNacimiento')
-        user.tipo_documento = self.cleaned_data.get('tipo_documento')
-        user.direccion = self.cleaned_data.get('direccion') # Guardando la dirección
-        user.barrio = self.cleaned_data.get('barrio') 
-        
-        
-        if user.tipo_usuario == 'experto':
-            user.experienciaTrabajo = self.cleaned_data.get('experienciaTrabajo')
-            user.evidenciaTrabajo = self.cleaned_data.get('evidenciaTrabajo')
-            user.hojaVida = self.cleaned_data.get('hojaVida')
-            user.hojaVida_file = self.cleaned_data.get('hojaVida_file')
-            user.foto_perfil = self.cleaned_data.get('foto_perfil')
-            user.especialidad = self.cleaned_data.get('especialidad')  # <- CORRECTO
-
-        else:
-            user.experienciaTrabajo = None
-            user.evidenciaTrabajo = None
-            user.hojaVida = None
-            user.hojaVida_file = None
-            user.foto_perfil = None
-            user.especialidad = None
+        for campo in [
+            'genero', 'tipo_usuario', 'nacionalidad', 'numDoc', 'telefono',
+            'fechaNacimiento', 'tipo_documento', 'direccion', 'barrio'
+        ]:
+            setattr(user, campo, self.cleaned_data.get(campo))
 
         if commit:
             user.save()
+
+        # Guardar especialidades (ManyToMany) después de guardar el usuario
+        if user.tipo_usuario == 'experto':
+            user.especialidad.set(self.cleaned_data.get('especialidad'))
+
         return user
-    
+
+
+
+
+
 
 
 
@@ -404,17 +403,15 @@ class PerfilUsuarioForm(UserChangeForm):
         return user
 
 
-# --- RESERVA FORM ---
-# Esta es la clase para el formulario de Reserva.
 class ReservaForm(forms.ModelForm):
-    # Campos ModelChoiceField con sus querysets y empty_label
     metodoDePago = forms.ModelChoiceField(
         queryset=Metodo.objects.all().order_by('Nombre'),
         empty_label="Selecciona un método de pago",
         required=True,
-        label="Método de Pago Preferido", 
+        label="Método de Pago Preferido",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
     pais = forms.ModelChoiceField(
         queryset=Pais.objects.all().order_by('Nombre'),
         empty_label="Selecciona un país",
@@ -422,6 +419,7 @@ class ReservaForm(forms.ModelForm):
         label="País del Servicio",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
     ciudad = forms.ModelChoiceField(
         queryset=Ciudad.objects.all().order_by('Nombre'),
         empty_label="Selecciona una ciudad",
@@ -429,47 +427,48 @@ class ReservaForm(forms.ModelForm):
         label="Ciudad del Servicio",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+
     idServicios = forms.ModelChoiceField(
         queryset=Servicios.objects.all().order_by('NombreServicio'),
         empty_label="Selecciona el tipo de servicio",
         required=True,
-        label="Tipo de Servicio Solicitado", 
+        label="Tipo de Servicio Solicitado",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    # Campos de Fecha y Hora con sus widgets
+
     Fecha = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         input_formats=['%Y-%m-%d'],
         label='Fecha del Servicio'
     )
-    Hora = forms.TimeField(
-        widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-        input_formats=['%H:%M'],
-        label='Hora del Servicio'
+
+    Hora = forms.ChoiceField(
+        choices=[],  # se llenará dinámicamente en __init__
+        label='Hora del Servicio',
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
+
     pago_ofrecido = forms.DecimalField(
         max_digits=10,
         decimal_places=2,
         required=False,
-        label="Pago Ofrecido por el Cliente (ej. 50000.00 CLP)", 
-        help_text="Monto que el cliente está dispuesto a pagar por el servicio.",
+        label="Pago Ofrecido por el Cliente (ej. 50000.00 CLP)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
     )
 
     class Meta:
-        model = Reserva 
+        model = Reserva
         fields = [
-            'Fecha', 
-            'Hora',  
-            'direccion', 
+            'Fecha',
+            'Hora',
+            'direccion',
             'descripcion',
-            'detallesAdicionales', 
-            'metodoDePago', 
-            'pais', 
-            'ciudad', 
-            'idServicios', 
-            'pago_ofrecido', 
+            'detallesAdicionales',
+            'metodoDePago',
+            'pais',
+            'ciudad',
+            'idServicios',
+            'pago_ofrecido',
         ]
         labels = {
             'Fecha': 'Fecha Preferida del Servicio',
@@ -491,28 +490,27 @@ class ReservaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # No es estrictamente necesario redefinir los querysets aquí
-        # si ya están definidos en los campos de arriba y no cambian dinámicamente.
-        # self.fields['metodoDePago'].queryset = Metodo.objects.all().order_by('Nombre')
-        # self.fields['pais'].queryset = Pais.objects.all().order_by('Nombre')
-        # self.fields['ciudad'].queryset = Ciudad.objects.all().order_by('Nombre')
-        # self.fields['idServicios'].queryset = Servicios.objects.all().order_by('NombreServicio')
-        # self.fields['idEstado'].queryset = Estado.objects.all().order_by('Nombre')
-        
-        # Aplicar form-control a todos los campos por defecto si no lo tienen
-        for field_name, field in self.fields.items():
-            if not isinstance(field.widget, (
-                forms.widgets.DateInput, 
-                forms.widgets.TimeInput, 
-                forms.widgets.Textarea, 
-                forms.widgets.ClearableFileInput, 
-                forms.widgets.Select,
-                forms.widgets.CheckboxInput,
-                forms.widgets.RadioSelect,
-                forms.widgets.NumberInput, # Para pago_ofrecido
-                forms.widgets.URLInput,
-            )) and 'class' not in field.widget.attrs:
-                field.widget.attrs.update({'class': 'form-control'})
+
+        # Generar horas desde 00:00 hasta 23:30, cada 30 minutos
+        opciones = []
+        hora_actual = datetime.strptime("00:00", "%H:%M")
+        fin = datetime.strptime("23:30", "%H:%M")
+        while hora_actual <= fin:
+            valor = hora_actual.strftime("%H:%M")          # Valor que se guarda
+            etiqueta = hora_actual.strftime("%I:%M %p")    # Texto visible en el select (12h con AM/PM)
+            opciones.append((valor, etiqueta))
+            hora_actual += timedelta(minutes=30)
+
+        self.fields['Hora'].choices = opciones
+
+
+
+
+
+
+
+
+
 
 # --- FORMULARIO DE CALIFICACION ---
 # Este formulario es para que los usuarios califiquen un servicio con estrellas y un comentario.
