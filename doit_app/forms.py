@@ -66,12 +66,6 @@ class RegistroForm(UserCreationForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    evidenciaTrabajo = forms.FileField(
-        required=False,
-        label="Evidencia de Trabajo",
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'}),
-    )
-    
     hojaVida_file = forms.FileField(
         required=False,
         label="Subir Hoja de Vida (PDF, DOCX, etc.)",
@@ -124,7 +118,6 @@ class RegistroForm(UserCreationForm):
             'tipo_documento',
             'numDoc',
             'telefono',
-            'evidenciaTrabajo',
             'hojaVida_file',
             'foto_perfil',
             'especialidad',
@@ -139,7 +132,6 @@ class RegistroForm(UserCreationForm):
             'password': 'Contraseña',
             'password2': 'Confirmación de Contraseña',
             'tipo_usuario': 'Tipo de Usuario',
-            'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
             'hojaVida_file': 'Archivo de Hoja de Vida',
             'foto_perfil': 'Foto de Perfil',
             'especialidad': 'Especialidades (Solo para Expertos)',
@@ -157,10 +149,7 @@ class RegistroForm(UserCreationForm):
         tipo_usuario = cleaned_data.get('tipo_usuario')
 
         if tipo_usuario == 'experto':
-            campos_requeridos = [
-                'evidenciaTrabajo', 'hojaVida_file',
-                'foto_perfil', 'especialidad'
-            ]
+            campos_requeridos = ['hojaVida_file', 'foto_perfil', 'especialidad']
             for campo in campos_requeridos:
                 if not cleaned_data.get(campo):
                     self.add_error(campo, 'Este campo es obligatorio para expertos.')
@@ -199,7 +188,7 @@ class RegistroForm(UserCreationForm):
             user.especialidad.set(self.cleaned_data.get('especialidad'))
 
         return user
-
+    
 
 
 
