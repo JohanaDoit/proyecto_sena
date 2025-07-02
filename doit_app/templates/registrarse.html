@@ -75,16 +75,6 @@
             </div>
 
             <div class="form-group">
-                {{ form.evidenciaTrabajo.label_tag }}
-                {{ form.evidenciaTrabajo }}
-                {% if form.evidenciaTrabajo.errors %}
-                    <div class="text-danger">
-                        {% for error in form.evidenciaTrabajo.errors %}{{ error }}{% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="form-group">
                 {{ form.hojaVida_file.label_tag }}
                 {{ form.hojaVida_file }}
                 {% if form.hojaVida_file.errors %}

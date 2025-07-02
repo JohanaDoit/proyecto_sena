@@ -71,15 +71,6 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
 
-
-
-    evidenciaTrabajo = models.FileField(
-        upload_to='evidencia_trabajo/',
-        blank=True,
-        null=True,
-        verbose_name="Evidencia de Trabajo"
-    )
-
     hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
     hojaVida_file = models.FileField(upload_to='hojas_de_vida/', blank=True, null=True, verbose_name="Archivo de Hoja de Vida")
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
@@ -95,7 +86,6 @@ class CustomUser(AbstractUser):
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
     barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
 
-
     class Meta:
         verbose_name = "Usuario Personalizado"
         verbose_name_plural = "Usuarios Personalizados"
@@ -108,8 +98,10 @@ class CustomUser(AbstractUser):
         return self.tipo_usuario == 'cliente'
 
     def is_experto(self):
-        return self.tipo_usuario == 'experto'
-        
+        return self.tipo_usuario == 'experto'        
+
+
+
 
 
 
