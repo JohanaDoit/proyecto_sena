@@ -183,6 +183,22 @@
                                                         No especificada
                                                     {% endif %}
                                                 </p>
+                                                {% if reserva.calificacion_experto %}
+                                                    <span style="font-size:1.2em; color:#FFD700;">
+                                                        {% if reserva.calificacion_experto.puntuacion %}
+                                                            {% for i in "12345"|slice:":reserva.calificacion_experto.puntuacion" %}
+                                                                <i class="fa fa-star"></i>
+                                                            {% endfor %}
+                                                            {% for i in "12345"|slice:"reserva.calificacion_experto.puntuacion:" %}
+                                                                <i class="fa fa-star-o"></i>
+                                                            {% endfor %}
+                                                            <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_experto.puntuacion }} / 5)</span><br>
+                                                        {% endif %}
+                                                        {% if reserva.calificacion_experto.comentario %}
+                                                            <span style="color:#555;"><b>Comentario al cliente:</b> {{ reserva.calificacion_experto.comentario }}</span>
+                                                        {% endif %}
+                                                    </span>
+                                                {% endif %}
                                             </div>
                                         {% endif %}
                                     </div>

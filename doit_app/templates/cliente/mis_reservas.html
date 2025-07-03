@@ -15,7 +15,13 @@
     <tbody>
         {% for reserva in reservas %}
         <tr>
-            <td>{{ reserva.experto_asignado.get_full_name|default:reserva.experto_asignado.username }}</td>
+            <td>
+              {% if reserva.experto_asignado %}
+                {{ reserva.experto_asignado.get_full_name|default:reserva.experto_asignado.username }}
+              {% else %}
+                Sin asignar
+              {% endif %}
+            </td>
             <td>{{ reserva.idServicios.NombreServicio }}</td>
             <td>{{ reserva.Fecha|date:"d/m/Y" }}</td>
             <td>
@@ -32,7 +38,21 @@
                     {% if not reserva.calificacion_cliente %}
                         <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
                     {% else %}
-                        Calificado
+                        Calificado<br>
+                        <span style="font-size:1.2em; color:#FFD700;">
+                          {% if reserva.calificacion_cliente.puntuacion %}
+                            {% for i in "12345"|slice:":reserva.calificacion_cliente.puntuacion" %}
+                              <i class="fa fa-star"></i>
+                            {% endfor %}
+                            {% for i in "12345"|slice:"reserva.calificacion_cliente.puntuacion:" %}
+                              <i class="fa fa-star-o"></i>
+                            {% endfor %}
+                            <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_cliente.puntuacion }} / 5)</span><br>
+                          {% endif %}
+                          {% if reserva.calificacion_cliente.comentario %}
+                            <span style="color:#555;"><b>Comentario:</b> {{ reserva.calificacion_cliente.comentario }}</span>
+                          {% endif %}
+                        </span>
                     {% endif %}
                 {% else %}
                     ---

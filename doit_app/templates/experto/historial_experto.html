@@ -10,6 +10,8 @@
             <th>Fecha</th>
             <th>Calificación recibida</th>
             <th>Comentario del cliente</th>
+            <th>Calificación que diste al cliente</th>
+            <th>Comentario al cliente</th>
         </tr>
     </thead>
     <tbody>
@@ -29,6 +31,21 @@
             <td>
                 {% if item.calif_cliente and item.calif_cliente.comentario %}
                     {{ item.calif_cliente.comentario }}
+                {% else %}
+                    ---
+                {% endif %}
+            </td>
+            <td>
+                {% if item.calif_experto %}
+                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star">★</span>{% endfor %}
+                    {% for i in "12345"|slice:item.calif_experto.puntuacion|stringformat:"d" %}<span class="star">☆</span>{% endfor %}
+                {% else %}
+                    Sin calificar
+                {% endif %}
+            </td>
+            <td>
+                {% if item.calif_experto and item.calif_experto.comentario %}
+                    {{ item.calif_experto.comentario }}
                 {% else %}
                     ---
                 {% endif %}

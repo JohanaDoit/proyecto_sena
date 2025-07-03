@@ -8,9 +8,8 @@
             <th>Experto</th>
             <th>Servicio</th>
             <th>Fecha</th>
-            <th>Calificación que diste</th>
-            <th>Calificación que recibiste</th>
-            <th>Comentarios</th>
+            <th>Calificación recibida</th>
+            <th>Comentario del experto</th>
         </tr>
     </thead>
     <tbody>
@@ -20,27 +19,18 @@
             <td>{{ item.reserva.idServicios.NombreServicio }}</td>
             <td>{{ item.reserva.Fecha|date:"d/m/Y" }}</td>
             <td>
-                {% if item.calif_cliente and item.calif_cliente.calificado_por == user %}
-                    {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}<span class="star">★</span>{% endfor %}
-                    {% for i in "12345"|slice:"item.calif_cliente.puntuacion:" %}<span class="star">☆</span>{% endfor %}
-                {% else %}
-                    Sin calificar
-                {% endif %}
-            </td>
-            <td>
                 {% if item.calif_experto and item.calif_experto.calificado_a == user %}
-                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star">★</span>{% endfor %}
-                    {% for i in "12345"|slice:"item.calif_experto.puntuacion:" %}<span class="star">☆</span>{% endfor %}
+                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star" style="color:#FFD700;font-size:1.2em;">★</span>{% endfor %}
+                    {% for i in "12345"|slice:"item.calif_experto.puntuacion:" %}<span class="star" style="color:#FFD700;font-size:1.2em;opacity:0.3;">★</span>{% endfor %}
                 {% else %}
                     Sin calificar
                 {% endif %}
             </td>
             <td>
-                {% if item.calif_cliente and item.calif_cliente.comentario %}
-                    <strong>Tú:</strong> {{ item.calif_cliente.comentario }}<br>
-                {% endif %}
                 {% if item.calif_experto and item.calif_experto.comentario %}
-                    <strong>Experto:</strong> {{ item.calif_experto.comentario }}
+                    {{ item.calif_experto.comentario }}
+                {% else %}
+                    ---
                 {% endif %}
             </td>
         </tr>
