@@ -8,19 +8,23 @@ from .forms import CalificacionForm
 def calificar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
     user = request.user
-    # Solo permitir calificación del cliente hacia el experto
+    # Permitir que tanto el cliente como el experto califiquen
     if user == reserva.idUsuario:
         tipo = 'cliente_a_experto'
         calificado_a = reserva.experto_asignado
+        redir = 'principal'
+    elif user == reserva.experto_asignado:
+        tipo = 'experto_a_cliente'
+        calificado_a = reserva.idUsuario
+        redir = 'dashboard_experto'
     else:
-        messages.error(request, 'Solo el cliente puede calificar al experto en esta reserva.')
+        messages.error(request, 'No tienes permiso para calificar esta reserva.')
         return redirect('home')
 
     # Evitar doble calificación
     if Calificaciones.objects.filter(reserva=reserva, calificado_por=user, tipo=tipo).exists():
         messages.info(request, 'Ya has calificado esta reserva.')
-        return redirect('home')
-
+        return redirect(redir)
 
     if request.method == 'POST':
         form = CalificacionForm(request.POST)
@@ -32,7 +36,7 @@ def calificar_reserva(request, reserva_id):
             calificacion.tipo = tipo
             calificacion.save()
             messages.success(request, '¡Calificación registrada exitosamente!')
-            return redirect('principal')
+            return redirect(redir)
     else:
         form = CalificacionForm()
 

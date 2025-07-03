@@ -1,3 +1,28 @@
+/* Banner de bienvenida igual que en principal.css */
+.banner-bienvenida {
+    color: rgb(56, 69, 112);
+    text-align: center;
+    padding: 15px;
+    flex-grow: 1;
+    min-width: 280px;
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+.banner-bienvenida .contenido-banner h1 {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 2em;
+}
+
+.banner-bienvenida .contenido-banner h1 img {
+    width: 60px;
+    height: auto;
+    vertical-align: middle;
+}
 :root {
     --blanco: #ffffff;
     --azul: #01304a;

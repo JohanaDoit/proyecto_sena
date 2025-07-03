@@ -1,15 +1,22 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experto</title>
-    <link rel="stylesheet" href="{% static 'css/experto.css' %}">
-</head>
-<body>
+<div class="banner-bienvenida">
+    <div class="contenido-banner">
+        <h1>👋 ¡Bienvenid@ 
+            {% if user.is_authenticated %}
+                {% if user.first_name %}
+                    {{ user.first_name }}
+                {% elif user.username %}
+                    {{ user.username }}
+                {% endif %}
+            {% endif %}
+            a 
+            <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
+        </h1>
+    </div>
+</div>
+<!-- ...existing code... -->
         <section class="perfil">
             <div class="avatar">
                 <img src="{% static 'images/ex2.png' %}" alt="Foto de perfil">
