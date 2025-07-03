@@ -23,6 +23,8 @@ from django.http import HttpResponseForbidden
 from django.urls import reverse
 from datetime import timedelta
 from .models import Calificaciones
+from django.contrib.auth.decorators import login_required
+from .models import Notificacion
 
 
 
@@ -245,6 +247,16 @@ def reserva(request):
 
             reserva.save()
 
+            # Notificación para expertos de la especialidad
+            from doit_app.models import Notificacion, CustomUser
+            expertos = CustomUser.objects.filter(tipo_usuario='experto', especialidad=servicio)
+            for experto in expertos:
+                Notificacion.objects.create(
+                    usuario=experto,
+                    mensaje=f'Nuevo servicio disponible: {servicio.NombreServicio}',
+                    url=''  # Puedes poner la url de la reserva o dashboard
+                )
+
             # Guarda datos en sesión para mostrar mensaje en la siguiente vista
             request.session['mensaje_reserva'] = {
                 'servicio': servicio.NombreServicio,
@@ -386,13 +398,17 @@ def rechazar_reserva_experto(request, reserva_id):
 @login_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def mis_reservas_cliente(request):
-    from doit_app.models import Calificaciones
+    from doit_app.models import Calificaciones, Notificacion
     reservas = Reserva.objects.filter(idUsuario=request.user).order_by('-creado_en')
     # Anexar si ya fue calificado por el cliente
     for reserva in reservas:
         calif = Calificaciones.objects.filter(reserva=reserva, calificado_por=request.user, tipo='cliente_a_experto').first()
         reserva.calificacion_cliente = calif
-    return render(request, 'cliente/mis_reservas.html', {'reservas': reservas})
+
+    # Notificaciones no leídas para el usuario actual
+    notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+
+    return render(request, 'cliente/mis_reservas.html', {'reservas': reservas, 'notificaciones_no_leidas': notificaciones_no_leidas})
 
 
 
@@ -472,6 +488,13 @@ def dashboard_experto(request):
                         reserva.save()
                         messages.success(request, "Has aceptado correctamente la reserva.")
                         print(f"✅ Reserva {reserva_id} aceptada por {request.user.username}")
+                        # Notificar al cliente que su servicio fue aceptado
+                        from doit_app.models import Notificacion
+                        Notificacion.objects.create(
+                            usuario=reserva.idUsuario,
+                            mensaje=f'Tu servicio "{reserva.idServicios.NombreServicio}" fue aceptado por el experto {request.user.get_full_name() or request.user.username}.',
+                            url=''  # Puedes poner la url de la reserva o dashboard
+                        )
                         return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
 
             elif accion == 'iniciar_servicio':
@@ -551,6 +574,10 @@ def dashboard_experto(request):
     promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
     estrellas = int(round(promedio_calificacion or 0))
 
+    # Notificaciones no leídas para el usuario actual
+    from doit_app.models import Notificacion
+    notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+
     return render(request, 'experto/dashboard_experto.html', {
         'reservas_pendientes': reservas_pendientes,
         'reservas_asignadas': reservas_asignadas,
@@ -560,6 +587,7 @@ def dashboard_experto(request):
         'puede_calificar_experto': puede_calificar_experto,
         'promedio_calificacion': promedio_calificacion,
         'estrellas': estrellas,
+        'notificaciones_no_leidas': notificaciones_no_leidas,
     })
 
 
@@ -948,6 +976,13 @@ def historial_cliente(request):
     return render(request, 'cliente/historial_cliente.html', {
         'historial': historial
     })
+
+@login_required
+def notificaciones(request):
+    notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
+    # Marcar como leídas todas las no leídas
+    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    return render(request, 'notificaciones.html', {'notificaciones': notificaciones})
 
 
 

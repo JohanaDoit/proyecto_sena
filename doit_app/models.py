@@ -331,3 +331,18 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"{self.emisor} → {self.receptor}: {self.contenido[:30]}"
+
+class Notificacion(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notificaciones')
+    mensaje = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, blank=True, null=True)
+    leida = models.BooleanField(default=False)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Notificación'
+        verbose_name_plural = 'Notificaciones'
+
+    def __str__(self):
+        return f"Notificación para {self.usuario.username}: {self.mensaje[:30]}..."
