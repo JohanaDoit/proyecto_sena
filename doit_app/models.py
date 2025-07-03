@@ -85,6 +85,7 @@ class CustomUser(AbstractUser):
     
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
     barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
+    documento_identidad_pdf = models.FileField(upload_to='documentos_identidad/', blank=True, null=True, verbose_name="Documento de Identidad (PDF)")
 
     class Meta:
         verbose_name = "Usuario Personalizado"

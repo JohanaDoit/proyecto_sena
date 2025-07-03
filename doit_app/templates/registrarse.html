@@ -65,6 +65,16 @@
             </div>
 
             <div class="form-group">
+                {{ form.documento_identidad_pdf.label_tag }}
+                {{ form.documento_identidad_pdf }}
+                {% if form.documento_identidad_pdf.errors %}
+                    <div class="text-danger">
+                        {% for error in form.documento_identidad_pdf.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
                 {{ form.experienciaTrabajo.label_tag }}
                 {{ form.experienciaTrabajo }}
                 {% if form.experienciaTrabajo.errors %}

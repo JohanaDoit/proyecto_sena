@@ -99,6 +99,12 @@ class RegistroForm(UserCreationForm):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
 
+    documento_identidad_pdf = forms.FileField(
+        required=False,
+        label="Documento de Identidad (PDF)",
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['especialidad'].label_from_instance = str
@@ -123,6 +129,7 @@ class RegistroForm(UserCreationForm):
             'especialidad',
             'direccion',
             'barrio',
+            'documento_identidad_pdf',
         )
         labels = {
             'username': 'Nombre de Usuario',
@@ -137,6 +144,7 @@ class RegistroForm(UserCreationForm):
             'especialidad': 'Especialidades (Solo para Expertos)',
             'direccion': 'Dirección de Residencia',
             'barrio': 'Barrio',
+            'documento_identidad_pdf': 'Documento de Identidad (PDF)',
         }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
@@ -149,7 +157,7 @@ class RegistroForm(UserCreationForm):
         tipo_usuario = cleaned_data.get('tipo_usuario')
 
         if tipo_usuario == 'experto':
-            campos_requeridos = ['hojaVida_file', 'foto_perfil', 'especialidad']
+            campos_requeridos = ['hojaVida_file', 'foto_perfil', 'especialidad', 'documento_identidad_pdf']
             for campo in campos_requeridos:
                 if not cleaned_data.get(campo):
                     self.add_error(campo, 'Este campo es obligatorio para expertos.')
@@ -176,7 +184,7 @@ class RegistroForm(UserCreationForm):
         user = super().save(commit=False)
         for campo in [
             'genero', 'tipo_usuario', 'nacionalidad', 'numDoc', 'telefono',
-            'fechaNacimiento', 'tipo_documento', 'direccion', 'barrio'
+            'fechaNacimiento', 'tipo_documento', 'direccion', 'barrio', 'documento_identidad_pdf'
         ]:
             setattr(user, campo, self.cleaned_data.get(campo))
 
