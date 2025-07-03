@@ -74,6 +74,7 @@ urlpatterns = [
     path('cancelar-reserva/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
 
     path('chat/<int:receptor_id>/', chat_view, name='chat'),
+    path('notificaciones/', views.notificaciones, name='notificaciones'),
 ]
 
 urlpatterns += [

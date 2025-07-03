@@ -144,6 +144,15 @@
                         <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
                         <li><a href="{% url 'registrarse' %}">Registrarse</a></li>
                     {% endif %}
+                    {# Ícono de notificaciones con badge #}
+                    <li style="position:relative;">
+                        <a href="{% url 'notificaciones' %}" id="notificaciones-link" style="position:relative;">
+                            <i class="fa fa-bell" style="font-size:1.5em;"></i>
+                            {% if notificaciones_no_leidas and notificaciones_no_leidas > 0 %}
+                                <span id="notificaciones-badge" style="position:absolute;top:-5px;right:-8px;background:#dc3545;color:white;border-radius:50%;padding:2px 6px;font-size:0.8em;">{{ notificaciones_no_leidas }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </header>

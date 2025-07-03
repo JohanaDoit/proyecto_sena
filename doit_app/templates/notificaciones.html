@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Notificaciones</h2>
+    <ul class="list-group">
+        {% for noti in notificaciones %}
+            <li class="list-group-item {% if not noti.leida %}list-group-item-info{% endif %}">
+                {{ noti.mensaje }}
+                {% if noti.url %}
+                    <a href="{{ noti.url }}" class="btn btn-link btn-sm">Ver</a>
+                {% endif %}
+                <span class="text-muted float-end" style="font-size:0.9em;">{{ noti.fecha|date:"d/m/Y H:i" }}</span>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No tienes notificaciones.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
