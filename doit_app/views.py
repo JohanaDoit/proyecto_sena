@@ -416,7 +416,22 @@ def mis_reservas_cliente(request):
 
 @login_required
 def busc_experto(request):
-    return render(request, 'busc_experto.html')
+    q = request.GET.get('q', '').strip()
+    expertos = []
+    if q:
+        expertos = CustomUser.objects.filter(
+            tipo_usuario='experto'
+        ).filter(
+            Q(username__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q)
+        )
+
+    return render(request, 'busc_experto.html', {
+        'searched_expert': q,
+        'expertos': expertos
+    })
+
 
 @login_required
 def modificar(request):
