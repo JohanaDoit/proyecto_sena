@@ -37,7 +37,7 @@
 
         <!-- Campos comunes -->
         {% for field in form.visible_fields %}
-            {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" %}
+            {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" and field.name != "documento_identidad_pdf" %}
                 <div class="form-group">
                     {{ field.label_tag }}
                     {{ field }}
@@ -120,11 +120,6 @@
             <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-
-
-
-
 
 <!-- Mostrar campos solo si se elige "experto" -->
 <script>
