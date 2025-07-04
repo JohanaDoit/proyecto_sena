@@ -2,56 +2,60 @@
 {% load static %}
 {% block content %}
 <h1>Historial de Servicios Finalizados</h1>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Cliente</th>
-            <th>Servicio</th>
-            <th>Fecha</th>
-            <th>Calificación recibida</th>
-            <th>Comentario del cliente</th>
-            <th>Calificación que diste al cliente</th>
-            <th>Comentario al cliente</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in historial %}
-        <tr>
-            <td>{{ item.reserva.idUsuario.get_full_name|default:item.reserva.idUsuario.username }}</td>
-            <td>{{ item.reserva.idServicios.NombreServicio }}</td>
-            <td>{{ item.reserva.Fecha|date:"d/m/Y" }}</td>
-            <td>
-                {% if item.calif_cliente %}
-                    {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}<span class="star">★</span>{% endfor %}
-                    {% for i in "12345"|slice:item.calif_cliente.puntuacion|stringformat:"d" %}<span class="star">☆</span>{% endfor %}
-                {% else %}
-                    Sin calificar
-                {% endif %}
-            </td>
-            <td>
-                {% if item.calif_cliente and item.calif_cliente.comentario %}
-                    {{ item.calif_cliente.comentario }}
-                {% else %}
-                    ---
-                {% endif %}
-            </td>
-            <td>
-                {% if item.calif_experto %}
-                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star">★</span>{% endfor %}
-                    {% for i in "12345"|slice:item.calif_experto.puntuacion|stringformat:"d" %}<span class="star">☆</span>{% endfor %}
-                {% else %}
-                    Sin calificar
-                {% endif %}
-            </td>
-            <td>
-                {% if item.calif_experto and item.calif_experto.comentario %}
-                    {{ item.calif_experto.comentario }}
-                {% else %}
-                    ---
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="reservas-lista">
+  {% for item in historial %}
+    <div class="reserva-card finalizada">
+      <div class="reserva-header">
+        <div class="reserva-info">
+          <span><strong>Cliente:</strong> {{ item.reserva.idUsuario.get_full_name|default:item.reserva.idUsuario.username }}</span>
+          <span><strong>Servicio:</strong> {{ item.reserva.idServicios.NombreServicio }}</span>
+          <span><strong>Fecha:</strong> {{ item.reserva.Fecha|date:"d/m/Y" }}</span>
+        </div>
+        <span class="reserva-estado finalizada">Finalizado</span>
+      </div>
+      <div class="reserva-calificacion">
+        <span><strong>Calificación recibida:</strong></span>
+        <span class="estrellas">
+          {% if item.calif_cliente %}
+            {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}★{% endfor %}
+            {% for i in "12345"|slice:item.calif_cliente.puntuacion|stringformat:"d" %}☆{% endfor %}
+            <span style="color:#555; font-size:0.95em;">({{ item.calif_cliente.puntuacion }} / 5)</span>
+          {% else %}
+            Sin calificar
+          {% endif %}
+        </span>
+      </div>
+      <div class="reserva-comentario">
+        <strong>Comentario del cliente:</strong>
+        {% if item.calif_cliente and item.calif_cliente.comentario %}
+          {{ item.calif_cliente.comentario }}
+        {% else %}
+          ---
+        {% endif %}
+      </div>
+      <div class="reserva-calificacion">
+        <span><strong>Calificación que diste al cliente:</strong></span>
+        <span class="estrellas">
+          {% if item.calif_experto %}
+            {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}★{% endfor %}
+            {% for i in "12345"|slice:item.calif_experto.puntuacion|stringformat:"d" %}☆{% endfor %}
+            <span style="color:#555; font-size:0.95em;">({{ item.calif_experto.puntuacion }} / 5)</span>
+          {% else %}
+            Sin calificar
+          {% endif %}
+        </span>
+      </div>
+      <div class="reserva-comentario">
+        <strong>Comentario al cliente:</strong>
+        {% if item.calif_experto and item.calif_experto.comentario %}
+          {{ item.calif_experto.comentario }}
+        {% else %}
+          ---
+        {% endif %}
+      </div>
+    </div>
+  {% empty %}
+    <p>No tienes servicios finalizados.</p>
+  {% endfor %}
+</div>
 {% endblock %}
