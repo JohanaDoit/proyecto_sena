@@ -2,64 +2,47 @@
 {% load static %}
 {% block content %}
 <h1>Mis Reservas</h1>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Experto</th>
-            <th>Servicio</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Calificar</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reserva in reservas %}
-        <tr>
-            <td>
-              {% if reserva.experto_asignado %}
-                {{ reserva.experto_asignado.get_full_name|default:reserva.experto_asignado.username }}
-              {% else %}
-                Sin asignar
+<div class="reservas-lista">
+  {% for reserva in reservas %}
+    <div class="reserva-card {% if reserva.servicio_finalizado %}finalizada{% else %}pendiente{% endif %}">
+      <div class="reserva-header">
+        <div class="reserva-info">
+          <span><strong>Experto:</strong> {% if reserva.experto_asignado %}{{ reserva.experto_asignado.get_full_name|default:reserva.experto_asignado.username }}{% else %}Sin asignar{% endif %}</span>
+          <span><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</span>
+          <span><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</span>
+        </div>
+        <span class="reserva-estado {% if reserva.servicio_finalizado %}finalizada{% else %}pendiente{% endif %}">
+          {% if reserva.servicio_finalizado %}Finalizado{% elif reserva.servicio_iniciado %}En proceso{% else %}Pendiente{% endif %}
+        </span>
+      </div>
+      <div class="reserva-calificacion">
+        {% if reserva.servicio_finalizado %}
+          {% if not reserva.calificacion_cliente %}
+            <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
+          {% else %}
+            <span>Calificado</span>
+            <span class="estrellas">
+              {% if reserva.calificacion_cliente.puntuacion %}
+                {% for i in "12345"|slice:":reserva.calificacion_cliente.puntuacion" %}
+                  ★
+                {% endfor %}
+                {% for i in "12345"|slice:"reserva.calificacion_cliente.puntuacion:" %}
+                  ☆
+                {% endfor %}
+                <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_cliente.puntuacion }} / 5)</span>
               {% endif %}
-            </td>
-            <td>{{ reserva.idServicios.NombreServicio }}</td>
-            <td>{{ reserva.Fecha|date:"d/m/Y" }}</td>
-            <td>
-                {% if reserva.servicio_finalizado %}
-                    Finalizado
-                {% elif reserva.servicio_iniciado %}
-                    En proceso
-                {% else %}
-                    Pendiente
-                {% endif %}
-            </td>
-            <td>
-                {% if reserva.servicio_finalizado %}
-                    {% if not reserva.calificacion_cliente %}
-                        <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
-                    {% else %}
-                        Calificado<br>
-                        <span style="font-size:1.2em; color:#FFD700;">
-                          {% if reserva.calificacion_cliente.puntuacion %}
-                            {% for i in "12345"|slice:":reserva.calificacion_cliente.puntuacion" %}
-                              <i class="fa fa-star"></i>
-                            {% endfor %}
-                            {% for i in "12345"|slice:"reserva.calificacion_cliente.puntuacion:" %}
-                              <i class="fa fa-star-o"></i>
-                            {% endfor %}
-                            <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_cliente.puntuacion }} / 5)</span><br>
-                          {% endif %}
-                          {% if reserva.calificacion_cliente.comentario %}
-                            <span style="color:#555;"><b>Comentario:</b> {{ reserva.calificacion_cliente.comentario }}</span>
-                          {% endif %}
-                        </span>
-                    {% endif %}
-                {% else %}
-                    ---
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </span>
+          {% endif %}
+        {% else %}
+          <span>---</span>
+        {% endif %}
+      </div>
+      {% if reserva.servicio_finalizado and reserva.calificacion_cliente and reserva.calificacion_cliente.comentario %}
+        <div class="reserva-comentario">
+          <strong>Comentario:</strong> {{ reserva.calificacion_cliente.comentario }}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
 {% endblock %}

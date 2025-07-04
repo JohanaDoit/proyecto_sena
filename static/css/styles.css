@@ -302,6 +302,110 @@ footer {
 }
 
 
+/* =========================
+   ESTILOS PARA MIS RESERVAS
+   ========================= */
+
+.reservas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.reserva-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.08);
+    padding: 24px 28px 18px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-left: 6px solid var(--primary-blue);
+    transition: box-shadow 0.2s;
+}
+
+.reserva-card.pendiente {
+    border-left-color: var(--alert-warning-border);
+    background: #fffbe6;
+}
+
+.reserva-card.finalizada {
+    border-left-color: var(--alert-success-border);
+}
+
+.reserva-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.08em;
+    font-weight: 500;
+}
+
+.reserva-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    color: #444;
+    font-size: 1em;
+}
+
+.reserva-estado {
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-size: 0.98em;
+}
+
+.reserva-estado.pendiente {
+    background: var(--alert-warning-bg);
+    color: var(--alert-warning-text);
+}
+.reserva-estado.finalizada {
+    background: var(--alert-success-bg);
+    color: var(--alert-success-text);
+}
+
+.reserva-calificacion {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.estrellas {
+    color: #ffc107;
+    font-size: 1.3em;
+    letter-spacing: 2px;
+}
+
+.reserva-comentario {
+    margin-top: 4px;
+    font-size: 1.05em;
+    color: #333;
+    font-style: italic;
+    padding-left: 2px;
+}
+
+@media (max-width: 600px) {
+    .reserva-card {
+        padding: 14px 8px 12px 12px;
+    }
+    .reserva-info {
+        gap: 10px;
+        flex-direction: column;
+    }
+    .reserva-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+}
+
+/* Fin estilos Mis Reservas */
+
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 768px) {
     :root {
