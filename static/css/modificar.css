@@ -1,4 +1,4 @@
-    /* static/css/modificar.css */
+/* static/css/modificar.css */
 
 /* --- Variables CSS (pueden ser las mismas de styles.css o específicas si se necesitan ajustes) --- */
 :root {
@@ -120,6 +120,13 @@
 .btn-secondary:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+/* Estilos para botones pequeños */
+.btn.btn-sm, .btn-sm {
+    padding: 4px 12px;
+    font-size: 13px;
+    border-radius: 4px;
 }
 
 @media (max-width: 768px) {

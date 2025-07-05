@@ -41,38 +41,32 @@
                 </div>
             {% endif %}
 
-            {# Iterar sobre los campos para aplicar estilos consistentes con form-group y form-control #}
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
-                    
-                    {# Renderiza el campo con la clase 'form-control' #}
-                    {% if field.field.widget.input_type == 'file' %}
-                        {# Para campos de tipo 'file' es común no usar 'form-control' o usar uno diferente #}
-                        {% render_field field class="form-control-file" %} 
-                    {% elif field.field.widget.input_type == 'checkbox' %}
-                        {# Para checkboxes, el estilo es diferente #}
-                        {% render_field field class="form-check-input" %} 
-                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {% else %}
-                        {# Para la mayoría de los campos de texto, número, email, select, textarea #}
-                        {% render_field field class="form-control" %}
-                    {% endif %}
-
-                    {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                    {% endif %}
-
-                    {% for error in field.errors %}
-                        <p class="errorlist">{{ error }}</p>
-                    {% endfor %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">{{ form.username.label_tag }}{{ form.username }}</div>
+                    <div class="form-group mb-3">{{ form.first_name.label_tag }}{{ form.first_name }}</div>
+                    <div class="form-group mb-3">{{ form.last_name.label_tag }}{{ form.last_name }}</div>
+                    <div class="form-group mb-3">{{ form.email.label_tag }}{{ form.email }}</div>
+                    <div class="form-group mb-3">{{ form.genero.label_tag }}{{ form.genero }}</div>
+                    <div class="form-group mb-3">{{ form.tipo_usuario.label_tag }}{{ form.tipo_usuario }}</div>
+                    <div class="form-group mb-3">{{ form.nacionalidad.label_tag }}{{ form.nacionalidad }}</div>
                 </div>
-            {% endfor %}
+                <div class="col-md-6">
+                    <div class="form-group mb-3">{{ form.numDoc.label_tag }}{{ form.numDoc }}</div>
+                    <div class="form-group mb-3">{{ form.telefono.label_tag }}{{ form.telefono }}</div>
+                    <div class="form-group mb-3">{{ form.fechaNacimiento.label_tag }}{{ form.fechaNacimiento }}</div>
+                    <div class="form-group mb-3">{{ form.tipo_documento.label_tag }}{{ form.tipo_documento }}</div>
+                    <div class="form-group mb-3">{{ form.foto_perfil.label_tag }}{{ form.foto_perfil }}</div>
+                    <div class="form-group mb-3">{{ form.especialidad.label_tag }}{{ form.especialidad }}</div>
+                    <div class="form-group mb-3">{{ form.direccion.label_tag }}{{ form.direccion }}</div>
+                    <div class="form-group mb-3">{{ form.barrio.label_tag }}{{ form.barrio }}</div>
+                </div>
+            </div>
 
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <div class="button-group mt-4">
+                <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
                 {# Botón de Volver a la pantalla principal #}
-                <a href="{% url 'principal' %}" class="back-button btn btn-secondary">Volver a Principal</a>
+                <a href="{% url 'principal' %}" class="back-button btn btn-secondary btn-sm">Volver a Principal</a>
             </div>
         </form>
 

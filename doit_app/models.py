@@ -71,8 +71,7 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
 
-    hojaVida = models.CharField(max_length=300, blank=True, null=True, verbose_name="Link Hoja de Vida (URL)")
-    hojaVida_file = models.FileField(upload_to='hojas_de_vida/', blank=True, null=True, verbose_name="Archivo de Hoja de Vida")
+
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
     tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
