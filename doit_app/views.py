@@ -507,6 +507,12 @@ def dashboard_experto(request):
                     return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
                 else:
                     if not reserva.experto_asignado and reserva.idServicios in request.user.especialidad.all():
+                        # Al aceptar, desvincula este servicio de cualquier otro experto
+                        Reserva.objects.filter(
+                            id=reserva.id
+                        ).exclude(
+                            experto_asignado=request.user
+                        ).update(experto_asignado=None)
                         reserva.experto_asignado = request.user
                         estado_aceptada = Estado.objects.get(Nombre='Aceptada')
                         reserva.idEstado = estado_aceptada
