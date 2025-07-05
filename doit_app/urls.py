@@ -79,5 +79,9 @@ urlpatterns = [
 
 urlpatterns += [
     path('reserva/<int:reserva_id>/calificar/', calificar_reserva, name='calificar_reserva'),
+    # --- AJAX para sugerencias de búsqueda de expertos ---
+    path('ajax/busc_experto_sugerencias/', views.busc_experto_sugerencias, name='busc_experto_sugerencias'),
+    # --- AJAX para expertos por especialidad ---
+    path('ajax/expertos_por_especialidad/', views.expertos_por_especialidad, name='expertos_por_especialidad'),
 ]
 

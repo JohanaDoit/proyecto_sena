@@ -25,6 +25,7 @@ from datetime import timedelta
 from .models import Calificaciones
 from django.contrib.auth.decorators import login_required
 from .models import Notificacion
+from django.db import models
 
 
 
@@ -419,14 +420,23 @@ def busc_experto(request):
     q = request.GET.get('q', '').strip()
     expertos = []
     if q:
+        # Buscar por nombre completo (first_name + ' ' + last_name)
         expertos = CustomUser.objects.filter(
             tipo_usuario='experto'
+        ).annotate(
+            nombre_completo=models.functions.Concat(
+                models.F('first_name'),
+                models.Value(' '),
+                models.F('last_name'),
+                output_field=models.CharField()
+            )
         ).filter(
             Q(username__icontains=q) |
             Q(first_name__icontains=q) |
-            Q(last_name__icontains=q)
-        )
-
+            Q(last_name__icontains=q) |
+            Q(nombre_completo__icontains=q) |
+            Q(especialidad__NombreServicio__icontains=q)
+        ).distinct()
     return render(request, 'busc_experto.html', {
         'searched_expert': q,
         'expertos': expertos
@@ -998,6 +1008,51 @@ def notificaciones(request):
     # Marcar como leídas todas las no leídas
     Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
     return render(request, 'notificaciones.html', {'notificaciones': notificaciones})
+
+
+def busc_experto_sugerencias(request):
+    q = request.GET.get('q', '').strip()
+    sugerencias = []
+    if q:
+        expertos = CustomUser.objects.filter(
+            tipo_usuario='experto'
+        ).filter(
+            Q(username__icontains=q) |
+            Q(first_name__icontains=q) |
+            Q(last_name__icontains=q) |
+            Q(especialidad__NombreServicio__icontains=q)
+        ).distinct()[:8]
+        for experto in expertos:
+            nombre = experto.get_full_name() or experto.username
+            # Si la búsqueda coincide con parte del nombre, muestra el nombre
+            if q.lower() in nombre.lower() or q.lower() in (experto.username or '').lower():
+                texto = nombre
+            else:
+                # Si coincide con alguna especialidad, muestra solo la especialidad coincidente
+                especialidad_match = next((esp.NombreServicio for esp in experto.especialidad.all() if q.lower() in esp.NombreServicio.lower()), None)
+                texto = especialidad_match if especialidad_match else nombre
+            sugerencias.append({'id': experto.id, 'texto': texto})
+    return JsonResponse({'sugerencias': sugerencias})
+
+def expertos_por_especialidad(request):
+    servicio_id = request.GET.get('servicio_id')
+    expertos = []
+    if servicio_id:
+        expertos = CustomUser.objects.filter(
+            tipo_usuario='experto',
+            especialidad__id=servicio_id
+        ).distinct()
+    data = [
+        {
+            'id': e.id,
+            'nombre': e.get_full_name() or e.username,
+            'foto': e.foto_perfil.url if e.foto_perfil else '',
+            'especialidades': ', '.join([esp.NombreServicio for esp in e.especialidad.all()]),
+            'username': e.username
+        }
+        for e in expertos
+    ]
+    return JsonResponse({'expertos': data})
 
 
 

@@ -22,10 +22,11 @@
             a 
             <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
         </h1>
-        <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form">
+        <form action="{% url 'busc_experto' %}" method="get" class="search-experto-form" style="position:relative;">
             <input type="text" name="q" placeholder="Buscar experto por nombre o especialidad...">
             <button type="submit">Buscar</button>
         </form>
+        <script src="{% static 'js/busc_experto_autocomplete.js' %}"></script>
     </div>
 </div>
 
@@ -380,4 +381,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
+<script src="{% static 'js/expertos_por_especialidad.js' %}"></script>
 {% endblock extra_js %}
