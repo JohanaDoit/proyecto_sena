@@ -17,6 +17,7 @@ body {
     box-shadow: 0 8px 20px rgba(232, 230, 230, 0.99);
     max-width: 1000px;
     width: 97%;
+    margin-top: 60px; /* Añadido para separar el contenido superior */
 }
 
 .logo-principal {

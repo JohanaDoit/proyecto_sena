@@ -27,13 +27,13 @@
                             {% for esp in experto.especialidad.all %}{{ esp.NombreServicio }}{% if not forloop.last %}, {% endif %}{% endfor %}
                         </p>
                         <p class="experto-usuario">@{{ experto.username }}</p>
-                    </div>
-                    <div class="experto-contacto">
-                        {% if experto.id %}
-                            <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Seleccionar</a>
-                        {% else %}
-                            <span class="text-muted">No disponible</span>
-                        {% endif %}
+                        <div class="experto-contacto" style="margin-left:0; margin-top:12px; width:100%; display:flex; justify-content:center;">
+                            {% if experto.id %}
+                                <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Seleccionar</a>
+                            {% else %}
+                                <span class="text-muted">No disponible</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             {% endfor %}

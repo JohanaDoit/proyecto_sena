@@ -125,23 +125,23 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
 
 /* --- Estilos del Botón de Envío (.btn-primary) --- */
 .btn-primary {
-    background-color: var(--azul-principal); /* Usar variable */
+    background: linear-gradient(90deg, #3b82f6 80%, #1e3a8a 100%);
     color: var(--blanco);
     padding: var(--espaciado-mediano) var(--espaciado-grande);
-    border: none; /* Eliminar borde si Bootstrap lo añade */
+    border: none;
     border-radius: var(--borde-redondeado);
     font-weight: 700;
     cursor: pointer;
     width: 100%;
     font-size: 1.15rem;
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, transform 0.1s ease-in-out;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
     margin-top: var(--espaciado-grande);
     box-shadow: var(--sombra-suave);
     letter-spacing: 0.05em; /* Espaciado entre letras */
 }
 
 .btn-primary:hover {
-    background-color: var(--azul-secundario); /* Usar variable al pasar el ratón */
+    background: linear-gradient(90deg, #1e3a8a 80%, #3b82f6 100%);
     box-shadow: var(--sombra-fuerte);
     transform: translateY(-2px); /* Pequeño efecto de levantamiento */
 }

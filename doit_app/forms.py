@@ -82,7 +82,8 @@ class RegistroForm(UserCreationForm):
         queryset=Servicios.objects.select_related('idCategorias').order_by('NombreServicio'),
         required=False,
         label="Especialidades (máximo 3)",
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
+        help_text="Puedes seleccionar hasta 3 especialidades."
     )
 
     direccion = forms.CharField(
@@ -107,7 +108,8 @@ class RegistroForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['especialidad'].label_from_instance = str
+        # Elimina el campo especialidad de forma segura si existe
+        self.fields.pop('especialidad', None)
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
 
@@ -228,35 +230,13 @@ class PerfilUsuarioForm(UserChangeForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     
-    # Campos específicos de experto para el PerfilUsuarioForm
-    hojaVida_file = forms.FileField( 
-        required=False, 
-        label="Subir Hoja de Vida (PDF, DOCX, etc.)", 
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
+    # Solo dejar los campos permitidos, eliminar los campos de evidenciaTrabajo, experienciaTrabajo, hojaVida, hojaVida_file
     foto_perfil = forms.ImageField(
         required=False, 
         label="Foto de Perfil", 
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-    evidenciaTrabajo = forms.ImageField( 
-        required=False, 
-        label="Evidencia de Trabajo (Imagen)", 
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
-    experienciaTrabajo = forms.CharField( 
-        required=False, 
-        label="Experiencia de Trabajo", 
-        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
-    )
-    especialidad = forms.CharField( 
-        max_length=100,
-        required=False,
-        label="Especialidad",
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    
-    # --- Campos de Dirección y Barrio para Edición ---
+
     direccion = forms.CharField(
         max_length=255,
         required=False,
@@ -278,11 +258,8 @@ class PerfilUsuarioForm(UserChangeForm):
         fields = (
             'username', 'first_name', 'last_name', 'email',
             'genero', 'tipo_usuario', 'nacionalidad', 'numDoc', 'telefono',
-            'fechaNacimiento', 'experienciaTrabajo', 'evidenciaTrabajo', 'hojaVida',
-            'hojaVida_file', 'tipo_documento', 'foto_perfil', 'especialidad',
-            'direccion', # Añadido aquí
-            'barrio',    # Añadido aquí
-        
+            'fechaNacimiento', 'tipo_documento', 'foto_perfil', 
+            'direccion', 'barrio',
         )
         
         labels = {
@@ -290,12 +267,9 @@ class PerfilUsuarioForm(UserChangeForm):
             'first_name': 'Nombres',
             'last_name': 'Apellidos',
             'email': 'Correo Electrónico',
-            'evidenciaTrabajo': 'Evidencia de Trabajo (Imagen)',
-            'hojaVida_file': 'Archivo de Hoja de Vida',
             'especialidad': 'Especialidad',
             'direccion': 'Dirección de Residencia',
-            'barrio': 'Barrio',    # Añadido aquí
-        
+            'barrio': 'Barrio',
         }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
@@ -306,12 +280,8 @@ class PerfilUsuarioForm(UserChangeForm):
             'numDoc': forms.TextInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'fechaNacimiento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'experienciaTrabajo': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'hojaVida': forms.URLInput(attrs={'class': 'form-control'}),
-            'especialidad': forms.TextInput(attrs={'class': 'form-control'}),
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
-            'barrio': forms.TextInput(attrs={'class': 'form-control'}), # Añadido aquí
-        
+            'barrio': forms.TextInput(attrs={'class': 'form-control'}),
         }
         
     def __init__(self, *args, **kwargs):
@@ -323,24 +293,15 @@ class PerfilUsuarioForm(UserChangeForm):
             self.fields['tipo_usuario'].widget.attrs['readonly'] = True
             # self.fields['tipo_usuario'].widget.attrs['disabled'] = True # Esto impide que el valor se envíe
 
-        # Ocultar campos de experto si el usuario es cliente
-        # Asegúrate de que self.instance.tipo_usuario exista antes de acceder
-        if self.instance and hasattr(self.instance, 'tipo_usuario') and self.instance.tipo_usuario == 'cliente':
-            # Si el usuario es cliente, ocultamos y hacemos que los campos no sean requeridos.
-            # No se necesitan los errores de "obligatorio" si el campo está oculto.
-            self.fields['experienciaTrabajo'].required = False
-            self.fields['evidenciaTrabajo'].required = False
-            self.fields['hojaVida'].required = False
-            self.fields['hojaVida_file'].required = False
-            self.fields['especialidad'].required = False
-            self.fields['foto_perfil'].required = False # Si la foto de perfil es solo para expertos
-            
-            self.fields['experienciaTrabajo'].widget = forms.HiddenInput()
-            self.fields['evidenciaTrabajo'].widget = forms.HiddenInput()
-            self.fields['hojaVida'].widget = forms.HiddenInput()
-            self.fields['hojaVida_file'].widget = forms.HiddenInput()
-            self.fields['especialidad'].widget = forms.HiddenInput()
-            self.fields['foto_perfil'].widget = forms.HiddenInput()
+        # Elimina cualquier referencia a 'especialidad' para evitar KeyError
+        # if self.instance and hasattr(self.instance, 'tipo_usuario') and self.instance.tipo_usuario == 'cliente':
+        #     self.fields['especialidad'].required = False
+        #     self.fields['especialidad'].widget = forms.HiddenInput()
+        #     self.fields['foto_perfil'].widget = forms.ClearableFileInput(attrs={'class': 'form-control'})
+        # else:
+        #     self.fields['especialidad'].widget = forms.SelectMultiple(attrs={'class': 'form-control'})
+        #     self.fields['especialidad'].required = False
+        #     self.fields['foto_perfil'].widget = forms.ClearableFileInput(attrs={'class': 'form-control'})
 
         # Aplica la clase 'form-control' a la mayoría de los campos si no la tienen ya
         for field_name, field in self.fields.items():
@@ -381,9 +342,6 @@ class PerfilUsuarioForm(UserChangeForm):
         # Si el tipo de usuario cambia de experto a cliente (o ya era cliente), limpia los campos de experto
         # Esto es crucial para no mantener datos de experto en un cliente.
         if self.cleaned_data.get('tipo_usuario') == 'cliente' and original_tipo_usuario == 'experto':
-            user.evidenciaTrabajo = None 
-            user.experienciaTrabajo = ""
-            user.hojaVida = ""
             user.especialidad = "" 
             
             # Borra el archivo físico si existe y el campo cambia a None

@@ -14,37 +14,51 @@
     margin-bottom: 20px;
 }
 
-/* Estilos para cada tarjeta de experto */
+/* Mejora visual para la tarjeta de experto */
 .experto-card {
     display: flex;
+    flex-direction: row-reverse;
     align-items: center;
-    margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid var(--claro);
-    border-radius: 8px;
-    background-color: var(--blanco);
+    margin-bottom: 24px;
+    padding: 18px 28px;
+    border: 1.5px solid var(--azul, #1e3a8a);
+    border-radius: 16px;
+    background: linear-gradient(90deg, #f8fafc 80%, #e0e7ef 100%);
+    box-shadow: 0 4px 18px rgba(30,58,138,0.07);
+    transition: box-shadow 0.2s, border 0.2s;
+}
+
+.experto-card:hover {
+    box-shadow: 0 8px 32px rgba(30,58,138,0.13);
+    border-color: var(--secondary-blue, #3b82f6);
 }
 
 .experto-info {
     flex-grow: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 2px;
+    text-align: center;
 }
 
 .experto-foto {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 15px;
-    border: 2px solid var(--azul);
+    margin-left: 28px;
+    margin-right: 0;
+    border: 3px solid var(--azul, #1e3a8a);
+    background: #fff;
+    flex-shrink: 0;
 }
 
 .experto-info h3 {
-    color: var(--azul);
-    margin-top: 0;
-    margin-bottom: 5px;
-    font-size: 1.5em;
+    color: var(--azul, #1e3a8a);
+    margin: 0 0 2px 0;
+    font-size: 1.3em;
+    font-weight: 700;
 }
 
 .experto-info p {
@@ -54,35 +68,41 @@
 }
 
 .experto-servicio {
-    color: var(--naranja);
-    font-weight: bold;
+    color: var(--naranja, #f27f00);
+    font-weight: 500;
+    font-size: 1em;
+    margin-bottom: 0;
 }
 
-.experto-calificacion {
-    color: var(--amarillo);
-}
-
-.experto-precio {
-    color: var(--verde);
+.experto-usuario {
+    color: #888;
+    font-size: 0.98em;
+    margin-bottom: 0;
 }
 
 .experto-contacto {
-    margin-left: 20px;
+    margin-left: 30px;
+    display: flex;
+    align-items: center;
 }
 
 .boton-seleccionar {
-    background-color: var(--verde); /* Cambiamos el color del botón */
-    color: var(--blanco);
+    background: linear-gradient(90deg, #3b82f6 80%, #1e3a8a 100%);
+    color: #fff;
     border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
+    padding: 8px 22px;
+    border-radius: 20px;
     cursor: pointer;
     font-size: 1em;
-    transition: background-color 0.3s ease;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(30,58,138,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
 .boton-seleccionar:hover {
-    background-color: #77b377; /* Un tono más claro al pasar el mouse */
+    background: linear-gradient(90deg, #1e3a8a 80%, #3b82f6 100%);
+    box-shadow: 0 4px 16px rgba(30,58,138,0.13);
 }
 
 /* Estilos para el mensaje de selección */
@@ -95,30 +115,83 @@
     font-size: 1.2em;
 }
 
-/* Estilos para pantallas más pequeñas */
+/* Mejoras visuales para el buscador de expertos */
+form[action*="busc_experto"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+form[action*="busc_experto"] .form-control {
+    max-width: 350px;
+    min-width: 180px;
+    border-radius: 20px;
+    border: 1px solid var(--azul, #1e3a8a);
+    padding: 8px 16px;
+    font-size: 1em;
+    box-shadow: 0 2px 6px rgba(30,58,138,0.04);
+}
+
+form[action*="busc_experto"] .btn-primary {
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 1em;
+    background: var(--azul, #1e3a8a);
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
+}
+
+form[action*="busc_experto"] .btn-primary:hover {
+    background: var(--secondary-blue, #3b82f6);
+}
+
 @media (max-width: 600px) {
     .experto-card {
         flex-direction: column;
         align-items: flex-start;
+        padding: 14px 10px;
     }
 
     .experto-foto {
+        margin-left: 0;
         margin-bottom: 10px;
-        margin-right: 0;
+        width: 90px;
+        height: 90px;
     }
 
     .experto-contacto {
         margin-left: 0;
         margin-top: 10px;
         width: 100%;
+        justify-content: flex-end;
     }
 
     .boton-seleccionar {
         width: 100%;
     }
 
-    .experto-info {
+    form[action*="busc_experto"] {
         flex-direction: column;
+        gap: 8px;
+    }
+    form[action*="busc_experto"] .form-control {
+        width: 100%;
+        max-width: 100%;
+    }
+    form[action*="busc_experto"] .btn-primary {
+        width: 100%;
+    }
+}
+
+@media (min-width: 601px) {
+    .experto-card {
         align-items: flex-start;
+    }
+    .experto-info {
+        align-items: center;
+        text-align: center;
     }
 }
