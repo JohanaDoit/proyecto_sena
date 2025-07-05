@@ -58,6 +58,7 @@ class Servicios(models.Model):
 
 
 
+
 class CustomUser(AbstractUser):
     tipo_usuario_choices = [
         ('cliente', 'Cliente'),
@@ -71,11 +72,9 @@ class CustomUser(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     fechaNacimiento = models.DateField(blank=True, null=True, verbose_name="Fecha de Nacimiento")
 
-
     foto_perfil = models.ImageField(upload_to='perfil/', null=True, blank=True, verbose_name="Foto de Perfil")
     tipo_documento = models.ForeignKey(TipoDoc, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Tipo de Documento")
 
-    # CAMBIO AQUÍ: Especialidad ya no es CharField, sino ForeignKey a Servicios
     especialidad = models.ManyToManyField(
         Servicios,
         blank=True,
@@ -85,6 +84,14 @@ class CustomUser(AbstractUser):
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
     barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
     documento_identidad_pdf = models.FileField(upload_to='documentos_identidad/', blank=True, null=True, verbose_name="Documento de Identidad (PDF)")
+
+    # 👉 CAMPO AGREGADO: verificación de expertos
+    verificado = models.CharField(
+        max_length=20,
+        choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')],
+        default='pendiente',
+        verbose_name="Estado de verificación del experto"
+    )
 
     class Meta:
         verbose_name = "Usuario Personalizado"
@@ -98,8 +105,8 @@ class CustomUser(AbstractUser):
         return self.tipo_usuario == 'cliente'
 
     def is_experto(self):
-        return self.tipo_usuario == 'experto'        
-
+        return self.tipo_usuario == 'experto'
+    
 
 
 

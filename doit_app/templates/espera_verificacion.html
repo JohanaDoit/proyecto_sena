@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f5f7fa;
+    }
+
+    .verificacion-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .verificacion-box {
+        background-color: #e3f2fd;
+        border: 1px solid #90caf9;
+        padding: 40px;
+        border-radius: 15px;
+        max-width: 600px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .verificacion-box h2 {
+        margin-bottom: 15px;
+        font-size: 28px;
+        color: #1976d2;
+    }
+
+    .verificacion-box p {
+        font-size: 18px;
+        color: #333;
+    }
+</style>
+
+<div class="verificacion-container">
+    <div class="verificacion-box">
+        <h2>Tu cuenta está en proceso de verificación</h2>
+        <p>Un administrador está revisando tu perfil.<br>Por favor espera su aprobación.</p>
+    </div>
+</div>
+{% endblock %}

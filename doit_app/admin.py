@@ -42,7 +42,6 @@ class TipoDocAdmin(admin.ModelAdmin):
 
 
 
-# Registra CustomUser (tu modelo de usuario personalizado)
 @admin.register(CustomUser)
 class CustomUserAdmin(BaseUserAdmin):
     fieldsets = BaseUserAdmin.fieldsets + (
@@ -54,13 +53,10 @@ class CustomUserAdmin(BaseUserAdmin):
                 'numDoc',
                 'telefono',
                 'fechaNacimiento',
-                'evidenciaTrabajo',
-                'experienciaTrabajo',
-                'hojaVida',
-                'hojaVida_file',
                 'tipo_documento',
                 'foto_perfil',
                 'especialidad',
+                'verificado',
             )
         }),
     )
@@ -74,13 +70,10 @@ class CustomUserAdmin(BaseUserAdmin):
                 'numDoc',
                 'telefono',
                 'fechaNacimiento',
-                'evidenciaTrabajo',
-                'experienciaTrabajo',
-                'hojaVida',
-                'hojaVida_file',
                 'tipo_documento',
                 'foto_perfil',
                 'especialidad',
+                'verificado',
             )
         }),
     )
@@ -93,7 +86,9 @@ class CustomUserAdmin(BaseUserAdmin):
         'is_staff',
         'tipo_usuario',
         'genero',
+        'verificado',
     )
+
     search_fields = (
         'username',
         'email',
@@ -101,6 +96,7 @@ class CustomUserAdmin(BaseUserAdmin):
         'last_name',
         'numDoc'
     )
+
     list_filter = (
         'is_staff',
         'is_superuser',
@@ -108,9 +104,12 @@ class CustomUserAdmin(BaseUserAdmin):
         'groups',
         'tipo_usuario',
         'genero',
+        'verificado',
     )
+
     ordering = ('username',)
 
+    
 
 
 # ---------------------------------------------------------------------
