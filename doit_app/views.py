@@ -479,11 +479,19 @@ from django.views.decorators.http import require_http_methods
 
 
 
+
+
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url='login')
 @require_http_methods(["GET", "POST"])
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
+
+    # ✅ AGREGADO: Mostrar página exclusiva si el experto no está verificado
+    if request.user.verificado == 'pendiente':
+        return render(request, 'espera_verificacion.html')
+    elif request.user.verificado == 'rechazado':
+        return render(request, 'rechazado.html')
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -504,10 +512,9 @@ def dashboard_experto(request):
                 if conflicto:
                     messages.warning(request, "Ya tienes una reserva aceptada a esa hora y aún no la has finalizado.")
                     print(f"❌ Conflicto de horario para {request.user.username} en {reserva.Fecha} {reserva.Hora}")
-                    return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
+                    return redirect('dashboard_experto')
                 else:
                     if not reserva.experto_asignado and reserva.idServicios in request.user.especialidad.all():
-                        # Al aceptar, desvincula este servicio de cualquier otro experto
                         Reserva.objects.filter(
                             id=reserva.id
                         ).exclude(
@@ -518,22 +525,20 @@ def dashboard_experto(request):
                         reserva.idEstado = estado_aceptada
                         reserva.save()
                         messages.success(request, "Has aceptado correctamente la reserva.")
-                        print(f"✅ Reserva {reserva_id} aceptada por {request.user.username}")
-                        # Notificar al cliente que su servicio fue aceptado
                         from doit_app.models import Notificacion
                         Notificacion.objects.create(
                             usuario=reserva.idUsuario,
                             mensaje=f'Tu servicio "{reserva.idServicios.NombreServicio}" fue aceptado por el experto {request.user.get_full_name() or request.user.username}.',
-                            url=''  # Puedes poner la url de la reserva o dashboard
+                            url=''
                         )
-                        return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
+                        return redirect('dashboard_experto')
 
             elif accion == 'iniciar_servicio':
                 if reserva.experto_asignado == request.user and not reserva.servicio_iniciado:
                     reserva.servicio_iniciado = True
                     reserva.save()
                     messages.info(request, "Has iniciado el servicio.")
-                    return redirect('dashboard_experto')  # 🚨 REDIRECCIÓN INMEDIATA
+                    return redirect('dashboard_experto')
 
             elif accion == 'finalizar_servicio':
                 if reserva.experto_asignado == request.user and reserva.servicio_iniciado and not reserva.servicio_finalizado:
@@ -548,9 +553,9 @@ def dashboard_experto(request):
                     messages.success(request, "Has finalizado correctamente el servicio.")
                     if reserva.idUsuario:
                         return redirect('calificar_reserva', reserva_id=reserva.id)
-                    return redirect('dashboard_experto')  # Seguridad extra
+                    return redirect('dashboard_experto')
 
-            return redirect('dashboard_experto')  # Redirección por defecto si no entra en ninguno
+            return redirect('dashboard_experto')
 
         except Reserva.DoesNotExist:
             messages.error(request, "La reserva no existe.")
@@ -560,9 +565,10 @@ def dashboard_experto(request):
             print(f"⚠️ Error inesperado: {e}")
             messages.error(request, "Ocurrió un error inesperado.")
 
-        return redirect('dashboard_experto')  # Redirección por error
+        return redirect('dashboard_experto')
 
-    # --- Lógica GET (SIN CAMBIOS) ---
+    # --- Lógica GET ---
+
     reservas_pendientes = Reserva.objects.filter(
         experto_asignado__isnull=True,
         idServicios__in=request.user.especialidad.all()
@@ -605,7 +611,6 @@ def dashboard_experto(request):
     promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
     estrellas = int(round(promedio_calificacion or 0))
 
-    # Notificaciones no leídas para el usuario actual
     from doit_app.models import Notificacion
     notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
 
