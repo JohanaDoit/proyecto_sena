@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<form method="get" action="{% url 'busc_experto' %}" style="margin-bottom: 20px;">
-    <input type="text" name="q" class="form-control" placeholder="Buscar experto por nombre o usuario..." value="{{ searched_expert|default:'' }}" style="max-width:400px;display:inline-block;">
+<form method="get" action="{% url 'busc_experto' %}" style="margin-bottom: 20px; position:relative;">
+    <input type="text" name="q" class="form-control" placeholder="Buscar experto por nombre o especialidad..." value="{{ searched_expert|default:'' }}" style="max-width:400px;display:inline-block;">
     <button type="submit" class="btn btn-primary">Buscar</button>
 </form>
+<script src="{% static 'js/busc_experto_autocomplete.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/busc_experto.css' %}">
     <div class="contenedor-resultados">
         <h1>Resultados de la búsqueda para "{{ searched_expert|default:'[Término de búsqueda]' }}"</h1>
@@ -29,7 +30,7 @@
                     </div>
                     <div class="experto-contacto">
                         {% if experto.id %}
-                            <a href="{% url 'chat' experto.id %}" class="boton-seleccionar">Seleccionar</a>
+                            <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Seleccionar</a>
                         {% else %}
                             <span class="text-muted">No disponible</span>
                         {% endif %}
