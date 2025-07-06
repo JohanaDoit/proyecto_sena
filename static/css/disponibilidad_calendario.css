@@ -1,0 +1,11 @@
+.flatpickr-calendar {
+  font-size: 1rem;
+  max-width: 250px;
+  margin: 0 auto;
+}
+.calendario-disponibilidad-container {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+}
