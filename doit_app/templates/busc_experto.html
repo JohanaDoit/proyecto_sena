@@ -3,45 +3,66 @@
 {% block content %}
 <form method="get" action="{% url 'busc_experto' %}" style="margin-bottom: 20px; position:relative;">
     <input type="text" name="q" class="form-control" placeholder="Buscar experto por nombre o especialidad..." value="{{ searched_expert|default:'' }}" style="max-width:400px;display:inline-block;">
-    <button type="submit" class="btn btn-primary">Buscar</button>
+
+    <!-- ✅ NUEVO: campo de fecha para filtrar disponibilidad -->
+    <input type="date" name="fecha" class="form-control ms-2" value="{{ fecha|default:'' }}" style="max-width:200px;display:inline-block;">
+
+    <button type="submit" class="btn btn-primary ms-2">Buscar</button>
 </form>
+
 <script src="{% static 'js/busc_experto_autocomplete.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/busc_experto.css' %}">
-    <div class="contenedor-resultados">
-        <h1>Resultados de la búsqueda para "{{ searched_expert|default:'[Término de búsqueda]' }}"</h1>
 
-        <div id="mensaje-seleccion" style="display: none; text-align: center; margin-bottom: 20px; color: var(--verde); font-weight: bold;"></div>
+<div class="contenedor-resultados">
+    <h1>Resultados de la búsqueda para "{{ searched_expert|default:'[Término de búsqueda]' }}"</h1>
 
+    <div id="mensaje-seleccion" style="display: none; text-align: center; margin-bottom: 20px; color: var(--verde); font-weight: bold;"></div>
 
-        {% if expertos %}
-            {% for experto in expertos %}
-                <div class="experto-card">
-                    <div class="experto-info">
-                        {% if experto.foto_perfil %}
-                            <img src="{{ experto.foto_perfil.url }}" alt="Foto de {{ experto.get_full_name|default:experto.username }}" class="experto-foto">
+    {% if expertos %}
+        {% for experto in expertos %}
+            <div class="experto-card">
+                <div class="experto-info">
+                    {% if experto.foto_perfil %}
+                        <img src="{{ experto.foto_perfil.url }}" alt="Foto de {{ experto.get_full_name|default:experto.username }}" class="experto-foto">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="Foto de {{ experto.get_full_name|default:experto.username }}" class="experto-foto">
+                    {% endif %}
+                    
+                    <h3>{{ experto.get_full_name|default:experto.username }}</h3>
+                    
+                    <p class="experto-servicio">
+                        {% for esp in experto.especialidad.all %}
+                            {{ esp.NombreServicio }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+
+                    <p class="experto-usuario">@{{ experto.username }}</p>
+
+                    <!-- ✅ MOSTRAR ESTADO DE DISPONIBILIDAD -->
+                    {% if fecha %}
+                        {% if experto.no_disponible %}
+                            <p class="text-danger fw-bold">❌ No disponible el {{ fecha }}</p>
                         {% else %}
-                            <img src="{% static 'images/default_profile.png' %}" alt="Foto de {{ experto.get_full_name|default:experto.username }}" class="experto-foto">
+                            <p class="text-success fw-bold">✅ Disponible el {{ fecha }}</p>
                         {% endif %}
-                        <h3>{{ experto.get_full_name|default:experto.username }}</h3>
-                        <p class="experto-servicio">
-                            {% for esp in experto.especialidad.all %}{{ esp.NombreServicio }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                        </p>
-                        <p class="experto-usuario">@{{ experto.username }}</p>
-                        <div class="experto-contacto" style="margin-left:0; margin-top:12px; width:100%; display:flex; justify-content:center;">
-                            {% if experto.id %}
+                    {% endif %}
+
+                    <div class="experto-contacto" style="margin-left:0; margin-top:12px; width:100%; display:flex; justify-content:center;">
+                        {% if experto.id %}
+                            {% if not experto.no_disponible %}
                                 <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Seleccionar</a>
                             {% else %}
-                                <span class="text-muted">No disponible</span>
+                                <span class="text-muted">No disponible para reservar ese día</span>
                             {% endif %}
-                        </div>
+                        {% else %}
+                            <span class="text-muted">No disponible</span>
+                        {% endif %}
                     </div>
                 </div>
-            {% endfor %}
-        {% elif searched_expert %}
-            <div class="alert alert-warning">No se encontraron expertos para "{{ searched_expert }}".</div>
-        {% endif %}
-
-    </div>
-</body>
-</html>
+            </div>
+        {% endfor %}
+    {% elif searched_expert %}
+        <div class="alert alert-warning">No se encontraron expertos para "{{ searched_expert }}".</div>
+    {% endif %}
+</div>
 {% endblock content %}

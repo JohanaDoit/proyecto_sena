@@ -30,6 +30,25 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% if messages %}
     <div class="mt-3">
         {% for message in messages %}
@@ -207,11 +226,16 @@
                 <option value="" selected>-- Elige un servicio --</option>
             </select>
         </div>
+
+
+        <!-- ✅ Enlace con parámetros dinámicos -->
         <a id="reservarLink" href="{% url 'reserva' %}">
             <button id="reservarBtn" type="button" disabled class="btn btn-primary">Reservar</button>
         </a>
     </div>
 </section>
+
+
 
 <div class="seccion-servicios-recentes">
     <h2>Servicios:</h2>
