@@ -1,143 +1,155 @@
-/* static/css/modificar.css */
-
-/* --- Variables CSS (pueden ser las mismas de styles.css o específicas si se necesitan ajustes) --- */
 :root {
-    --bg-light-yellow: #ffffff; /* Fondo suave y claro */
-    --text-dark: #333; /* Color de texto oscuro */
-    --border-green: #557c5c; /* Línea divisoria y botón principal */
-    --shadow-subtle: 0 0 10px rgba(0, 0, 0, 0.1);
-    --border-radius-base: 8px;
-    --spacing-small: 5px;
-    --spacing-medium: 15px;
-    --spacing-large: 20px;
-    
-    /* Colores del botón de guardar */
-    --save-btn-bg: var(--border-green);
-    --save-btn-hover: #f5c6cb; /* Color al pasar el ratón, ajusta a tu paleta (quizás un verde más oscuro) */
-
-    /* Colores del botón de volver */
-    --back-btn-bg: #ccc;
-    --back-btn-hover: #bbb;
-
-    /* Reusar variables de estilos.css si están definidas allí y quieres consistencia */
-    /* Ej: --primary-blue: #1e3a8a; */
+    --fondo-oscuro: #e6e6e6;
+    --input-fondo: #e6e6e6;
+    --borde-claro: #1c2b3a;
+    --texto-claro: #1c2b3a;
+    --blanco: #1c2b3a;
 }
 
-/* --- Estilos del Contenedor Principal de Perfil --- */
-.container-perfil {
-    background-color:#E9F1FA   ;
-    padding: var(--spacing-large);
-    margin: var(--spacing-large) auto; /* Centra y da margen */
-    border-radius: var(--border-radius-base);
-    box-shadow: var(--shadow-subtle);
-    width: 90%;
-    max-width: 600px;
-    position: relative;
-    /* Asegúrate de que el z-index no interfiera con el sidebar/header si es necesario */
-    z-index: 1; 
+/* Contenedor general del formulario */
+.container-perfil-edit {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background-color: var(--fondo-oscuro);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-/* --- Título del Formulario --- */
-.container-perfil h2 {
-    color: var(--text-dark);
-    margin-top: 0;
-    border-bottom: 2px solid var(--border-green);
+/* Título del formulario */
+.titulo-perfil {
+    text-align: center;
+    color: var(--borde-claro);
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--borde-claro);
     padding-bottom: 10px;
-    margin-bottom: var(--spacing-medium);
-    text-align: center; /* Centrar el título */
 }
 
-
-/* Estilo específico para campos de tipo file (si los usas) */
-.form-control-file {
-    display: block;
-    width: 100%;
-    padding: 8px 0; /* Menos padding horizontal para files */
-    border: none; /* Los campos file suelen no tener borde por defecto */
+/* Grid para separar las columnas */
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 40px; /* Separación entre columnas */
+    row-gap: 20px;
 }
 
-/* Estilo para checkboxes */
-.form-check-input {
-    margin-right: 5px; /* Espacio entre el checkbox y su label */
-}
-
-.form-check-label {
-    display: inline-block; /* Para que la etiqueta esté al lado del checkbox */
-    font-weight: normal; /* No tan negrita como las otras etiquetas */
-    color: #333;
-}
-
-
-.button-group {
+/* Cada grupo de formulario */
+.form-group {
     display: flex;
-    justify-content: center; /* Centra los botones en el grupo */
-    gap: 15px; /* Espacio entre los botones */
-    margin-top: var(--spacing-large);
+    flex-direction: column;
 }
 
+/* Etiquetas */
+.form-group label {
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--texto-claro);
+}
+
+/* Estilo para inputs, selects, etc. */
+.form-control {
+    padding: 10px 14px;
+    border-radius: 6px;
+    background-color: var(--input-fondo);
+    color: var(--blanco);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+/* Efecto al enfocar */
+.form-control:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--borde-claro);
+}
+
+/* Botones */
 .btn {
     padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    text-decoration: none; /* Para enlaces que parecen botones */
-    display: inline-block;
-    text-align: center;
     font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* Estilos específicos para el botón de "Guardar Cambios" */
-.btn-primary { /* Clase que Django renderiza para submit con widget_tweaks */
-    background-color: var(--save-btn-bg);
+.btn-success {
+    background-color: #28a745;
     color: white;
 }
 
-.btn-primary:hover {
-    background-color: var(--save-btn-hover); /* Un verde más oscuro, o un color de énfasis */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+.btn-success:hover {
+    background-color: #218838;
 }
 
-.btn-primary:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-/* Estilos específicos para el botón "Volver" */
-.btn-secondary { /* Clase que Django renderiza para a.back-button con widget_tweaks */
-    background-color: var(--back-btn-bg);
-    color: var(--text-dark);
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
 }
 
 .btn-secondary:hover {
-    background-color: var(--back-btn-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background-color: #5a6268;
 }
 
-.btn-secondary:active {
-    transform: translateY(0);
-    box-shadow: none;
+/* Mensajes */
+.messages-container {
+    margin-bottom: 20px;
 }
 
-/* Estilos para botones pequeños */
-.btn.btn-sm, .btn-sm {
-    padding: 4px 12px;
-    font-size: 13px;
-    border-radius: 4px;
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
 }
 
-@media (max-width: 768px) {
-    .container-perfil {
-        padding: var(--spacing-medium);
-        margin: 1rem auto;
-    }
-    .button-group {
-        flex-direction: column; /* Apilar botones en pantallas pequeñas */
-    }
-    .btn, .btn-primary, .btn-secondary {
-        width: 100%; /* Botones de ancho completo */
-    }
+.alert-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.alert-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.alert-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Botones en el footer */
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+input.form-control,
+select.form-control,
+textarea.form-control {
+    border: 1px solid #1c2b3a; /* Color gris claro para el borde */
+    border-radius: 5px;     /* Bordes ligeramente redondeados */
+    padding: 8px;
+    background-color: #e6e6e6; /* Fondo oscuro (ajusta según tu tema) */
+    color: #1c2b3a;            /* Texto claro */
+}
+
+input.form-control:focus,
+select.form-control:focus,
+textarea.form-control:focus {
+    border: 1px solid #00aaff; /* Azul claro al enfocar */
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 170, 255, 0.5);
 }
