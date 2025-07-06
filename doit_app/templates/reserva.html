@@ -54,7 +54,45 @@
 
         <div class="form-group">
             <label for="{{ form.Fecha.id_for_label }}">Fecha del Servicio:</label>
-            {% render_field form.Fecha type="date" class="form-control" %}
+            <input type="text" id="calendario-reserva-experto" name="{{ form.Fecha.name }}" class="form-control" value="{{ form.Fecha.value|default:'' }}" readonly />
+            <div id="mensaje-dia-no-disponible" class="alert alert-warning" style="display:none; margin-top:10px;">Ese día no está disponible, por favor selecciona otro día.</div>
+            <!-- Usar flatpickr desde CDN para evitar errores de carga local -->
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var diasNoDisponibles = {{ dias_no_disponibles|safe }};
+                    var mensaje = document.getElementById('mensaje-dia-no-disponible');
+                    flatpickr("#calendario-reserva-experto", {
+                        dateFormat: 'Y-m-d',
+                        locale: 'es',
+                        disable: diasNoDisponibles,
+                        minDate: 'today',
+                        disableMobile: true,
+                        onChange: function(selectedDates, dateStr, instance) {
+                            // Si el usuario intenta escribir manualmente una fecha deshabilitada
+                            if (diasNoDisponibles.includes(dateStr)) {
+                                mensaje.style.display = 'block';
+                                setTimeout(function() {
+                                    mensaje.style.display = 'none';
+                                }, 4000);
+                                instance.clear();
+                            }
+                        },
+                        onValueUpdate: function(selectedDates, dateStr, instance) {
+                            // Si el usuario intenta escribir manualmente una fecha deshabilitada
+                            if (diasNoDisponibles.includes(dateStr)) {
+                                mensaje.style.display = 'block';
+                                setTimeout(function() {
+                                    mensaje.style.display = 'none';
+                                }, 4000);
+                                instance.clear();
+                            }
+                        }
+                    });
+                });
+            </script>
             {% for error in form.Fecha.errors %}
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}

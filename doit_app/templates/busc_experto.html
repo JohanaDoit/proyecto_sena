@@ -4,12 +4,21 @@
 <form method="get" action="{% url 'busc_experto' %}" style="margin-bottom: 20px; position:relative;">
     <input type="text" name="q" class="form-control" placeholder="Buscar experto por nombre o especialidad..." value="{{ searched_expert|default:'' }}" style="max-width:400px;display:inline-block;">
 
-    <!-- ✅ NUEVO: campo de fecha para filtrar disponibilidad -->
-    <input type="date" name="fecha" class="form-control ms-2" value="{{ fecha|default:'' }}" style="max-width:200px;display:inline-block;">
+
+    <!-- Eliminado input de fecha, ahora cada experto tiene su calendario -->
 
     <button type="submit" class="btn btn-primary ms-2">Buscar</button>
 </form>
 
+
+<script src="{% static 'js/flatpickr.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
+<script src="{% static 'js/disponibilidad_calendario.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/disponibilidad_calendario.css' %}">
+<script>
+    // Pasar la disponibilidad al JS global
+    window.disponibilidadPorExperto = {{ disponibilidad_por_experto|safe }};
+</script>
 <script src="{% static 'js/busc_experto_autocomplete.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/busc_experto.css' %}">
 
@@ -38,25 +47,14 @@
 
                     <p class="experto-usuario">@{{ experto.username }}</p>
 
-                    <!-- ✅ MOSTRAR ESTADO DE DISPONIBILIDAD -->
-                    {% if fecha %}
-                        {% if experto.no_disponible %}
-                            <p class="text-danger fw-bold">❌ No disponible el {{ fecha }}</p>
-                        {% else %}
-                            <p class="text-success fw-bold">✅ Disponible el {{ fecha }}</p>
-                        {% endif %}
-                    {% endif %}
+
+                    <!-- Calendario de disponibilidad individual -->
+                    <div class="calendario-disponibilidad-container">
+                        <input type="text" id="calendario-disponibilidad-{{ experto.id }}" readonly style="background: #fff; cursor: pointer; width: 100%; max-width: 250px;" />
+                    </div>
 
                     <div class="experto-contacto" style="margin-left:0; margin-top:12px; width:100%; display:flex; justify-content:center;">
-                        {% if experto.id %}
-                            {% if not experto.no_disponible %}
-                                <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Seleccionar</a>
-                            {% else %}
-                                <span class="text-muted">No disponible para reservar ese día</span>
-                            {% endif %}
-                        {% else %}
-                            <span class="text-muted">No disponible</span>
-                        {% endif %}
+                        <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Reservar</a>
                     </div>
                 </div>
             </div>

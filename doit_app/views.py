@@ -114,6 +114,17 @@ def cancelar_reserva(request, reserva_id):
         reserva.motivo_cancelacion = motivo
         reserva.save()
 
+        # Si la reserva tenía un experto asignado, liberar el día en Disponibilidad
+        if reserva.experto_asignado:
+            from doit_app.models import Disponibilidad, Estado
+            estado_no_disp = Estado.objects.get(Nombre='No disponible')
+            # Eliminar la marca de no disponible para ese día y experto
+            Disponibilidad.objects.filter(
+                experto=reserva.experto_asignado,
+                fecha=reserva.Fecha,
+                idEstado=estado_no_disp
+            ).delete()
+
         messages.success(request, f'Has cancelado la reserva #{reserva.id}.')
         return redirect('principal')
 
@@ -297,6 +308,20 @@ def reserva(request):
 
             reserva.save()
 
+            # Si hay experto seleccionado, bloquear el día de inmediato
+            if experto_id and experto:
+                from doit_app.models import Disponibilidad
+                from doit_app.models import Estado as EstadoModel
+                estado_no_disp = EstadoModel.objects.get(Nombre='No disponible')
+                if not Disponibilidad.objects.filter(experto=experto, fecha=reserva.Fecha, idEstado=estado_no_disp).exists():
+                    Disponibilidad.objects.create(
+                        experto=experto,
+                        fecha=reserva.Fecha,
+                        hora_inicio=reserva.Hora,
+                        hora_fin=reserva.Hora,  # O ajusta según tu lógica de duración
+                        idEstado=estado_no_disp
+                    )
+
             # Notificación para expertos de la especialidad
             expertos = CustomUser.objects.filter(tipo_usuario='experto', especialidad=servicio)
             for experto in expertos:
@@ -321,9 +346,25 @@ def reserva(request):
     else:
         form = ReservaForm(initial={'idServicios': servicio})
 
+    # Pasar días NO disponibles del experto seleccionado (si hay experto)
+    dias_no_disponibles = []
+    if experto_id:
+        from doit_app.models import Disponibilidad, CustomUser
+        experto = CustomUser.objects.filter(pk=experto_id).first()
+        if experto:
+            dias_no = list(
+                Disponibilidad.objects.filter(
+                    experto=experto,
+                    idEstado__Nombre__iexact='No disponible'
+                ).values_list('fecha', flat=True)
+            )
+            dias_no_disponibles = [d.strftime('%Y-%m-%d') for d in dias_no]
+
     return render(request, 'reserva.html', {
         'form': form,
-        'servicio': servicio
+        'servicio': servicio,
+        'experto_id': experto_id,
+        'dias_no_disponibles': dias_no_disponibles,
     })
 
 
@@ -497,10 +538,24 @@ def busc_experto(request):
             )
             expertos = expertos.annotate(no_disponible=Exists(subquery))
 
+
+    # Obtener días NO disponibles para cada experto
+    disponibilidad_por_experto = {}
+    for experto in expertos:
+        dias_no = list(
+            Disponibilidad.objects.filter(
+                experto=experto,
+                idEstado__Nombre__iexact='No disponible'
+            ).values_list('fecha', flat=True)
+        )
+        dias_no_str = [d.strftime('%Y-%m-%d') for d in dias_no]
+        disponibilidad_por_experto[experto.id] = dias_no_str
+
     return render(request, 'busc_experto.html', {
         'searched_expert': q,
         'expertos': expertos,
         'fecha': fecha,  # Pasamos la fecha al template
+        'disponibilidad_por_experto': disponibilidad_por_experto,
     })
 
 
@@ -794,12 +849,26 @@ def aceptar_reserva_experto(request, reserva_id):
         return redirect('dashboard_experto')
 
     # Si todo está bien, procesar aceptación POST
+
     if request.method == 'POST':
         try:
             reserva.experto_asignado = request.user
             estado_aceptada = Estado.objects.get(Nombre='Aceptada')
             reserva.idEstado = estado_aceptada
             reserva.save()
+
+            # Sincronizar disponibilidad: marcar ese día como NO disponible para el experto
+            from doit_app.models import Disponibilidad
+            estado_no_disp = Estado.objects.get(Nombre='No disponible')
+            # Si no existe ya una marca de no disponible para ese día y experto, la creamos
+            if not Disponibilidad.objects.filter(experto=request.user, fecha=reserva.Fecha, idEstado=estado_no_disp).exists():
+                Disponibilidad.objects.create(
+                    experto=request.user,
+                    fecha=reserva.Fecha,
+                    hora_inicio=reserva.Hora,
+                    hora_fin=reserva.Hora,  # O ajusta según tu lógica de duración
+                    idEstado=estado_no_disp
+                )
 
             return redirect('dashboard_experto')
 
