@@ -26,6 +26,11 @@ from .models import Calificaciones
 from django.contrib.auth.decorators import login_required
 from .models import Notificacion
 from django.db import models
+from .models import Disponibilidad  # 👈 Asegúrate de tener este modelo
+from .forms import DisponibilidadForm  # 👈 Y este formulario
+from django.db.models import Value, OuterRef, Exists, CharField
+from django.db.models.functions import Concat
+
 
 
 
@@ -195,6 +200,13 @@ def principal(request):
         if not ya_calificado and request.user == reserva_aceptada.idUsuario:
             puede_calificar = True
 
+    # === DISPONIBILIDAD DE EXPERTOS ===
+    expertos = CustomUser.objects.filter(tipo_usuario='experto', verificado='aprobado')
+    disponibilidad_por_experto = {
+        experto.id: Disponibilidad.objects.filter(experto=experto)
+        for experto in expertos
+    }
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
@@ -202,8 +214,11 @@ def principal(request):
         'reserva_aceptada': reserva_aceptada,
         'mensajes_no_leidos': mensajes_no_leidos,
         'puede_calificar': puede_calificar,
-    })
 
+        # 👇 Agregados
+        'expertos': expertos,
+        'disponibilidad_por_experto': disponibilidad_por_experto,
+    })
 
 
 
@@ -217,6 +232,7 @@ def principal(request):
 @user_passes_test(is_cliente, login_url=reverse_lazy('login')) 
 def reserva(request):
     servicio_id = request.GET.get('servicio_id') or request.session.get('servicio_id')
+    experto_id = request.GET.get('experto_id')  # ✅ Nuevo: capturar experto de la URL
 
     if not servicio_id:
         messages.error(request, "⚠️ Servicio no seleccionado. Por favor, elige un servicio.")
@@ -239,6 +255,39 @@ def reserva(request):
             reserva.idUsuario = request.user
             reserva.idServicios = servicio
 
+            from doit_app.models import Disponibilidad, CustomUser  # ✅ Aseguramos import aquí
+
+            fecha_seleccionada = reserva.Fecha
+
+            # ✅ Si se seleccionó un experto específico (por URL)
+            if experto_id:
+                experto = CustomUser.objects.filter(pk=experto_id).first()
+                if experto:
+                    no_disponible = Disponibilidad.objects.filter(
+                        experto=experto,
+                        fecha=fecha_seleccionada,
+                        idEstado__Nombre__iexact='No disponible'
+                    ).exists()
+
+                    if no_disponible:
+                        messages.error(request, f"❌ El experto {experto.get_full_name()} no está disponible en la fecha seleccionada.")
+                        return redirect('reserva')
+
+                    reserva.experto_asignado = experto  # ✅ Asignar el experto seleccionado
+            else:
+                # Validar que haya al menos un experto disponible para esa especialidad y fecha
+                expertos_disponibles = CustomUser.objects.filter(
+                    tipo_usuario='experto',
+                    especialidad=servicio
+                ).exclude(
+                    disponibilidad__fecha=fecha_seleccionada,
+                    disponibilidad__idEstado__Nombre__iexact='No disponible'
+                ).distinct()
+
+                if not expertos_disponibles.exists():
+                    messages.error(request, "❌ No hay expertos disponibles en esa fecha. Intenta con otra fecha.")
+                    return redirect('reserva')
+
             try:
                 estado_pendiente = Estado.objects.get(Nombre='Pendiente')
                 reserva.idEstado = estado_pendiente
@@ -249,7 +298,6 @@ def reserva(request):
             reserva.save()
 
             # Notificación para expertos de la especialidad
-            from doit_app.models import Notificacion, CustomUser
             expertos = CustomUser.objects.filter(tipo_usuario='experto', especialidad=servicio)
             for experto in expertos:
                 Notificacion.objects.create(
@@ -415,20 +463,22 @@ def mis_reservas_cliente(request):
 
 
 
+
 @login_required
 def busc_experto(request):
     q = request.GET.get('q', '').strip()
+    fecha = request.GET.get('fecha', '').strip()  # nueva línea
     expertos = []
+
     if q:
-        # Buscar por nombre completo (first_name + ' ' + last_name)
         expertos = CustomUser.objects.filter(
             tipo_usuario='experto'
         ).annotate(
-            nombre_completo=models.functions.Concat(
+            nombre_completo=Concat(
                 models.F('first_name'),
-                models.Value(' '),
+                Value(' '),
                 models.F('last_name'),
-                output_field=models.CharField()
+                output_field=CharField()
             )
         ).filter(
             Q(username__icontains=q) |
@@ -437,10 +487,24 @@ def busc_experto(request):
             Q(nombre_completo__icontains=q) |
             Q(especialidad__NombreServicio__icontains=q)
         ).distinct()
+
+        # 👇 Si hay fecha, anotar si el experto NO está disponible
+        if fecha:
+            subquery = Disponibilidad.objects.filter(
+                experto=OuterRef('pk'),
+                fecha=fecha,
+                idEstado__Nombre__iexact='No disponible'
+            )
+            expertos = expertos.annotate(no_disponible=Exists(subquery))
+
     return render(request, 'busc_experto.html', {
         'searched_expert': q,
-        'expertos': expertos
+        'expertos': expertos,
+        'fecha': fecha,  # Pasamos la fecha al template
     })
+
+
+
 
 
 @login_required
@@ -487,88 +551,144 @@ from django.views.decorators.http import require_http_methods
 def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
 
-    # ✅ AGREGADO: Mostrar página exclusiva si el experto no está verificado
     if request.user.verificado == 'pendiente':
         return render(request, 'espera_verificacion.html')
     elif request.user.verificado == 'rechazado':
         return render(request, 'rechazado.html')
 
+    form_disponibilidad = DisponibilidadForm()
+
     if request.method == 'POST':
-        accion = request.POST.get('accion')
-        reserva_id = request.POST.get('reserva_id')
-        print(f"POST recibido | Acción: {accion}, Reserva ID: {reserva_id}")
+        if 'form_disponibilidad' in request.POST:
+            # Nuevo sistema de calendario con múltiples fechas
+            fechas = request.POST.getlist('fechas[]')
+            estados = request.POST.getlist('estados[]')
+            hora_inicio = request.POST.get('hora_inicio')
+            hora_fin = request.POST.get('hora_fin')
 
-        try:
-            reserva = Reserva.objects.get(id=reserva_id)
+            errores = False
+            if not fechas or not estados or len(fechas) != len(estados):
+                messages.error(request, "Debe seleccionar al menos un día y un estado válido.")
+                errores = True
 
-            if accion == 'aceptar':
-                conflicto = Reserva.objects.filter(
-                    experto_asignado=request.user,
-                    Fecha=reserva.Fecha,
-                    Hora=reserva.Hora,
-                    servicio_finalizado=False
-                ).exists()
+            if not hora_inicio or not hora_fin:
+                messages.error(request, "Debe especificar hora inicio y hora fin.")
+                errores = True
 
-                if conflicto:
-                    messages.warning(request, "Ya tienes una reserva aceptada a esa hora y aún no la has finalizado.")
-                    print(f"❌ Conflicto de horario para {request.user.username} en {reserva.Fecha} {reserva.Hora}")
+            if not errores:
+                for fecha_str, estado_nombre in zip(fechas, estados):
+                    try:
+                        estado_obj = Estado.objects.get(Nombre__iexact=estado_nombre)
+                    except Estado.DoesNotExist:
+                        messages.error(request, f"Estado '{estado_nombre}' no existe en la base de datos.")
+                        errores = True
+                        continue
+
+                    form_data = {
+                        'fecha': fecha_str,
+                        'hora_inicio': hora_inicio,
+                        'hora_fin': hora_fin,
+                    }
+                    form = DisponibilidadForm(form_data)
+                    if form.is_valid():
+                        disponibilidad = form.save(commit=False)
+                        disponibilidad.experto = request.user
+                        disponibilidad.idEstado = estado_obj
+                        disponibilidad.save()
+                    else:
+                        messages.error(request, f"Error en la fecha {fecha_str}: {form.errors}")
+                        errores = True
+
+                if not errores:
+                    messages.success(request, "Disponibilidad registrada correctamente.")
                     return redirect('dashboard_experto')
-                else:
+            else:
+                form_disponibilidad = DisponibilidadForm()
+
+        elif request.POST.get('accion') == 'eliminar_disponibilidad':
+            disponibilidad_id = request.POST.get('disponibilidad_id')
+            try:
+                disponibilidad = Disponibilidad.objects.get(id=disponibilidad_id, experto=request.user)
+                disponibilidad.delete()
+                messages.success(request, "Disponibilidad eliminada correctamente.")
+            except Disponibilidad.DoesNotExist:
+                messages.error(request, "No se encontró la disponibilidad a eliminar.")
+            return redirect('dashboard_experto')
+
+        elif 'accion' in request.POST and 'reserva_id' in request.POST:
+            accion = request.POST.get('accion')
+            reserva_id = request.POST.get('reserva_id')
+            print(f"POST recibido | Acción: {accion}, Reserva ID: {reserva_id}")
+
+            try:
+                reserva = Reserva.objects.get(id=reserva_id)
+
+                if accion == 'aceptar':
+                    conflicto = Reserva.objects.filter(
+                        experto_asignado=request.user,
+                        Fecha=reserva.Fecha,
+                        Hora=reserva.Hora,
+                        servicio_finalizado=False
+                    ).exists()
+
+                    if conflicto:
+                        messages.warning(request, "Ya tienes una reserva aceptada a esa hora y aún no la has finalizado.")
+                        return redirect('dashboard_experto')
+
                     if not reserva.experto_asignado and reserva.idServicios in request.user.especialidad.all():
                         Reserva.objects.filter(
                             id=reserva.id
                         ).exclude(
                             experto_asignado=request.user
                         ).update(experto_asignado=None)
+
                         reserva.experto_asignado = request.user
                         estado_aceptada = Estado.objects.get(Nombre='Aceptada')
                         reserva.idEstado = estado_aceptada
                         reserva.save()
-                        messages.success(request, "Has aceptado correctamente la reserva.")
+
                         from doit_app.models import Notificacion
                         Notificacion.objects.create(
                             usuario=reserva.idUsuario,
-                            mensaje=f'Tu servicio "{reserva.idServicios.NombreServicio}" fue aceptado por el experto {request.user.get_full_name() or request.user.username}.',
+                            mensaje=f'Tu servicio \"{reserva.idServicios.NombreServicio}\" fue aceptado por el experto {request.user.get_full_name() or request.user.username}.',
                             url=''
                         )
+
+                        messages.success(request, "Has aceptado correctamente la reserva.")
                         return redirect('dashboard_experto')
 
-            elif accion == 'iniciar_servicio':
-                if reserva.experto_asignado == request.user and not reserva.servicio_iniciado:
-                    reserva.servicio_iniciado = True
-                    reserva.save()
-                    messages.info(request, "Has iniciado el servicio.")
-                    return redirect('dashboard_experto')
+                elif accion == 'iniciar_servicio':
+                    if reserva.experto_asignado == request.user and not reserva.servicio_iniciado:
+                        reserva.servicio_iniciado = True
+                        reserva.save()
+                        messages.info(request, "Has iniciado el servicio.")
+                        return redirect('dashboard_experto')
 
-            elif accion == 'finalizar_servicio':
-                if reserva.experto_asignado == request.user and reserva.servicio_iniciado and not reserva.servicio_finalizado:
-                    comentario = request.POST.get('comentario', '').strip()
-                    duracion = request.POST.get('duracion', '').strip()
-                    reserva.comentario_durante_servicio = comentario
-                    reserva.duracion_estimada = duracion
-                    reserva.servicio_finalizado = True
-                    estado_finalizado = Estado.objects.get(Nombre='Finalizado')
-                    reserva.idEstado = estado_finalizado
-                    reserva.save()
-                    messages.success(request, "Has finalizado correctamente el servicio.")
-                    if reserva.idUsuario:
-                        return redirect('calificar_reserva', reserva_id=reserva.id)
-                    return redirect('dashboard_experto')
+                elif accion == 'finalizar_servicio':
+                    if reserva.experto_asignado == request.user and reserva.servicio_iniciado and not reserva.servicio_finalizado:
+                        comentario = request.POST.get('comentario', '').strip()
+                        duracion = request.POST.get('duracion', '').strip()
+                        reserva.comentario_durante_servicio = comentario
+                        reserva.duracion_estimada = duracion
+                        reserva.servicio_finalizado = True
+                        estado_finalizado = Estado.objects.get(Nombre='Finalizado')
+                        reserva.idEstado = estado_finalizado
+                        reserva.save()
+                        messages.success(request, "Has finalizado correctamente el servicio.")
+                        if reserva.idUsuario:
+                            return redirect('calificar_reserva', reserva_id=reserva.id)
+                        return redirect('dashboard_experto')
 
+            except Reserva.DoesNotExist:
+                messages.error(request, "La reserva no existe.")
+            except Estado.DoesNotExist:
+                messages.error(request, "Estado no encontrado.")
+            except Exception as e:
+                print(f"⚠️ Error inesperado: {e}")
+                messages.error(request, "Ocurrió un error inesperado.")
             return redirect('dashboard_experto')
 
-        except Reserva.DoesNotExist:
-            messages.error(request, "La reserva no existe.")
-        except Estado.DoesNotExist:
-            messages.error(request, "Estado no encontrado.")
-        except Exception as e:
-            print(f"⚠️ Error inesperado: {e}")
-            messages.error(request, "Ocurrió un error inesperado.")
-
-        return redirect('dashboard_experto')
-
-    # --- Lógica GET ---
-
+    # === GET ===
     reservas_pendientes = Reserva.objects.filter(
         experto_asignado__isnull=True,
         idServicios__in=request.user.especialidad.all()
@@ -589,30 +709,43 @@ def dashboard_experto(request):
         motivo_cancelacion__isnull=False
     ).order_by('-Fecha', '-Hora')
 
-    mensajes_no_leidos = {}
-    for reserva in reservas_asignadas:
-        cliente = reserva.idUsuario
-        count = Mensaje.objects.filter(emisor=cliente, receptor=request.user, leido=False).count()
-        if count > 0:
-            mensajes_no_leidos[cliente.id] = count
+    mensajes_no_leidos = {
+        reserva.idUsuario.id: Mensaje.objects.filter(
+            emisor=reserva.idUsuario,
+            receptor=request.user,
+            leido=False
+        ).count()
+        for reserva in reservas_asignadas
+        if Mensaje.objects.filter(
+            emisor=reserva.idUsuario,
+            receptor=request.user,
+            leido=False
+        ).exists()
+    }
 
-    puede_calificar_experto = {}
-    for reserva in reservas_asignadas:
-        if reserva.servicio_finalizado:
-            ya_calificado = Calificaciones.objects.filter(
-                reserva=reserva,
-                calificado_por=request.user,
-                tipo='experto_a_cliente'
-            ).exists()
-            puede_calificar_experto[reserva.id] = not ya_calificado
-        else:
-            puede_calificar_experto[reserva.id] = False
+    puede_calificar_experto = {
+        reserva.id: not Calificaciones.objects.filter(
+            reserva=reserva,
+            calificado_por=request.user,
+            tipo='experto_a_cliente'
+        ).exists()
+        if reserva.servicio_finalizado else False
+        for reserva in reservas_asignadas
+    }
 
     promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
     estrellas = int(round(promedio_calificacion or 0))
 
     from doit_app.models import Notificacion
     notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+
+    disponibilidades = Disponibilidad.objects.filter(
+        experto=request.user
+    ).order_by('-fecha', 'hora_inicio')
+
+    dispo_dict = {}
+    for d in disponibilidades:
+        dispo_dict[d.fecha.strftime('%Y-%m-%d')] = d.idEstado.Nombre if d.idEstado else ''
 
     return render(request, 'experto/dashboard_experto.html', {
         'reservas_pendientes': reservas_pendientes,
@@ -624,6 +757,9 @@ def dashboard_experto(request):
         'promedio_calificacion': promedio_calificacion,
         'estrellas': estrellas,
         'notificaciones_no_leidas': notificaciones_no_leidas,
+        'form_disponibilidad': form_disponibilidad,
+        'disponibilidades': disponibilidades,
+        'dispo_dict': dispo_dict,
     })
 
 

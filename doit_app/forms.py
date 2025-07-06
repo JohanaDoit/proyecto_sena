@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
 from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones
 from datetime import datetime, timedelta, time, date
-
+from .models import Disponibilidad
 
 
 class RegistroForm(UserCreationForm):
@@ -479,4 +479,16 @@ class CalificacionForm(forms.ModelForm):
         labels = {
             'puntuacion': 'Calificación',
             'comentario': 'Comentario',
+        }
+
+
+class DisponibilidadForm(forms.ModelForm):
+    class Meta:
+        model = Disponibilidad
+        fields = ['fecha', 'hora_inicio', 'hora_fin', 'idEstado']  # agrega los que uses
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'hora_inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'hora_fin': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'idEstado': forms.Select(attrs={'class': 'form-select'}),
         }

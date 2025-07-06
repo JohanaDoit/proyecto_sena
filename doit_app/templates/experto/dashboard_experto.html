@@ -52,6 +52,128 @@
         </span>
     </div>
 
+
+<div class="card mt-5 mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap">
+        <div class="mb-2 mb-md-0">
+            <button type="button" id="modoDisponible" class="btn btn-warning btn-sm me-2">Disponible</button>
+            <button type="button" id="modoNoDisponible" class="btn btn-danger btn-sm">No disponible</button>
+        </div>
+        <div class="text-end">
+            <span id="mes-actual" class="fw-bold me-2"></span>
+            <small class="fst-italic">Haz clic sobre los días para marcar tu disponibilidad</small>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <!-- Aviso de selección -->
+        <div id="rangoHoras" class="alert alert-info py-2 px-3 small mb-4">
+            Selecciona un estado de disponibilidad para comenzar...
+        </div>
+
+        <!-- FORMULARIO DE DISPONIBILIDAD -->
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="form_disponibilidad" value="1">
+            <input type="hidden" name="modo" id="modoSeleccionado">
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="hora_inicio" class="form-label">Hora inicio:</label>
+                    {{ form_disponibilidad.hora_inicio }}
+                </div>
+                <div class="col-md-6">
+                    <label for="hora_fin" class="form-label">Hora fin:</label>
+                    {{ form_disponibilidad.hora_fin }}
+                </div>
+            </div>
+
+            <!-- Encabezado de días de la semana -->
+<!-- Encabezado de días de la semana -->
+            <div id="encabezado-calendario" class="mb-2 text-center" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;">
+                <div class="dia-semana">Lun</div>
+                <div class="dia-semana">Mar</div>
+                <div class="dia-semana">Mié</div>
+                <div class="dia-semana">Jue</div>
+                <div class="dia-semana">Vie</div>
+                <div class="dia-semana">Sáb</div>
+                <div class="dia-semana">Dom</div>
+            </div>            <!-- Calendario generado con JS -->
+            <div id="calendario" class="d-grid gap-2" style="grid-template-columns: repeat(7, 1fr);"></div>
+
+            <!-- Aquí se insertan inputs hidden para las fechas seleccionadas -->
+            <div id="inputs-fechas-estados"></div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success">Guardar Disponibilidad</button>
+            </div>
+        </form>
+
+        <hr>
+
+        <!-- Tabla de disponibilidad registrada -->
+        {% if disponibilidades %}
+            <h6 class="fw-bold mt-4">Disponibilidad registrada:</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm text-center mt-2">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Desde</th>
+                            <th>Hasta</th>
+                            <th>Tipo</th>
+                            <th>Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dispo in disponibilidades %}
+                            <tr>
+                                <td>{{ dispo.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ dispo.hora_inicio|time:"g:i A" }}</td>
+                                <td>{{ dispo.hora_fin|time:"g:i A" }}</td>
+                                <td>
+                                    {% if dispo.idEstado.Nombre == 'Disponible' %}
+                                        <span class="badge bg-warning text-dark">Disponible</span>
+                                    {% elif dispo.idEstado.Nombre == 'No disponible' %}
+                                        <span class="badge bg-danger">No disponible</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Otro</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="accion" value="eliminar_disponibilidad">
+                                        <input type="hidden" name="disponibilidad_id" value="{{ dispo.id }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta disponibilidad?')">🗑</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mt-3">Aún no has registrado tu disponibilidad.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     {% if messages %}
     <div class="messages">
         {% for message in messages %}
@@ -258,32 +380,138 @@
             {% else %}
                 <p>No tienes reservas canceladas recientemente.</p>
             {% endif %}
-        </div>
-    </div>
 
-    <div class="text-center mt-4">
-        <a href="{% url 'historial_experto' %}" class="btn btn-secondary me-2">Ver Historial de Reservas</a>
-        <a href="{% url 'editar_perfil' %}" class="btn btn-info">Editar Perfil</a>
-    </div>
-</div>
+
+{{ dispo_dict|json_script:"dispo-data" }}
 
 <script>
-    function cerrarReserva(btn) {
-        const item = btn.closest('li');
-        item.classList.add('reserva-oculta');
+document.addEventListener("DOMContentLoaded", function () {
+    const fechasGuardadas = JSON.parse(document.getElementById("dispo-data").textContent);
 
-        // Después de la animación, eliminar y actualizar contador
-        setTimeout(() => {
-            const card = btn.closest('.card');
-            const badge = card.querySelector('.badge');
-            if (badge) {
-                let count = parseInt(badge.textContent.trim());
-                if (count > 0) {
-                    badge.textContent = count - 1;
-                }
-            }
-            item.remove();
-        }, 400);
+    const calendario = document.getElementById("calendario");
+    const rangoHoras = document.getElementById("rangoHoras");
+    const btnDisponible = document.getElementById("modoDisponible");
+    const btnNoDisponible = document.getElementById("modoNoDisponible");
+    const modoInput = document.getElementById("modoSeleccionado");
+    const form = calendario.closest("form");
+    const inputsContainer = document.getElementById("inputs-fechas-estados");
+
+    let modoSeleccionado = null;
+    let selecciones = [];
+
+    function activarModo(modo) {
+        modoSeleccionado = modo;
+        modoInput.value = modo;
+        if (modo === "disponible") {
+            btnDisponible.classList.add("active");
+            btnNoDisponible.classList.remove("active");
+            rangoHoras.innerText = "🟡 Estás seleccionando días como DISPONIBLE";
+        } else if (modo === "no_disponible") {
+            btnNoDisponible.classList.add("active");
+            btnDisponible.classList.remove("active");
+            rangoHoras.innerText = "🔴 Estás seleccionando días como NO DISPONIBLE";
+        }
     }
+
+    btnDisponible.addEventListener("click", () => activarModo("disponible"));
+    btnNoDisponible.addEventListener("click", () => activarModo("no_disponible"));
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const diasMes = new Date(year, month + 1, 0).getDate();
+    const primerDia = new Date(year, month, 1).getDay();
+    const offset = primerDia === 0 ? 6 : primerDia - 1;
+
+    const nombresMeses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
+    const mesActualSpan = document.getElementById("mes-actual");
+    if (mesActualSpan) {
+        mesActualSpan.innerText = `${nombresMeses[month]} ${year}`;
+    }
+
+    for (let i = 0; i < offset; i++) {
+        const celdaVacia = document.createElement("div");
+        calendario.appendChild(celdaVacia);
+    }
+
+    function formatoFecha(dia) {
+        const mesStr = (month + 1).toString().padStart(2, '0');
+        const diaStr = dia.toString().padStart(2, '0');
+        return `${year}-${mesStr}-${diaStr}`;
+    }
+
+    function actualizarInputsHidden() {
+        inputsContainer.innerHTML = "";
+        selecciones.forEach(sel => {
+            const inputFecha = document.createElement("input");
+            inputFecha.type = "hidden";
+            inputFecha.name = "fechas[]";
+            inputFecha.value = sel.fecha;
+            inputsContainer.appendChild(inputFecha);
+
+            const inputEstado = document.createElement("input");
+            inputEstado.type = "hidden";
+            inputEstado.name = "estados[]";
+            inputEstado.value = sel.estado === "disponible" ? "Disponible" : "No disponible";
+            inputsContainer.appendChild(inputEstado);
+        });
+    }
+
+    for (let dia = 1; dia <= diasMes; dia++) {
+        const divDia = document.createElement("div");
+        divDia.classList.add("dia");
+        divDia.style.cursor = "pointer";
+        divDia.innerText = dia;
+
+        const fechaClick = formatoFecha(dia);
+
+        if (dia === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            divDia.classList.add("hoy");
+        }
+
+        // ✅ Marcar las fechas guardadas al cargar
+        if (fechasGuardadas && fechasGuardadas[fechaClick]) {
+            const estadoBD = fechasGuardadas[fechaClick].toLowerCase().replace(" ", "_");
+            divDia.classList.add(estadoBD);
+            selecciones.push({ fecha: fechaClick, estado: estadoBD });
+        }
+
+        divDia.addEventListener("click", () => {
+            if (!modoSeleccionado) {
+                alert("Primero selecciona si estás disponible o no.");
+                return;
+            }
+
+            const index = selecciones.findIndex(s => s.fecha === fechaClick);
+
+            if (index >= 0) {
+                if (selecciones[index].estado === modoSeleccionado) {
+                    selecciones.splice(index, 1);
+                    divDia.classList.remove("disponible", "no_disponible");
+                } else {
+                    selecciones[index].estado = modoSeleccionado;
+                    divDia.classList.remove("disponible", "no_disponible");
+                    divDia.classList.add(modoSeleccionado);
+                }
+            } else {
+                selecciones.push({ fecha: fechaClick, estado: modoSeleccionado });
+                divDia.classList.add(modoSeleccionado);
+            }
+
+            actualizarInputsHidden();
+        });
+
+        calendario.appendChild(divDia);
+    }
+});
 </script>
+
+
+
+
+
 {% endblock %}

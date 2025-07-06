@@ -353,3 +353,15 @@ class Notificacion(models.Model):
 
     def __str__(self):
         return f"Notificación para {self.usuario.username}: {self.mensaje[:30]}..."
+    
+
+
+class Disponibilidad(models.Model):
+    experto = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    fecha = models.DateField()
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    idEstado = models.ForeignKey(Estado, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.experto.username} - {self.fecha} de {self.hora_inicio} a {self.hora_fin} ({self.idEstado.Nombre})"

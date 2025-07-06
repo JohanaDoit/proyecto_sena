@@ -367,3 +367,74 @@ h1, h3 {
     border-left: 4px solid #28a745;
 }
 
+
+
+
+
+
+
+#calendario {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 días */
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+#calendario .dia {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+#calendario .dia:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+#calendario .disponible {
+    background-color: #ffc107 !important; /* Amarillo */
+    color: #000;
+}
+
+#calendario .no_disponible {
+    background-color: #dc3545 !important; /* Rojo */
+    color: #fff;
+}
+
+#calendario .hoy {
+    border: 2px solid #0d6efd;
+}
+
+.dia-semana {
+    padding: 8px 0;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+
+.dia {
+    padding: 10px 0;
+    border: 1px solid #ccc;
+    text-align: center;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.dia.disponible {
+    background-color: #ffc107; /* Amarillo */
+    color: #000;
+}
+
+.dia.no_disponible {
+    background-color: #dc3545; /* Rojo */
+    color: #fff;
+}
+
+.dia.hoy {
+    border: 2px solid #0d6efd;
+}
