@@ -1,177 +1,114 @@
 {% extends "base.html" %}
 {% block title %}DOIT | Configuración de Perfil{% endblock %}
 {% load static %}
-{% load widget_tweaks %} {# ¡Importante! Asegúrate de tener widget_tweaks instalado #}
+{% load widget_tweaks %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/modificar.css' %}">
-    {# Si tienes otros archivos CSS globales (como principal.css o styles.css), #}
-    {# puedes dejarlos aquí también si es necesario, pero styles.css ya debería estar en base.html #}
-    {# <link rel="stylesheet" href="{% static 'css/styles.css' %}"> #}
 {% endblock %}
 
 {% block content %}
+<div class="container-perfil-edit">
+    <h2 class="titulo-perfil">Editar Información de Perfil</h2>
 
-    <div class="container-perfil" id="editProfileContainer">
-        <h2>Editar Información de Perfil</h2>
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-info-circle"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-        {# Mostrar mensajes de Django (éxito, error, etc.) #}
-        {# Hemos movido los estilos de estos mensajes a styles.css para que sean globales #}
-        {% if messages %}
-            <div class="messages-container"> {# Un contenedor para los mensajes globales #}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}"> {# Bootstrap-like alert classes #}
-                        {# Puedes añadir un icono o spinner aquí si lo deseas #}
-                        <i class="fas fa-info-circle"></i> {# Ejemplo de Font Awesome, ajusta si usas otro #}
-                        <span>{{ message }}</span>
-                    </div>
+    <form method="post" enctype="multipart/form-data" class="form-perfil">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
                 {% endfor %}
             </div>
         {% endif %}
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %} {# ¡Siempre necesario para formularios POST en Django por seguridad! #}
-
-            {# Errores no asociados a campos específicos #}
-            {% if form.non_field_errors %}
-                <div class="alert alert-danger">
-                    {% for error in form.non_field_errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group mb-3">{{ form.username.label_tag }}{{ form.username }}</div>
-                    <div class="form-group mb-3">{{ form.first_name.label_tag }}{{ form.first_name }}</div>
-                    <div class="form-group mb-3">{{ form.last_name.label_tag }}{{ form.last_name }}</div>
-                    <div class="form-group mb-3">{{ form.email.label_tag }}{{ form.email }}</div>
-                    <div class="form-group mb-3">{{ form.genero.label_tag }}{{ form.genero }}</div>
-                    <div class="form-group mb-3">{{ form.tipo_usuario.label_tag }}{{ form.tipo_usuario }}</div>
-                    <div class="form-group mb-3">{{ form.nacionalidad.label_tag }}{{ form.nacionalidad }}</div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group mb-3">{{ form.numDoc.label_tag }}{{ form.numDoc }}</div>
-                    <div class="form-group mb-3">{{ form.telefono.label_tag }}{{ form.telefono }}</div>
-                    <div class="form-group mb-3">{{ form.fechaNacimiento.label_tag }}{{ form.fechaNacimiento }}</div>
-                    <div class="form-group mb-3">{{ form.tipo_documento.label_tag }}{{ form.tipo_documento }}</div>
-                    <div class="form-group mb-3">{{ form.foto_perfil.label_tag }}{{ form.foto_perfil }}</div>
-                    <div class="form-group mb-3">{{ form.especialidad.label_tag }}{{ form.especialidad }}</div>
-                    <div class="form-group mb-3">{{ form.direccion.label_tag }}{{ form.direccion }}</div>
-                    <div class="form-group mb-3">{{ form.barrio.label_tag }}{{ form.barrio }}</div>
-                </div>
+        <div class="row">
+            <!-- Columna izquierda -->
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {% render_field form.username class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.numDoc.label_tag }}
+                {% render_field form.numDoc class="form-control" %}
             </div>
 
-            <div class="button-group mt-4">
-                <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
-                {# Botón de Volver a la pantalla principal #}
-                <a href="{% url 'principal' %}" class="back-button btn btn-secondary btn-sm">Volver a Principal</a>
+            <div class="form-group">
+                {{ form.first_name.label_tag }}
+                {% render_field form.first_name class="form-control" %}
             </div>
-        </form>
+            <div class="form-group">
+                {{ form.telefono.label_tag }}
+                {% render_field form.telefono class="form-control" %}
+            </div>
 
-    </div>
+            <div class="form-group">
+                {{ form.last_name.label_tag }}
+                {% render_field form.last_name class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.fechaNacimiento.label_tag }}
+                {% render_field form.fechaNacimiento class="form-control" %}
+            </div>
 
-{% endblock content %}
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {% render_field form.email class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.tipo_documento.label_tag }}
+                {% render_field form.tipo_documento class="form-control" %}
+            </div>
 
-{% block extra_js %}
-    <script>
-        // Función para cargar departamentos basados en el país seleccionado
-        document.addEventListener('DOMContentLoaded', function() {
-            var paisSelect = document.getElementById('id_pais');
-            var departamentoSelect = document.getElementById('id_departamento');
-            var ciudadSelect = document.getElementById('id_ciudad');
+            <div class="form-group">
+                {{ form.genero.label_tag }}
+                {% render_field form.genero class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.foto_perfil.label_tag }}
+                {% render_field form.foto_perfil class="form-control" %}
+            </div>
 
-            function loadDepartamentos() {
-                var paisId = paisSelect.value;
-                departamentoSelect.innerHTML = '<option value="">Cargando departamentos...</option>';
-                departamentoSelect.disabled = true;
-                ciudadSelect.innerHTML = '<option value="">Selecciona un departamento primero</option>';
-                ciudadSelect.disabled = true;
+            <div class="form-group">
+                {{ form.tipo_usuario.label_tag }}
+                {% render_field form.tipo_usuario class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.especialidad.label_tag }}
+                {% render_field form.especialidad class="form-control" %}
+            </div>
 
-                if (paisId) {
-                    fetch(`/api/departamentos/?pais_id=${paisId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            departamentoSelect.innerHTML = '<option value="">-- Selecciona un Departamento --</option>';
-                            data.forEach(function(departamento) {
-                                var option = document.createElement('option');
-                                option.value = departamento.id;
-                                option.textContent = departamento.Nombre;
-                                departamentoSelect.appendChild(option);
-                            });
-                            departamentoSelect.disabled = false;
-                            // Si ya hay un valor de departamento, seleccionarlo
-                            if (departamentoSelect.dataset.selectedValue) {
-                                departamentoSelect.value = departamentoSelect.dataset.selectedValue;
-                                loadCiudades(); // Y cargar ciudades si ya hay departamento
-                                departamentoSelect.dataset.selectedValue = ''; // Limpiar después de usar
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar departamentos:', error);
-                            departamentoSelect.innerHTML = '<option value="">Error al cargar</option>';
-                        });
-                } else {
-                    departamentoSelect.innerHTML = '<option value="">-- Selecciona un País primero --</option>';
-                }
-            }
+            <div class="form-group">
+                {{ form.nacionalidad.label_tag }}
+                {% render_field form.nacionalidad class="form-control" %}
+            </div>
+            <div class="form-group">
+                {{ form.direccion.label_tag }}
+                {% render_field form.direccion class="form-control" %}
+            </div>
 
-            function loadCiudades() {
-                var departamentoId = departamentoSelect.value;
-                ciudadSelect.innerHTML = '<option value="">Cargando ciudades...</option>';
-                ciudadSelect.disabled = true;
+            <div class="form-group">
+                {{ form.barrio.label_tag }}
+                {% render_field form.barrio class="form-control" %}
+            </div>
+            <div></div> <!-- espacio vacío para mantener el grid parejo -->
+        </div>
 
-                if (departamentoId) {
-                    fetch(`/api/ciudades/?departamento_id=${departamentoId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            ciudadSelect.innerHTML = '<option value="">-- Selecciona una Ciudad --</option>';
-                            data.forEach(function(ciudad) {
-                                var option = document.createElement('option');
-                                option.value = ciudad.id;
-                                option.textContent = ciudad.Nombre;
-                                ciudadSelect.appendChild(option);
-                            });
-                            ciudadSelect.disabled = false;
-                            // Si ya hay un valor de ciudad, seleccionarlo
-                            if (ciudadSelect.dataset.selectedValue) {
-                                ciudadSelect.value = ciudadSelect.dataset.selectedValue;
-                                ciudadSelect.dataset.selectedValue = ''; // Limpiar después de usar
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error al cargar ciudades:', error);
-                            ciudadSelect.innerHTML = '<option value="">Error al cargar</option>';
-                        });
-                } else {
-                    ciudadSelect.innerHTML = '<option value="">-- Selecciona un Departamento primero --</option>';
-                }
-            }
-
-            // Guardar valores iniciales para preseleccionar después de la carga dinámica
-            if (paisSelect && departamentoSelect && ciudadSelect) {
-                if (departamentoSelect.value) {
-                    departamentoSelect.dataset.selectedValue = departamentoSelect.value;
-                }
-                if (ciudadSelect.value) {
-                    ciudadSelect.dataset.selectedValue = ciudadSelect.value;
-                }
-                
-                paisSelect.addEventListener('change', loadDepartamentos);
-                departamentoSelect.addEventListener('change', loadCiudades);
-
-                // Cargar departamentos/ciudades al inicio si ya hay un país seleccionado
-                if (paisSelect.value) {
-                    loadDepartamentos();
-                } else {
-                    // Si no hay país, asegúrate de que departamento y ciudad estén deshabilitados
-                    departamentoSelect.disabled = true;
-                    ciudadSelect.disabled = true;
-                    departamentoSelect.innerHTML = '<option value="">-- Selecciona un País primero --</option>';
-                    ciudadSelect.innerHTML = '<option value="">-- Selecciona un Departamento primero --</option>';
-                }
-            }
-        });
-    </script>
+        <div class="mt-4 d-flex justify-content-center gap-3">
+            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+            <a href="{% url 'principal' %}" class="btn btn-secondary">Volver a Principal</a>
+        </div>
+    </form>
+</div>
 {% endblock %}
