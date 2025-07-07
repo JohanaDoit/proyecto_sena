@@ -1,0 +1,119 @@
+:root {
+    --azul: #01304a;
+    --fondo: #f4f6f8;
+    --naranja: #f27f00;
+    --claro: #e2d9af;
+    --blanco-grisaceo: #f8f9fa;
+    --texto-principal: #333;
+    --texto-suave: #777;
+    --hover-claro: #f1f9ff;
+    --borde-suave: #dee2e6;
+}
+
+/* Centra el contenido */
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Tarjeta envolvente */
+.card {
+    border-radius: 16px;
+    background-color: var(--blanco-grisaceo);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: none;
+}
+
+/* Título */
+.card h3 {
+    font-size: 1.8rem;
+    color: var(--azul);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--borde-suave);
+    padding-bottom: 10px;
+}
+
+.card h3 i {
+    margin-right: 10px;
+}
+
+/* Lista de notificaciones */
+.list-group-item {
+    border: none;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    transition: background-color 0.2s ease;
+}
+
+/* Colores intercalados */
+.list-group-item:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.list-group-item:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Notificación no leída */
+.bg-info.bg-opacity-10 {
+    background-color: #d1ecf1 !important;
+}
+
+/* Hover suave */
+.list-group-item:hover {
+    background-color: var(--hover-claro);
+}
+
+/* Corrige el margen visual desequilibrado */
+.list-group-item .ms-2.me-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    flex: 1;
+}
+
+/* Mensaje principal */
+.fw-semibold {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--texto-principal);
+    margin-bottom: 6px;
+}
+
+/* Fecha */
+.badge {
+    background-color: transparent;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+    white-space: nowrap;
+    margin-left: 15px;
+}
+
+/* Botón "Ver" */
+.btn-outline-primary {
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    border-color: var(--azul);
+    color: var(--azul);
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--azul);
+    color: white;
+}
+
+/* Texto cuando no hay notificaciones */
+.list-group-item.text-center {
+    font-style: italic;
+    color: var(--texto-suave);
+    background-color: transparent;
+}
+
