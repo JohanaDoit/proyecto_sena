@@ -510,11 +510,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (modo === "disponible") {
             btnDisponible.classList.add("active");
             btnNoDisponible.classList.remove("active");
-            rangoHoras.innerText = "🟡 Estás seleccionando días como DISPONIBLE";
+            rangoHoras.innerText = " 🔵 Estás seleccionando días como DISPONIBLE";
         } else if (modo === "no_disponible") {
             btnNoDisponible.classList.add("active");
             btnDisponible.classList.remove("active");
-            rangoHoras.innerText = "🔴 Estás seleccionando días como NO DISPONIBLE";
+            rangoHoras.innerText = " ⚫ Estás seleccionando días como NO DISPONIBLE";
         }
     }
 

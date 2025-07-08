@@ -1,15 +1,27 @@
 {% extends "base.html" %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notificaciones.css' %}">
+<link rel="stylesheet" href="{% static 'css/notificaciones_custom.css' %}">
+{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Notificaciones</h2>
-    <ul class="list-group">
+<div class="notificaciones-container mt-4">
+    <h2 style="text-align:center;">Notificaciones</h2>
+    <ul class="list-group notificaciones-grid">
         {% for noti in notificaciones %}
             <li class="list-group-item {% if not noti.leida %}list-group-item-info{% endif %}">
-                {{ noti.mensaje }}
-                {% if noti.url %}
-                    <a href="{{ noti.url }}" class="btn btn-link btn-sm">Ver</a>
-                {% endif %}
-                <span class="text-muted float-end" style="font-size:0.9em;">{{ noti.fecha|date:"d/m/Y H:i" }}</span>
+                <span>
+                    {{ noti.mensaje }}
+                    {% if noti.servicio %}
+                        <span class="noti-servicio">{{ noti.servicio }}</span>
+                    {% endif %}
+                </span>
+                <span style="display:flex; align-items:center; gap:0.7em;">
+                    {% if noti.url %}
+                        <a href="{{ noti.url }}" class="btn btn-link btn-sm">Ver</a>
+                    {% endif %}
+                    <span class="noti-fecha">{{ noti.fecha|date:"d/m/Y H:i" }}</span>
+                </span>
             </li>
         {% empty %}
             <li class="list-group-item">No tienes notificaciones.</li>
