@@ -1,0 +1,67 @@
+/* Estilos para la página de notificaciones */
+
+.notificaciones-container {
+    max-width: 1000px;
+    min-width: 340px;
+    margin: 0 auto;
+    background: #f8fbff;
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(30,58,138,0.07);
+    padding: 2.2em 2em 1.5em 2em;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.notificaciones-container h2 {
+    color: #2563eb;
+    font-weight: 700;
+    margin-bottom: 1.2em;
+    letter-spacing: 0.01em;
+}
+
+.notificaciones-container .list-group-item,
+.notificaciones-container .list-group-item span,
+.notificaciones-container .noti-servicio {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.list-group-item {
+    background: #fff;
+    border: 1.5px solid #e3eaf7;
+    border-radius: 8px !important;
+    margin-bottom: 0.7em;
+    box-shadow: 0 1px 6px rgba(30,58,138,0.04);
+    font-size: 1.04em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em 1.2em;
+    transition: background 0.2s;
+}
+
+.list-group-item-info {
+    background: linear-gradient(90deg, #e3f0ff 60%, #f5faff 100%) !important;
+    border-left: 4px solid #2563eb !important;
+    font-weight: 600;
+}
+
+.list-group-item .btn-link {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 1.2em;
+    margin-right: 0.5em;
+    font-size: 0.98em;
+}
+
+.list-group-item .btn-link:hover {
+    color: #1746a2;
+    text-decoration: none;
+}
+
+.list-group-item .text-muted {
+    margin-left: auto;
+    font-size: 0.93em;
+}
