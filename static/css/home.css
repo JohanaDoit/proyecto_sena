@@ -34,7 +34,7 @@ body {
 }
 
 .info-principal p {
-    font-size: 1.4em;
+    font-size: 2em;
     line-height: 1.8;
     color: #cababa;
     margin: 20px 0;
@@ -55,7 +55,7 @@ body {
 }
 
 .texto-boton {
-    font-size: 0.95em;
+    font-size: 1em;
     color: #0e0e0e;
     margin-bottom: 8px;
 }
@@ -84,7 +84,7 @@ body {
 }
 
 .boton.secundario:hover {
-    background-color: #77b877; /* Verde más oscuro al pasar el ratón */
+    background-color: #3e5e8e; 
 }
 
 .whatsapp-icono {

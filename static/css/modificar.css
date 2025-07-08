@@ -1,6 +1,6 @@
 :root {
-    --fondo-oscuro: #e6e6e6;
-    --input-fondo: #e6e6e6;
+    --fondo-oscuro: #f9fbfa;
+    --input-fondo: #f9fbfa;
     --borde-claro: #1c2b3a;
     --texto-claro: #1c2b3a;
     --blanco: #1c2b3a;
@@ -75,21 +75,21 @@
 }
 
 .btn-success {
-    background-color: #28a745;
+    background-color:#0c0721;
     color: white;
 }
 
 .btn-success:hover {
-    background-color: #218838;
+    background-color: #3e5e8e;
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: #d16b00;;
     color: white;
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: #e8c99a;
 }
 
 /* Mensajes */
