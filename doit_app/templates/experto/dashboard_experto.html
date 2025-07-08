@@ -77,8 +77,12 @@
             <button type="button" id="modoDisponible" class="btn btn-warning btn-sm me-2">Disponible</button>
             <button type="button" id="modoNoDisponible" class="btn btn-danger btn-sm">No disponible</button>
         </div>
-        <div class="text-end">
-            <span id="mes-actual" class="fw-bold me-2"></span>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="navegacion-mes">
+                <button type="button" id="mes-anterior" class="btn btn-outline-light btn-sm me-2">‹ Anterior</button>
+                <span id="mes-actual" class="fw-bold mx-3"></span>
+                <button type="button" id="mes-siguiente" class="btn btn-outline-light btn-sm ms-2">Siguiente ›</button>
+            </div>
             <small class="fst-italic">Haz clic sobre los días para marcar tu disponibilidad</small>
         </div>
     </div>
@@ -411,9 +415,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const modoInput = document.getElementById("modoSeleccionado");
     const form = calendario.closest("form");
     const inputsContainer = document.getElementById("inputs-fechas-estados");
+    const mesActualSpan = document.getElementById("mes-actual");
+    const btnMesAnterior = document.getElementById("mes-anterior");
+    const btnMesSiguiente = document.getElementById("mes-siguiente");
 
     let modoSeleccionado = null;
     let selecciones = [];
+    let fechaActual = new Date();
+    
+    const nombresMeses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
 
     function activarModo(modo) {
         modoSeleccionado = modo;
@@ -429,35 +442,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    btnDisponible.addEventListener("click", () => activarModo("disponible"));
-    btnNoDisponible.addEventListener("click", () => activarModo("no_disponible"));
-
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const diasMes = new Date(year, month + 1, 0).getDate();
-    const primerDia = new Date(year, month, 1).getDay();
-    const offset = primerDia === 0 ? 6 : primerDia - 1;
-
-    const nombresMeses = [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-    ];
-
-    const mesActualSpan = document.getElementById("mes-actual");
-    if (mesActualSpan) {
-        mesActualSpan.innerText = `${nombresMeses[month]} ${year}`;
-    }
-
-    for (let i = 0; i < offset; i++) {
-        const celdaVacia = document.createElement("div");
-        calendario.appendChild(celdaVacia);
-    }
-
-    function formatoFecha(dia) {
-        const mesStr = (month + 1).toString().padStart(2, '0');
+    function formatoFecha(dia, mes, año) {
+        const mesStr = (mes + 1).toString().padStart(2, '0');
         const diaStr = dia.toString().padStart(2, '0');
-        return `${year}-${mesStr}-${diaStr}`;
+        return `${año}-${mesStr}-${diaStr}`;
     }
 
     function actualizarInputsHidden() {
@@ -477,52 +465,111 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    for (let dia = 1; dia <= diasMes; dia++) {
-        const divDia = document.createElement("div");
-        divDia.classList.add("dia");
-        divDia.style.cursor = "pointer";
-        divDia.innerText = dia;
+    function generarCalendario(año, mes) {
+        // Limpiar calendario
+        calendario.innerHTML = "";
+        
+        // Actualizar título del mes
+        mesActualSpan.innerText = `${nombresMeses[mes]} ${año}`;
+        
+        const today = new Date();
+        const diasMes = new Date(año, mes + 1, 0).getDate();
+        const primerDia = new Date(año, mes, 1).getDay();
+        const offset = primerDia === 0 ? 6 : primerDia - 1;
 
-        const fechaClick = formatoFecha(dia);
-
-        if (dia === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
-            divDia.classList.add("hoy");
+        // Agregar celdas vacías para los días antes del primer día del mes
+        for (let i = 0; i < offset; i++) {
+            const celdaVacia = document.createElement("div");
+            calendario.appendChild(celdaVacia);
         }
 
-        // ✅ Marcar las fechas guardadas al cargar
-        if (fechasGuardadas && fechasGuardadas[fechaClick]) {
-            const estadoBD = fechasGuardadas[fechaClick].toLowerCase().replace(" ", "_");
-            divDia.classList.add(estadoBD);
-            selecciones.push({ fecha: fechaClick, estado: estadoBD });
-        }
+        // Generar días del mes
+        for (let dia = 1; dia <= diasMes; dia++) {
+            const divDia = document.createElement("div");
+            divDia.classList.add("dia");
+            divDia.style.cursor = "pointer";
+            divDia.innerText = dia;
 
-        divDia.addEventListener("click", () => {
-            if (!modoSeleccionado) {
-                alert("Primero selecciona si estás disponible o no.");
-                return;
+            const fechaClick = formatoFecha(dia, mes, año);
+
+            // Marcar el día actual
+            if (dia === today.getDate() && mes === today.getMonth() && año === today.getFullYear()) {
+                divDia.classList.add("hoy");
             }
 
-            const index = selecciones.findIndex(s => s.fecha === fechaClick);
-
-            if (index >= 0) {
-                if (selecciones[index].estado === modoSeleccionado) {
-                    selecciones.splice(index, 1);
-                    divDia.classList.remove("disponible", "no_disponible");
-                } else {
-                    selecciones[index].estado = modoSeleccionado;
-                    divDia.classList.remove("disponible", "no_disponible");
-                    divDia.classList.add(modoSeleccionado);
+            // Marcar las fechas guardadas al cargar
+            if (fechasGuardadas && fechasGuardadas[fechaClick]) {
+                const estadoBD = fechasGuardadas[fechaClick].toLowerCase().replace(" ", "_");
+                divDia.classList.add(estadoBD);
+                
+                // Agregar a selecciones si no existe
+                const existe = selecciones.find(s => s.fecha === fechaClick);
+                if (!existe) {
+                    selecciones.push({ fecha: fechaClick, estado: estadoBD });
                 }
-            } else {
-                selecciones.push({ fecha: fechaClick, estado: modoSeleccionado });
-                divDia.classList.add(modoSeleccionado);
             }
 
-            actualizarInputsHidden();
-        });
+            // Deshabilitar días pasados (solo para el mes actual)
+            const fechaDia = new Date(año, mes, dia);
+            if (fechaDia < today && !(fechaDia.toDateString() === today.toDateString())) {
+                divDia.style.opacity = "0.4";
+                divDia.style.cursor = "not-allowed";
+                divDia.title = "No puedes seleccionar días pasados";
+            } else {
+                // Agregar event listener solo a días válidos
+                divDia.addEventListener("click", () => {
+                    if (!modoSeleccionado) {
+                        alert("Primero selecciona si estás disponible o no.");
+                        return;
+                    }
 
-        calendario.appendChild(divDia);
+                    const index = selecciones.findIndex(s => s.fecha === fechaClick);
+
+                    if (index >= 0) {
+                        if (selecciones[index].estado === modoSeleccionado) {
+                            // Si ya está seleccionado con el mismo estado, deseleccionar
+                            selecciones.splice(index, 1);
+                            divDia.classList.remove("disponible", "no_disponible");
+                        } else {
+                            // Cambiar estado
+                            selecciones[index].estado = modoSeleccionado;
+                            divDia.classList.remove("disponible", "no_disponible");
+                            divDia.classList.add(modoSeleccionado);
+                        }
+                    } else {
+                        // Agregar nueva selección
+                        selecciones.push({ fecha: fechaClick, estado: modoSeleccionado });
+                        divDia.classList.add(modoSeleccionado);
+                    }
+
+                    actualizarInputsHidden();
+                });
+            }
+
+            calendario.appendChild(divDia);
+        }
     }
+
+    function cambiarMes(direccion) {
+        if (direccion === 'anterior') {
+            fechaActual.setMonth(fechaActual.getMonth() - 1);
+        } else if (direccion === 'siguiente') {
+            fechaActual.setMonth(fechaActual.getMonth() + 1);
+        }
+        
+        generarCalendario(fechaActual.getFullYear(), fechaActual.getMonth());
+    }
+
+    // Event listeners para navegación
+    btnMesAnterior.addEventListener("click", () => cambiarMes('anterior'));
+    btnMesSiguiente.addEventListener("click", () => cambiarMes('siguiente'));
+    
+    // Event listeners para modos
+    btnDisponible.addEventListener("click", () => activarModo("disponible"));
+    btnNoDisponible.addEventListener("click", () => activarModo("no_disponible"));
+
+    // Generar calendario inicial (mes actual)
+    generarCalendario(fechaActual.getFullYear(), fechaActual.getMonth());
 });
 </script>
 
