@@ -11,6 +11,31 @@
 <div class="container mt-4">
     <h1 class="mb-4">Bienvenido, Experto {{ request.user.username }}!</h1>
 
+
+    
+{% if mostrar_mensaje_finalizado and reserva_id_calificar %}
+<div id="mensaje-finalizado" class="mensaje-finalizado">
+    <div class="icono-check">✅</div>
+    <div class="mensaje-texto">
+        Has finalizado tu servicio correctamente. Serás redirigido a la calificación...
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        const mensaje = document.getElementById("mensaje-finalizado");
+        mensaje.style.opacity = "0";
+        mensaje.style.transform = "translateY(-20px)";
+        
+        setTimeout(function() {
+            window.location.href = "{% url 'calificar_reserva' reserva_id_calificar %}";
+        }, 700); // espera a que se desvanezca antes de redirigir
+    }, 2500); // tiempo antes de empezar la animación de salida
+</script>
+{% endif %}
+
+
+
     {% if request.user.evidenciaTrabajo %}
     <div class="mb-4">
         <h5>Evidencia de Trabajo</h5>
@@ -190,18 +215,19 @@
 
     <hr>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Reservas Pendientes
-                        <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    {% if reservas_pendientes %}
-                        <ul class="list-group">
-                            {% for reserva in reservas_pendientes %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Reservas Pendientes
+                    <span class="badge bg-light text-primary">{{ reservas_pendientes.count }}</span>
+                </h3>
+            </div>
+            <div class="card-body">
+                {% if reservas_pendientes %}
+                    <ul class="list-group">
+                        {% for reserva in reservas_pendientes %}
+                            {% if not reserva.experto_asignado %}
                                 <li class="list-group-item position-relative">
                                     <button class="cerrar-reserva-btn" onclick="cerrarReserva(this)" title="Ocultar">×</button>
 
@@ -235,14 +261,17 @@
                                         </form>
                                     {% endif %}
                                 </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No tienes reservas pendientes en este momento.</p>
-                    {% endif %}
-                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No tienes reservas pendientes en este momento.</p>
+                {% endif %}
             </div>
         </div>
+    </div>
+
+
 
         <div class="col-md-6">
             <div class="card mb-4">

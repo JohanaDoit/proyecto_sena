@@ -51,6 +51,26 @@
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}
         </div>
+        <!-- ✅ Campo nuevo -->
+        {% if experto_seleccionado %}
+        <div class="d-flex align-items-center gap-3 p-3 mb-3 border rounded bg-light">
+            {% if experto_seleccionado.foto_perfil %}
+            <img src="{{ experto_seleccionado.foto_perfil.url }}" alt="Foto del experto"
+                width="70" height="70" style="border-radius: 50%; object-fit: cover;">
+            {% else %}
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: #ccc;"></div>
+            {% endif %}
+
+            <div>
+            <strong class="d-block fs-5">{{ experto_seleccionado.get_full_name }}</strong>
+            <span class="text-muted">{{ experto_seleccionado.especialidad.NombreServicio }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+
+
+
 
         <div class="form-group">
             <label for="{{ form.Fecha.id_for_label }}">Fecha del Servicio:</label>
@@ -100,7 +120,7 @@
 
         <div class="form-group">
             <label for="{{ form.Hora.id_for_label }}">Hora del Servicio:</label>
-            {% render_field form.Hora type="time" class="form-control" %}
+            {% render_field form.Hora class="form-control hora-select" %}            
             {% for error in form.Hora.errors %}
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}
@@ -162,6 +182,7 @@
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}
         </div>
+
 
         <button type="submit" class="btn btn-primary">Enviar Solicitud de Servicio</button>
     </form>

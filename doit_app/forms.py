@@ -7,6 +7,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones
 from datetime import datetime, timedelta, time, date
 from .models import Disponibilidad
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 class RegistroForm(UserCreationForm):
@@ -410,6 +412,14 @@ class ReservaForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
     )
 
+    # ✅ Campo adicional: permitir seleccionar un experto específico
+    experto_solicitado = forms.ModelChoiceField(
+        queryset=get_user_model().objects.filter(tipo_usuario='experto', is_active=True).order_by('username'),
+        required=False,
+        label="Solicitar un experto específico (opcional)",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Reserva
         fields = [
@@ -423,6 +433,7 @@ class ReservaForm(forms.ModelForm):
             'ciudad',
             'idServicios',
             'pago_ofrecido',
+            'experto_solicitado',  # ✅ nuevo campo agregado aquí
         ]
         labels = {
             'Fecha': 'Fecha Preferida del Servicio',
@@ -435,6 +446,7 @@ class ReservaForm(forms.ModelForm):
             'ciudad': 'Ciudad del Servicio',
             'idServicios': 'Tipo de Servicio',
             'pago_ofrecido': 'Pago Ofrecido',
+            'experto_solicitado': 'Experto Específico (opcional)',
         }
         widgets = {
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
@@ -445,13 +457,13 @@ class ReservaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Generar horas desde 00:00 hasta 23:30, cada 30 minutos
+        # Generar horas desde 06:00 hasta 21:00, cada 30 minutos
         opciones = []
-        hora_actual = datetime.strptime("00:00", "%H:%M")
-        fin = datetime.strptime("23:30", "%H:%M")
+        hora_actual = datetime.strptime("06:00", "%H:%M")
+        fin = datetime.strptime("21:00", "%H:%M")
         while hora_actual <= fin:
             valor = hora_actual.strftime("%H:%M")          # Valor que se guarda
-            etiqueta = hora_actual.strftime("%I:%M %p")    # Texto visible en el select (12h con AM/PM)
+            etiqueta = hora_actual.strftime("%I:%M %p")    # Texto visible en el select
             opciones.append((valor, etiqueta))
             hora_actual += timedelta(minutes=30)
 
