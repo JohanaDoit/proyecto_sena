@@ -1,8 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5 text-center">
-    <h2>¡Reserva realizada con éxito!</h2>
-    <p>Gracias por usar nuestro servicio.</p>
-    <a href="/" class="btn btn-secondary mt-3">Volver al inicio</a>
+<div class="container mt-5 d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="card shadow-lg border-0" style="background: #eafaf1; border-left: 8px solid #28a745; max-width: 480px; width: 100%;">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3" style="font-size: 2.5rem; color: #28a745;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <h3 class="mb-0 fw-bold" style="color: #218838;">¡Reserva realizada con éxito!</h3>
+                </div>
+            </div>
+            <p class="mb-3" style="font-size: 1.1rem; color: #333;">Gracias por confiar en nuestro servicio. Pronto recibirás la confirmación y detalles de tu reserva en tu correo electrónico.</p>
+            <a href="/" class="btn btn-success w-100">Volver al inicio</a>
+        </div>
+    </div>
 </div>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 {% endblock %}

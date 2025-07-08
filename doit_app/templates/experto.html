@@ -9,7 +9,7 @@
 {% block content %}
 <div class="banner-bienvenida">
     <div class="contenido-banner">
-        <h1>👋 ¡Bienvenid@ 
+        <h1 style="font-size:2.2em; font-weight:700; color:#1e3a8a; letter-spacing:0.01em;">👋 ¡Bienvenid@ 
             {% if user.is_authenticated %}
                 {% if user.first_name %}
                     {{ user.first_name }}
@@ -18,81 +18,51 @@
                 {% endif %}
             {% endif %}
             a 
-            <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="80">
+            <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="70">
         </h1>
     </div>
 </div>
-<!-- ...existing code... -->
-        <section class="perfil">
-            <div class="avatar">
-                <img src="{% static 'images/ex2.png' %}" alt="Foto de perfil">
+<section class="perfil" style="display:flex; align-items:center; gap:2.5rem; background:#fff; border-radius:18px; box-shadow:0 4px 18px rgba(30,58,138,0.08); padding:2.2rem 2.5rem; max-width:900px; margin:32px auto 24px auto;">
+    <div class="avatar" style="min-width:120px; width:120px; height:120px; border-radius:50%; overflow:hidden; box-shadow:0 2px 8px rgba(30,58,138,0.10);">
+        <img src="{% static 'images/ex2.png' %}" alt="Foto de perfil" style="width:100%; height:100%; object-fit:cover;">
+    </div>
+    <div class="contenido" style="flex:1;">
+        <div class="texto-boton" style="display:flex; flex-direction:column; align-items:flex-start; gap:0.7em;">
+            <div class="info" style="text-align:left;">
+                <h2 style="font-size:1.5em; color:#1e3a8a; font-weight:700; margin-bottom:0.2em;">{{ user.username }}</h2>
+                <p style="font-size:1.1em; color:#3b82f6; margin-bottom:0.2em;">{{ user.especialidad }}</p>
+                <p style="font-size:1em; color:#444;">Calificación promedio: 
+                    {% if promedio_calificacion %}
+                        <span class="star-display rating-display" data-rating="{{ promedio_calificacion }}" data-show-number="true"></span>
+                    {% else %}
+                        Sin calificaciones
+                    {% endif %}
+                </p>
             </div>
-            <div class="contenido">
-                <div class="texto-boton">
-                    <div class="info">
-                        <h2>{{ user.username }}</h2>
-                        <p>{{ user.especialidad }}</p>
-                        <p>Calificación promedio: 
-                            {% if promedio_calificacion %}
-                                <div class="star-display rating-display" data-rating="{{ promedio_calificacion }}" data-show-number="true"></div>
-                            {% else %}
-                                Sin calificaciones
-                            {% endif %}
-                        </p>
-                    </div>
-                    <a href="{% url 'modificar' %}" class="btn modificar btn_posicion">Modificar Perfil</a>
-                </div>
-            </div>
-        </section>
-        <div class="contenedor-solicitudes">
-            <section class="notificacion-solicitud">
-                <div class="notificacion posicion solicitud1">
-                    <h3>¡Nueva Solicitud de Servicio!</h3>
-                    <p><strong>Cliente:</strong> María García</p>
-                    <p><strong>Servicio:</strong> Reparación de aire acondicionado</p>
-                    <p><strong>Ubicación:</strong> Calle 170</p>
-                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
-                    <p><strong>Pago Ofrecido:</strong> $75.000</p>
-                    <p><strong>Descripción:</strong> El aire acondicionado no enfría correctamente y hace un ruido extraño al encenderlo.</p>
-                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
-                </div>
-            </section>
-
-            <section class="notificacion-solicitud">
-                <div class="notificacion posicion solicitud2">
-                    <h3>¡Nueva Solicitud de Servicio!</h3>
-                    <p><strong>Cliente:</strong> Fany Perez</p>
-                    <p><strong>Servicio:</strong> Nevera</p>
-                    <p><strong>Ubicación:</strong> Av. Central 45, Ciudad</p>
-                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
-                    <p><strong>Pago Ofrecido:</strong> $65.000 CLP</p>
-                    <p><strong>Descripción:</strong> La nevera no enfría correctamente y hace un ruido constante.</p>
-                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
-                </div>
-            </section>
-
-            <section class="notificacion-solicitud">
-                <div class="notificacion posicion solicitud3">
-                    <h3>¡Nueva Solicitud de Servicio!</h3>
-                    <p><strong>Cliente:</strong> María García</p>
-                    <p><strong>Servicio:</strong> Lavadora</p>
-                    <p><strong>Ubicación:</strong> Calle Los Álamos 102, Ciudad</p>
-                    <p><strong>Fecha de Solicitud:</strong> 9 de abril de 2025</p>
-                    <p><strong>Pago Ofrecido:</strong> $70.000 CLP</p>
-                    <p><strong>Descripción:</strong> La lavadora no hace el ciclo de centrifugado.</p>
-                    <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud">Aceptar Solicitud</a>
-                </div>
-            </section>
+            <a href="{% url 'modificar' %}" class="btn modificar btn_posicion" style="background:#2563eb; color:#fff; font-size:1em; padding:10px 24px; border-radius:8px; font-weight:600; box-shadow:0 2px 8px rgba(30,58,138,0.10); margin-top:0.5em;">Modificar Perfil</a>
         </div>
-        <div class="opciones-servicio">
-            <h2>Opciones de Servicio</h2>
-            <div class="cuadro-servicio">
-                <h3><a href="{% url 'historial_experto' %}">Historial de Servicios</a></h3>
-                <p>Ver servicios completados.</p>
-            </div>
-        </div>
-    </body>
-</html>
-
+    </div>
+</section>
+<div class="contenedor-solicitudes" style="display:flex; flex-wrap:wrap; justify-content:center; gap:24px; margin-top:32px;">
+    {% for solicitud in solicitudes %}
+    <section class="notificacion-solicitud" style="background:#2563eb; border:1px solid #e5e7eb; padding:18px 22px; border-radius:14px; color:#fff; width:320px; min-width:260px; box-shadow:0 2px 8px rgba(30,58,138,0.10);">
+        <h3 style="font-size:1.2em; font-weight:700; color:#fff; margin-bottom:0.7em;">¡Nueva Solicitud de Servicio!</h3>
+        <p><strong>Cliente:</strong> {{ solicitud.cliente }}</p>
+        <p><strong>Servicio:</strong> {{ solicitud.servicio }}</p>
+        <p><strong>Ubicación:</strong> {{ solicitud.ubicacion }}</p>
+        <p><strong>Fecha de Solicitud:</strong> {{ solicitud.fecha }}</p>
+        <p><strong>Pago Ofrecido:</strong> {{ solicitud.pago }}</p>
+        <p><strong>Descripción:</strong> {{ solicitud.descripcion }}</p>
+        <a href="{% url 'servicioAceptadoexpe' %}" class="btn aceptar-solicitud" style="background:#22c55e; color:#fff; font-weight:600; border:none; padding:10px 20px; border-radius:6px; margin-top:0.7em; box-shadow:0 2px 8px rgba(34,197,94,0.10);">Aceptar Solicitud</a>
+    </section>
+    {% endfor %}
+</div>
+<div class="opciones-servicio" style="margin:40px auto 0 auto; max-width:400px; text-align:center;">
+    <h2 style="font-size:1.3em; color:#1e3a8a; font-weight:700;">Opciones de Servicio</h2>
+    <div class="cuadro-servicio" style="background:#2563eb; color:#fff; border-radius:10px; padding:18px 0; margin-top:10px; box-shadow:0 2px 8px rgba(30,58,138,0.10);">
+        <h3 style="font-size:1.1em; margin-bottom:0.3em;"><a href="{% url 'historial_experto' %}" style="color:#fff; text-decoration:underline;">Historial de Servicios</a></h3>
+        <p style="font-size:0.98em;">Ver servicios completados.</p>
+    </div>
+</div>
 <script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock content %}

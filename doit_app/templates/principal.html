@@ -30,25 +30,6 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {% if messages %}
     <div class="mt-3">
         {% for message in messages %}
@@ -59,15 +40,19 @@
 
 {% if request.session.mensaje_reserva %}
     {% with datos=request.session.mensaje_reserva %}
-        <div class="mensaje-reserva-exitosa">
-            <p class="mensaje-titulo">✅ ¡Reserva realizada con éxito!</p>
-            <ul class="mensaje-detalles">
-                <li>📌 Servicio: {{ datos.servicio }}</li>
-                <li>🗓️ Fecha: {{ datos.fecha }}</li>
-                <li>⏰ Hora: {{ datos.hora }}</li>
-                <li>📍 Ubicación: {{ datos.direccion }}</li>
-                <li>🏙️ Ciudad: {{ datos.ciudad }}</li>
-            </ul>
+        <div class="card reserva-exitosa shadow-lg border-0 mx-auto mb-4">
+            <div class="card-body p-4">
+                <div class="reserva-info text-center" style="width:100%;">
+                    <h4 class="mb-2 fw-bold text-primary" style="text-align:center;">¡Reserva realizada con éxito!</h4>
+                    <ul class="list-unstyled mb-0">
+                        <li><span style="font-size:1.2em;">📌</span> <b>Servicio:</b> {{ datos.servicio }}</li>
+                        <li><span style="font-size:1.2em;">🗓️</span> <b>Fecha:</b> {{ datos.fecha }}</li>
+                        <li><span style="font-size:1.2em;">⏰</span> <b>Hora:</b> {{ datos.hora }}</li>
+                        <li><span style="font-size:1.2em;">📍</span> <b>Ubicación:</b> {{ datos.direccion }}</li>
+                        <li><span style="font-size:1.2em;">🏙️</span> <b>Ciudad:</b> {{ datos.ciudad }}</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     {% endwith %}
 {% endif %}
