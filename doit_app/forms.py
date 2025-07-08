@@ -12,6 +12,22 @@ from django.contrib.auth import get_user_model
 
 
 class RegistroForm(UserCreationForm):
+    acepta_terminos = forms.BooleanField(
+        required=True,
+        label="Acepto los ",
+        error_messages={
+            'required': 'Debes aceptar los términos y condiciones para continuar.'
+        },
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    acepta_tratamiento_datos = forms.BooleanField(
+        required=True,
+        label="Acepto la ",
+        error_messages={
+            'required': 'Debes aceptar la política de tratamiento de datos para continuar.'
+        },
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
     email = forms.EmailField(
         required=True,
         label="Correo Electrónico",
@@ -495,12 +511,46 @@ class CalificacionForm(forms.ModelForm):
 
 
 class DisponibilidadForm(forms.ModelForm):
+    # Generar opciones de tiempo en bloques de 30 minutos
+    HORA_CHOICES = []
+    for hour in range(24):
+        for minute in [0, 30]:
+            time_obj = time(hour, minute)
+            time_str = time_obj.strftime('%H:%M')
+            display_str = time_obj.strftime('%I:%M %p')
+            HORA_CHOICES.append((time_str, display_str))
+    
+    hora_inicio = forms.ChoiceField(
+        choices=HORA_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Hora de inicio'
+    )
+    
+    hora_fin = forms.ChoiceField(
+        choices=HORA_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Hora de fin'
+    )
+    
     class Meta:
         model = Disponibilidad
-        fields = ['fecha', 'hora_inicio', 'hora_fin', 'idEstado']  # agrega los que uses
+        fields = ['fecha', 'hora_inicio', 'hora_fin', 'idEstado']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'hora_inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'hora_fin': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'idEstado': forms.Select(attrs={'class': 'form-select'}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        hora_inicio = cleaned_data.get('hora_inicio')
+        hora_fin = cleaned_data.get('hora_fin')
+        
+        if hora_inicio and hora_fin:
+            # Convertir strings a objetos time
+            hora_inicio_obj = time.fromisoformat(hora_inicio)
+            hora_fin_obj = time.fromisoformat(hora_fin)
+            
+            if hora_inicio_obj >= hora_fin_obj:
+                raise forms.ValidationError("La hora de fin debe ser posterior a la hora de inicio.")
+        
+        return cleaned_data

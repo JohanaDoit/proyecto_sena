@@ -37,7 +37,7 @@
 
         <!-- Campos comunes -->
         {% for field in form.visible_fields %}
-            {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" and field.name != "documento_identidad_pdf" %}
+            {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" and field.name != "documento_identidad_pdf" and field.name != "acepta_terminos" and field.name != "acepta_tratamiento_datos" %}
                 <div class="form-group">
                     {{ field.label_tag }}
                     {{ field }}
@@ -116,10 +116,34 @@
             <!-- CAPTCHA fuera del bloque experto -->
             <div class="g-recaptcha mt-3" data-sitekey="{{ RECAPTCHA_SITE_KEY }}"></div>
 
+            <!-- Aceptación de términos y condiciones y tratamiento de datos (los correctos) -->
+            <div class="form-check mb-2">
+                <input type="checkbox" name="acepta_terminos" id="id_acepta_terminos" class="form-check-input" {% if form.acepta_terminos.value %}checked{% endif %}>
+                <label class="form-check-label" for="id_acepta_terminos">
+                    Acepto los <a href="{% url 'terminos_condiciones' %}" target="_blank">Términos y Condiciones</a>
+                </label>
+                {% if form.acepta_terminos.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.acepta_terminos.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-check mb-3">
+                <input type="checkbox" name="acepta_tratamiento_datos" id="id_acepta_tratamiento_datos" class="form-check-input" {% if form.acepta_tratamiento_datos.value %}checked{% endif %}>
+                <label class="form-check-label" for="id_acepta_tratamiento_datos">
+                    Acepto la <a href="{% url 'tratamiento_datos' %}" target="_blank">Política de Tratamiento de Datos</a>
+                </label>
+                {% if form.acepta_tratamiento_datos.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.acepta_tratamiento_datos.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
             <!-- Botón de registro -->
             <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
 
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+            <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <!-- Mostrar campos solo si se elige "experto" -->
 <script>
@@ -157,48 +181,48 @@
                 return;
             }
 
-            // Verifica si ya está seleccionado
-            if ([...realSelect.selectedOptions].some(opt => opt.value === selectedValue)) {
-                return;
-            }
+                        // Verifica si ya está seleccionado
+                        if ([...realSelect.selectedOptions].some(opt => opt.value === selectedValue)) {
+                            return;
+                        }
 
-            // Añadir al real select (el escondido)
-            for (let opt of realSelect.options) {
-                if (opt.value === selectedValue) {
-                    opt.selected = true;
-                    break;
-                }
-            }
+                        // Añadir al real select (el escondido)
+                        for (let opt of realSelect.options) {
+                            if (opt.value === selectedValue) {
+                                opt.selected = true;
+                                break;
+                            }
+                        }
 
-            // Mostrar visualmente
-            const badge = document.createElement('div');
-            badge.className = 'badge badge-pill badge-info d-inline-block mr-2 mb-2 p-2';
-            badge.textContent = selectedText;
-            badge.dataset.value = selectedValue;
+                        // Mostrar visualmente
+                        const badge = document.createElement('div');
+                        badge.className = 'badge badge-pill badge-info d-inline-block mr-2 mb-2 p-2';
+                        badge.textContent = selectedText;
+                        badge.dataset.value = selectedValue;
 
-            const removeBtn = document.createElement('span');
-            removeBtn.textContent = ' ×';
-            removeBtn.style.cursor = 'pointer';
-            removeBtn.style.marginLeft = '8px';
-            removeBtn.style.color = '#dc3545';
+                        const removeBtn = document.createElement('span');
+                        removeBtn.textContent = ' ×';
+                        removeBtn.style.cursor = 'pointer';
+                        removeBtn.style.marginLeft = '8px';
+                        removeBtn.style.color = '#dc3545';
 
-            removeBtn.addEventListener('click', () => {
-                // Quitar del DOM
-                badge.remove();
-                // Quitar del select real
-                for (let opt of realSelect.options) {
-                    if (opt.value === selectedValue) {
-                        opt.selected = false;
-                        break;
-                    }
-                }
-            });
+                        removeBtn.addEventListener('click', () => {
+                            // Quitar del DOM
+                            badge.remove();
+                            // Quitar del select real
+                            for (let opt of realSelect.options) {
+                                if (opt.value === selectedValue) {
+                                    opt.selected = false;
+                                    break;
+                                }
+                            }
+                        });
 
-            badge.appendChild(removeBtn);
-            displayContainer.appendChild(badge);
-        });
-    });
-</script>
+                        badge.appendChild(removeBtn);
+                        displayContainer.appendChild(badge);
+                    });
+                });
+            </script>
 
 
 {% endblock %}

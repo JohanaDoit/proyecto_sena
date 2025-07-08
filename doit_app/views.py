@@ -304,8 +304,6 @@ def dashboard_experto(request):
     promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
     estrellas = int(round(promedio_calificacion or 0))
 
-    notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
-
     disponibilidades = Disponibilidad.objects.filter(
         experto=request.user
     ).order_by('-fecha', 'hora_inicio')
@@ -324,7 +322,6 @@ def dashboard_experto(request):
         'puede_calificar_experto': puede_calificar_experto,
         'promedio_calificacion': promedio_calificacion,
         'estrellas': estrellas,
-        'notificaciones_no_leidas': notificaciones_no_leidas,
         'form_disponibilidad': form_disponibilidad,
         'disponibilidades': disponibilidades,
         'dispo_dict': dispo_dict,
@@ -712,10 +709,7 @@ def mis_reservas_cliente(request):
         calif = Calificaciones.objects.filter(reserva=reserva, calificado_por=request.user, tipo='cliente_a_experto').first()
         reserva.calificacion_cliente = calif
 
-    # Notificaciones no leídas para el usuario actual
-    notificaciones_no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
-
-    return render(request, 'cliente/mis_reservas.html', {'reservas': reservas, 'notificaciones_no_leidas': notificaciones_no_leidas})
+    return render(request, 'cliente/mis_reservas.html', {'reservas': reservas})
 
 
 
@@ -1296,6 +1290,19 @@ def expertos_por_especialidad(request):
         for e in expertos
     ]
     return JsonResponse({'expertos': data})
+
+@login_required
+@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+def experto_perfil(request):
+    """Vista para el perfil del experto"""
+    # Promedio de calificaciones del experto
+    promedio_calificacion = obtener_promedio_calificaciones_experto(request.user)
+    
+    context = {
+        'promedio_calificacion': promedio_calificacion,
+    }
+    
+    return render(request, 'experto.html', context)
 
 
 
