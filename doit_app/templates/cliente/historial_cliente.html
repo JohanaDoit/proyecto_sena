@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Mi Historial de Servicios</h1>
 <table class="table table-striped">
@@ -20,8 +25,7 @@
             <td>{{ item.reserva.Fecha|date:"d/m/Y" }}</td>
             <td>
                 {% if item.calif_experto and item.calif_experto.calificado_a == user %}
-                    {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}<span class="star" style="color:#FFD700;font-size:1.2em;">★</span>{% endfor %}
-                    {% for i in "12345"|slice:"item.calif_experto.puntuacion:" %}<span class="star" style="color:#FFD700;font-size:1.2em;opacity:0.3;">★</span>{% endfor %}
+                    <div class="star-display rating-display" data-rating="{{ item.calif_experto.puntuacion }}" data-show-number="true"></div>
                 {% else %}
                     Sin calificar
                 {% endif %}
@@ -37,4 +41,6 @@
         {% endfor %}
     </tbody>
 </table>
+
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}

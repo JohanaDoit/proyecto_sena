@@ -1,5 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/experto.css' %}">
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="banner-bienvenida">
     <div class="contenido-banner">
@@ -28,7 +34,7 @@
                         <p>{{ user.especialidad }}</p>
                         <p>Calificación promedio: 
                             {% if promedio_calificacion %}
-                                {{ promedio_calificacion|floatformat:1 }} / 5
+                                <div class="star-display rating-display" data-rating="{{ promedio_calificacion }}" data-show-number="true"></div>
                             {% else %}
                                 Sin calificaciones
                             {% endif %}
@@ -87,4 +93,6 @@
         </div>
     </body>
 </html>
+
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock content %}

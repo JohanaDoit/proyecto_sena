@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard_experto.css' %}">
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -66,15 +67,7 @@
 
     <div style="margin-bottom: 20px;">
         <span style="font-weight:bold;">Calificación promedio:</span>
-        <span>
-            {% for i in "12345"|slice:":estrellas" %}
-                <span style="color: gold; font-size: 1.3em;">&#9733;</span>
-            {% endfor %}
-            {% for i in "12345"|slice:estrellas|stringformat:"d" %}
-                <span style="color: #ccc; font-size: 1.3em;">&#9733;</span>
-            {% endfor %}
-            <span style="margin-left: 6px; font-weight: bold; color: #333;">{{ promedio_calificacion|floatformat:1 }}/5</span>
-        </span>
+        <div class="star-display rating-display" data-rating="{{ promedio_calificacion|default:0 }}" data-show-number="true"></div>
     </div>
 
 
@@ -335,20 +328,14 @@
                                                     {% endif %}
                                                 </p>
                                                 {% if reserva.calificacion_experto %}
-                                                    <span style="font-size:1.2em; color:#FFD700;">
+                                                    <div style="margin-top: 8px;">
                                                         {% if reserva.calificacion_experto.puntuacion %}
-                                                            {% for i in "12345"|slice:":reserva.calificacion_experto.puntuacion" %}
-                                                                <i class="fa fa-star"></i>
-                                                            {% endfor %}
-                                                            {% for i in "12345"|slice:"reserva.calificacion_experto.puntuacion:" %}
-                                                                <i class="fa fa-star-o"></i>
-                                                            {% endfor %}
-                                                            <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_experto.puntuacion }} / 5)</span><br>
+                                                            <div class="star-display rating-display" data-rating="{{ reserva.calificacion_experto.puntuacion }}" data-show-number="true"></div>
                                                         {% endif %}
                                                         {% if reserva.calificacion_experto.comentario %}
                                                             <span style="color:#555;"><b>Comentario al cliente:</b> {{ reserva.calificacion_experto.comentario }}</span>
                                                         {% endif %}
-                                                    </span>
+                                                    </div>
                                                 {% endif %}
                                             </div>
                                         {% endif %}
@@ -542,5 +529,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}

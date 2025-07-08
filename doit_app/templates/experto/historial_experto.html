@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Historial de Servicios Finalizados</h1>
 <div class="reservas-lista">
@@ -15,15 +20,11 @@
       </div>
       <div class="reserva-calificacion">
         <span><strong>Calificación recibida:</strong></span>
-        <span class="estrellas">
-          {% if item.calif_cliente %}
-            {% for i in "12345"|slice:":item.calif_cliente.puntuacion" %}★{% endfor %}
-            {% for i in "12345"|slice:item.calif_cliente.puntuacion|stringformat:"d" %}☆{% endfor %}
-            <span style="color:#555; font-size:0.95em;">({{ item.calif_cliente.puntuacion }} / 5)</span>
-          {% else %}
-            Sin calificar
-          {% endif %}
-        </span>
+        {% if item.calif_cliente %}
+          <div class="star-display rating-display" data-rating="{{ item.calif_cliente.puntuacion }}" data-show-number="true"></div>
+        {% else %}
+          <span>Sin calificar</span>
+        {% endif %}
       </div>
       <div class="reserva-comentario">
         <strong>Comentario del cliente:</strong>
@@ -35,15 +36,11 @@
       </div>
       <div class="reserva-calificacion">
         <span><strong>Calificación que diste al cliente:</strong></span>
-        <span class="estrellas">
-          {% if item.calif_experto %}
-            {% for i in "12345"|slice:":item.calif_experto.puntuacion" %}★{% endfor %}
-            {% for i in "12345"|slice:item.calif_experto.puntuacion|stringformat:"d" %}☆{% endfor %}
-            <span style="color:#555; font-size:0.95em;">({{ item.calif_experto.puntuacion }} / 5)</span>
-          {% else %}
-            Sin calificar
-          {% endif %}
-        </span>
+        {% if item.calif_experto %}
+          <div class="star-display rating-display" data-rating="{{ item.calif_experto.puntuacion }}" data-show-number="true"></div>
+        {% else %}
+          <span>Sin calificar</span>
+        {% endif %}
       </div>
       <div class="reserva-comentario">
         <strong>Comentario al cliente:</strong>
@@ -58,4 +55,6 @@
     <p>No tienes servicios finalizados.</p>
   {% endfor %}
 </div>
+
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}

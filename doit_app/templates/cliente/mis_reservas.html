@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Mis Reservas</h1>
 <div class="reservas-lista">
@@ -21,17 +26,7 @@
             <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
           {% else %}
             <span>Calificado</span>
-            <span class="estrellas">
-              {% if reserva.calificacion_cliente.puntuacion %}
-                {% for i in "12345"|slice:":reserva.calificacion_cliente.puntuacion" %}
-                  ★
-                {% endfor %}
-                {% for i in "12345"|slice:"reserva.calificacion_cliente.puntuacion:" %}
-                  ☆
-                {% endfor %}
-                <span style="color:#555; font-size:0.95em;">({{ reserva.calificacion_cliente.puntuacion }} / 5)</span>
-              {% endif %}
-            </span>
+            <div class="star-display rating-display" data-rating="{{ reserva.calificacion_cliente.puntuacion }}" data-show-number="true"></div>
           {% endif %}
         {% else %}
           <span>---</span>
@@ -45,4 +40,6 @@
     </div>
   {% endfor %}
 </div>
+
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}
