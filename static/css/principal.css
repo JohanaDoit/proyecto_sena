@@ -215,6 +215,117 @@ button:hover:not(:disabled) {
     text-align: center;
 }
 
+/* --- Tarjeta de reserva exitosa (bloque profesional y moderno) --- */
+.card.reserva-exitosa {
+    background: #0a83df;
+    border-left: 8px solid #dc610a;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(13, 110, 253, 0.08);
+    max-width: 440px;
+    min-width: 240px;
+    margin: 24px auto 18px auto;
+    padding: 0;
+    display: block;
+}
+.card.reserva-exitosa .card-body {
+    padding: 0.2rem 1.2rem 1.1rem 1.2rem;
+    display: block;
+}
+.reserva-info {
+    width: 70%;
+}
+.card.reserva-exitosa h4 {
+    color: #0d6efd;
+    font-weight: 700;
+    margin-bottom: 0;
+    font-size: 1.08rem;
+}
+.card.reserva-exitosa ul {
+    font-size: 0.97rem;
+    color: #333;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.card.reserva-exitosa li {
+    margin-bottom: 0;
+}
+@media (max-width: 400px) {
+    .card.reserva-exitosa {
+        max-width: 70vw;
+        min-width: unset;
+    }
+    .card.reserva-exitosa .card-body {
+        padding: 0.7rem 0.4rem;
+    }
+}
+
+/* --- Sección de Reserva (la que quieres centrar) --- */
+.seccion-servicios {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--fondo);
+    padding: 30px 20px; /* Reducido de 60px */
+    /* min-height: 100vh; */ /* <-- COMENTAR O ELIMINAR ESTO SI NO QUIERES QUE LA SECCIÓN SIEMPRE OCUPE TODA LA PANTALLA */
+    /* Si lo eliminas, solo ocupará el espacio de su contenido + padding */
+    box-sizing: border-box;
+}
+
+/* Estilos de la tarjeta de reserva */
+.tarjeta-servicio {
+    background-color: var(--blanco);
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 25px 20px; /* Ligeramente reducido */
+    width: 100%;
+    max-width: 380px; /* Ligeramente reducido para una apariencia más compacta */
+    text-align: center;
+}
+
+/* --- Tarjeta de reserva exitosa (bloque profesional y moderno) --- */
+.card.reserva-exitosa {
+    background: #f4f8fb;
+    border-left: 8px solid #0d6efd;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(13, 110, 253, 0.08);
+    max-width: 440px;
+    min-width: 240px;
+    margin: 24px auto 18px auto;
+    padding: 0;
+    display: block;
+}
+.card.reserva-exitosa .card-body {
+    padding: 0.2rem 1.2rem 1.1rem 1.2rem;
+    display: block;
+}
+.reserva-info {
+    width: 100%;
+}
+.card.reserva-exitosa h4 {
+    color: #0d6efd;
+    font-weight: 700;
+    margin-bottom: 0;
+    font-size: 1.08rem;
+}
+.card.reserva-exitosa ul {
+    font-size: 0.97rem;
+    color: #333;
+    margin-bottom: 0;
+    margin-top: 0;
+}
+.card.reserva-exitosa li {
+    margin-bottom: 0;
+}
+@media (max-width: 600px) {
+    .card.reserva-exitosa {
+        max-width: 98vw;
+        min-width: unset;
+    }
+    .card.reserva-exitosa .card-body {
+        padding: 0.7rem 0.4rem;
+    }
+}
+
 /* Estilos específicos para la sección de reserva */
 .seccion-servicios .tarjeta-servicio h3 {
     color: #003c47;
@@ -410,7 +521,7 @@ button:hover:not(:disabled) {
 
 .estado.finalizado {
     color: var(--blanco);
-    background-color: #28a745;
+    background-color: #7798c4;
 }
 
 .estado.pendiente {
@@ -695,7 +806,7 @@ button:hover:not(:disabled) {
 .alert.alert-info .btn-primary {
     background-color: var(--fondo);
     border-color: var(--azul);
-    color: var(--azul);
+    color: var,--azul;
     border-radius: 10px;
     font-weight: bold;
 }

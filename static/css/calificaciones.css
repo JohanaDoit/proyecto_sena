@@ -8,11 +8,11 @@
 
 .star {
     font-size: 1.2em;
-    color: #ddd;
+    color: #bdbdbd; /* gris más notorio */
     transition: color 0.2s ease;
 }
 
-.star.filled {
+.star.filled, .star.half-filled {
     color: #ffc107;
 }
 
