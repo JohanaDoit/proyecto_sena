@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <h2>Calificar {{ calificado_a.get_full_name|default:calificado_a.username }}</h2>
@@ -6,17 +12,35 @@
     <div class="alert alert-info" role="alert" style="font-size:1.1em;">
         ¡Por favor califica el servicio recibido! Tu opinión ayuda a mejorar la calidad de los expertos en la plataforma.
     </div>
-    <form method="post">
+    <form method="post" class="rating-form">
         {% csrf_token %}
         <div class="mb-3">
-            {{ form.puntuacion.label_tag }}<br>
-            {{ form.puntuacion }}
+            <label class="form-label">{{ form.puntuacion.label }}</label>
+            <div class="rating-input" data-container-id="rating">
+                <input type="radio" id="star1" name="puntuacion" value="1">
+                <label for="star1">★</label>
+                
+                <input type="radio" id="star2" name="puntuacion" value="2">
+                <label for="star2">★</label>
+                
+                <input type="radio" id="star3" name="puntuacion" value="3">
+                <label for="star3">★</label>
+                
+                <input type="radio" id="star4" name="puntuacion" value="4">
+                <label for="star4">★</label>
+                
+                <input type="radio" id="star5" name="puntuacion" value="5">
+                <label for="star5">★</label>
+            </div>
+            <small class="form-text text-muted">Haz clic en las estrellas para calificar (1 = Muy malo, 5 = Excelente)</small>
         </div>
         <div class="mb-3">
-            {{ form.comentario.label_tag }}<br>
+            {{ form.comentario.label_tag }}
             {{ form.comentario }}
         </div>
         <button type="submit" class="btn btn-primary">Enviar calificación</button>
     </form>
 </div>
+
+<script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}

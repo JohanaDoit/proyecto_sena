@@ -1,0 +1,158 @@
+/* Estilos para el sistema de calificaciones con estrellas */
+
+.rating-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.star {
+    font-size: 1.2em;
+    color: #ddd;
+    transition: color 0.2s ease;
+}
+
+.star.filled {
+    color: #ffc107;
+}
+
+.star.half-filled {
+    color: #ffc107;
+    background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Para el formulario de calificación */
+.rating-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.rating-input {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 5px;
+    margin: 10px 0;
+    align-items: center;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.rating-input label {
+    font-size: 2em;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+}
+
+.rating-input label:hover {
+    color: #ffc107;
+    transform: scale(1.1);
+}
+
+.rating-input input[type="radio"]:checked + label {
+    color: #ffc107;
+}
+
+/* Animación sutil para las estrellas cuando se seleccionan */
+@keyframes starPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.rating-input input[type="radio"]:checked + label {
+    animation: starPulse 0.4s ease-in-out;
+}
+
+.rating-input label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 193, 7, 0.2);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.2s ease;
+    z-index: -1;
+}
+
+.rating-input label:hover::before {
+    transform: scale(1.3);
+}
+
+.rating-input input[type="radio"]:checked + label::before {
+    transform: scale(1.1);
+    background: rgba(255, 193, 7, 0.3);
+}
+
+/* Indicador visual cuando se selecciona una calificación */
+.rating-input.selected {
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 5px;
+    background: rgba(255, 193, 7, 0.05);
+}
+
+/* Texto de ayuda más visible */
+.form-text.text-muted {
+    color: #666 !important;
+    font-size: 0.9em;
+    margin-top: 8px;
+}
+
+/* Estilo para cuando se pasa el mouse sobre todo el contenedor */
+.rating-input:hover {
+    background: rgba(255, 193, 7, 0.03);
+    border-radius: 8px;
+    padding: 5px;
+    transition: all 0.2s ease;
+}
+
+/* Mejorar la visualización de la calificación en el sidebar */
+.calificacion-experto .star-display {
+    margin-top: 4px;
+}
+
+.calificacion-experto .star {
+    font-size: 1.1em;
+}
+
+/* Estilo para las calificaciones en cards de reservas */
+.reserva-calificacion .star-display {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+}
+
+.reserva-calificacion .rating-text {
+    margin-left: 6px;
+    font-size: 0.85em;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .rating-input label {
+        font-size: 1.5em;
+    }
+    
+    .star {
+        font-size: 1em;
+    }
+}

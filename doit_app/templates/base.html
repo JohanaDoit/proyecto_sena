@@ -8,6 +8,7 @@
 
     {# CSS general para todo el sitio #}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
     
     {# Enlace a Font Awesome para iconos #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -35,17 +36,9 @@
                     <img src="{% static 'images/default_profile.jpg' %}" alt="Foto de perfil por defecto" class="perfil-foto">
                 {% endif %}
                 {% if user.tipo_usuario == 'experto' %}
-                    {% with estrellas=estrellas|default:0 promedio=promedio_calificacion %}
-                        <div class="calificacion-experto" style="margin-top: 8px;">
-                            {% for i in "12345"|slice:":estrellas" %}
-                                <span style="color: gold; font-size: 1.2em;">&#9733;</span>
-                            {% endfor %}
-                            {% for i in "12345"|slice:estrellas %}
-                                <span style="color: #ccc; font-size: 1.2em;">&#9733;</span>
-                            {% endfor %}
-                            <span style="margin-left: 6px; font-weight: bold; color: #333;">{{ promedio|floatformat:1 }}/5</span>
-                        </div>
-                    {% endwith %}
+                    <div class="calificacion-experto" style="margin-top: 8px;">
+                        <div class="star-display rating-display" data-rating="{{ promedio_calificacion|default:0 }}" data-show-number="true"></div>
+                    </div>
                 {% endif %}
                 <p class="perfil-nombre">
                     {# Lógica mejorada para mostrar el nombre del usuario logueado #}
@@ -177,6 +170,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/calificaciones.js' %}"></script>
     
     {# Bloque para JS adicionales de las plantillas hijas #}
     {% block extra_js %}
