@@ -43,6 +43,7 @@ urlpatterns = [
 
     # --- Vistas de Experto ---
     # 'experto' ahora es el dashboard del experto, renombrado para mayor claridad
+    path('experto/', views.experto_perfil, name='experto_perfil'),  # Nueva vista para el perfil del experto
     path('experto/dashboard/', views.dashboard_experto, name='dashboard_experto'), 
     path('experto/historial/', views.historial_experto, name='historial_experto'), # Renombrado para claridad
     path('experto/reserva/<int:reserva_id>/aceptar/', views.aceptar_reserva_experto, name='aceptar_reserva_experto'), # Nueva
