@@ -9,7 +9,7 @@
 }
 
 body {
-    background-color: #f5f1dd;
+    background-color: #f0f2f5;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -783,4 +783,45 @@ h1, h3 {
     font-weight: 500;
     text-align: center;
     color: #0d0e0e; /* Azul */
+}
+
+/* Disminuye ligeramente el espaciado del encabezado del bloque */
+.card-header[data-toggle="collapse"] h6 {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+#modoDisponible {
+    background: linear-gradient(135deg, #a4d8cc, #7cc6ba) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold !important;
+    border-radius: 7px !important;
+    min-width: 120px !important;
+    padding: 8px 14px !important;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+#modoDisponible:hover {
+    background: linear-gradient(135deg, #62b7a8, #5aa99c) !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3) !important;
+}
+
+#modoNoDisponible {
+    background: linear-gradient(135deg, #f5bcbc, #ff8a8a) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold !important;
+    border-radius: 7px !important;
+    min-width: 120px !important;
+    padding: 8px 14px !important;
+    box-shadow: 0 2px 6px rgba(255, 0, 0, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+#modoNoDisponible:hover {
+    background: linear-gradient(135deg, #f17777, #e25f5f) !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3) !important;
 }

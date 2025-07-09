@@ -54,11 +54,11 @@
     {% endif %}
 
     <div class="especialidad-calificacion-box d-flex align-items-center mb-2" style="gap: 2.2em;">
-        <div class="especialidad-box" style="font-size:1.08em; font-weight:600; color:#2563eb; background:linear-gradient(90deg,#e0eaff 60%,#f5faff 100%); border-radius:8px; padding:0.4em 1.2em 0.4em 0.9em; box-shadow:0 1px 6px rgba(30,58,138,0.06); display:inline-block;">
+        <div class="especialidad-box" style="font-size:1.08em; font-weight:600; color:#2563eb; background:#f0f2f5; border-radius:8px; padding:0.4em 1.2em 0.4em 0.9em; box-shadow:0 1px 6px #f0f2f5; display:inline-block;">
             <span style="font-weight:700; color:#1a237e;">Tu especialidad:</span>
             {% if request.user.especialidad.all %}
                 {% for esp in request.user.especialidad.all %}
-                    <span class="badge bg-primary me-1" style="background:#2563eb; color:#fff; font-size:1em; padding:0.25em 0.9em; border-radius:12px; margin-right:0.4em;">{{ esp.NombreServicio }}</span>
+                    <span class="badge bg-primary me-1" style="background:#7fa8cf; color:#fff; font-size:1em; padding:0.25em 0.9em; border-radius:12px; margin-right:0.4em;">{{ esp.NombreServicio }}</span>
                 {% empty %}
                     <span class="text-muted">No especificada</span>
                 {% endfor %}
@@ -66,7 +66,7 @@
                 <span class="text-muted">No especificada</span>
             {% endif %}
         </div>
-        <div class="calificacion-box d-flex align-items-center" style="font-size:1.08em; font-weight:600; color:#222; background:linear-gradient(90deg,#fffbe7 60%,#f5faff 100%); border-radius:8px; padding:0.4em 1.2em 0.4em 0.9em; box-shadow:0 1px 6px rgba(255,193,7,0.08);">
+        <div class="calificacion-box d-flex align-items-center" style="font-size:1.08em; font-weight:600; color:#222; background:#f0f2f5; border-radius:8px; padding:0.4em 1.2em 0.4em 0.9em; box-shadow:0 1px 6px #f0f2f5);">
             <span style="font-weight:700; color:#e6b800;">Calificación promedio:</span>
             <div class="star-display rating-display ms-2 me-1" data-rating="{{ promedio_calificacion|default:0 }}" data-show-number="true"></div>
             <span style="font-size:0.98em; color:#888;">({{ promedio_calificacion|default:'0.0' }}/5)</span>
