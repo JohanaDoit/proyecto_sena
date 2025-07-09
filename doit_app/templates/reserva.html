@@ -45,6 +45,9 @@
                 <p class="form-control-static">{{ servicio_seleccionado.NombreServicio }}</p>
                 <input type="hidden" name="{{ form.idServicios.name }}" value="{{ servicio_seleccionado.id }}">
             {% else %}
+                {% if experto_seleccionado %}
+                    </small>
+                {% endif %}
                 {% render_field form.idServicios class="form-control" %}
             {% endif %}
             {% for error in form.idServicios.errors %}
@@ -63,7 +66,14 @@
 
             <div>
             <strong class="d-block fs-5">{{ experto_seleccionado.get_full_name }}</strong>
-            <span class="text-muted">{{ experto_seleccionado.especialidad.NombreServicio }}</span>
+            <span class="text-muted">
+                Especialidades: 
+                {% for esp in experto_seleccionado.especialidad.all %}
+                    {{ esp.NombreServicio }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Sin especialidades registradas
+                {% endfor %}
+            </span>
             </div>
         </div>
         {% endif %}
@@ -74,8 +84,26 @@
 
         <div class="form-group">
             <label for="{{ form.Fecha.id_for_label }}">Fecha del Servicio:</label>
+            {% if not experto_seleccionado %}
+                <small class="form-text text-info mb-2">
+                    <i class="fas fa-info-circle"></i> 
+                    Los días marcados como no disponibles incluyen:
+                    <br>• Fechas con servicios en curso (hasta que el experto los finalice)
+                    <br>• Días marcados manualmente como no disponibles por los expertos
+                    {% if cantidad_dias_ocupados > 0 %}
+                        <br><i class="fas fa-calendar-times"></i> 
+                        Actualmente hay {{ cantidad_dias_ocupados }} día{{ cantidad_dias_ocupados|pluralize }} ocupado{{ cantidad_dias_ocupados|pluralize }} para este servicio
+                    {% endif %}
+                </small>
+            {% endif %}
             <input type="text" id="calendario-reserva-experto" name="{{ form.Fecha.name }}" class="form-control" value="{{ form.Fecha.value|default:'' }}" readonly />
-            <div id="mensaje-dia-no-disponible" class="alert alert-warning" style="display:none; margin-top:10px;">Ese día no está disponible, por favor selecciona otro día.</div>
+            <div id="mensaje-dia-no-disponible" class="alert alert-warning" style="display:none; margin-top:10px;">
+                {% if experto_seleccionado %}
+                    Ese día no está disponible para {{ experto_seleccionado.get_full_name }} (puede tener un servicio en curso o estar marcado como no disponible), por favor selecciona otro día.
+                {% else %}
+                    Ese día no hay expertos disponibles para este servicio (pueden tener servicios en curso o estar marcados como no disponibles), por favor selecciona otro día.
+                {% endif %}
+            </div>
             <!-- Usar flatpickr desde CDN para evitar errores de carga local -->
             <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
             <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>

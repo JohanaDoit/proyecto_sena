@@ -28,7 +28,7 @@ from .models import Notificacion
 from django.db import models
 from .models import Disponibilidad  
 from .forms import DisponibilidadForm 
-from django.db.models import Value, OuterRef, Exists, CharField
+from django.db.models import Value, OuterRef, Exists, CharField, Case, When, BooleanField
 from django.db.models.functions import Concat
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseRedirect
@@ -222,6 +222,15 @@ def dashboard_experto(request):
                         estado_finalizado = Estado.objects.get(Nombre='Finalizado')
                         reserva.idEstado = estado_finalizado
                         reserva.save()
+
+                        # 🔥 NUEVO: Liberar disponibilidad automática cuando se finaliza el servicio
+                        # Eliminar cualquier marca de "No disponible" automática para ese día
+                        estado_no_disp = Estado.objects.get(Nombre='No disponible')
+                        Disponibilidad.objects.filter(
+                            experto=request.user,
+                            fecha=reserva.Fecha,
+                            idEstado=estado_no_disp
+                        ).delete()
 
                         # Activar mensaje y redirección a calificación en el mismo template
                         mostrar_mensaje_finalizado = True
@@ -446,12 +455,12 @@ def reserva(request):
     servicio = get_object_or_404(Servicios, id=servicio_id)
     request.session['servicio_id'] = servicio_id
 
-    from doit_app.models import Disponibilidad, CustomUser  # ✅ Import necesario
+    from doit_app.models import CustomUser  # ✅ Import necesario
 
     experto_seleccionado = None  # ✅ nuevo
 
     if request.method == 'POST':
-        form = ReservaForm(request.POST)
+        form = ReservaForm(request.POST, experto_id=experto_id)
 
         pais_id = request.POST.get('pais')
         if pais_id:
@@ -470,24 +479,48 @@ def reserva(request):
                 experto = CustomUser.objects.filter(pk=experto_id).first()
                 if experto:
                     experto_seleccionado = experto  # ✅ mostrar en template
-                    no_disponible = Disponibilidad.objects.filter(
+                    
+                    # Validar que el servicio seleccionado esté en las especialidades del experto
+                    if not experto.especialidad.filter(id=servicio.id).exists():
+                        messages.error(request, f"❌ El servicio '{servicio.NombreServicio}' no está disponible para el experto {experto.get_full_name()}.")
+                        return redirect('reserva')
+                    
+                    # Verificar disponibilidad del experto específico
+                    no_disponible_manual = Disponibilidad.objects.filter(
                         experto=experto,
                         fecha=fecha_seleccionada,
                         idEstado__Nombre__iexact='No disponible'
                     ).exists()
+                    
+                    # Verificar si tiene una reserva aceptada no finalizada ese día
+                    reserva_activa = Reserva.objects.filter(
+                        experto_asignado=experto,
+                        Fecha=fecha_seleccionada,
+                        idEstado__Nombre='Aceptada',
+                        servicio_finalizado=False
+                    ).exists()
 
-                    if no_disponible:
-                        messages.error(request, f"❌ El experto {experto.get_full_name()} no está disponible en la fecha seleccionada.")
+                    if no_disponible_manual or reserva_activa:
+                        motivo = "no está disponible" if no_disponible_manual else "ya tiene un servicio en curso"
+                        messages.error(request, f"❌ El experto {experto.get_full_name()} {motivo} en la fecha seleccionada.")
                         return redirect('reserva')
 
                     reserva.experto_solicitado = experto
             else:
+                # Buscar expertos disponibles para la fecha seleccionada
                 expertos_disponibles = CustomUser.objects.filter(
                     tipo_usuario='experto',
-                    especialidad=servicio
+                    especialidad=servicio,
+                    is_active=True
                 ).exclude(
+                    # Excluir expertos con disponibilidad marcada como "No disponible"
                     disponibilidad__fecha=fecha_seleccionada,
                     disponibilidad__idEstado__Nombre__iexact='No disponible'
+                ).exclude(
+                    # Excluir expertos con reservas aceptadas no finalizadas ese día
+                    reservas_aceptadas__Fecha=fecha_seleccionada,
+                    reservas_aceptadas__idEstado__Nombre='Aceptada',
+                    reservas_aceptadas__servicio_finalizado=False
                 ).distinct()
 
                 if not expertos_disponibles.exists():
@@ -503,17 +536,7 @@ def reserva(request):
 
             reserva.save()
 
-            if experto_id and experto:
-                estado_no_disp = Estado.objects.get(Nombre='No disponible')
-                if not Disponibilidad.objects.filter(experto=experto, fecha=reserva.Fecha, idEstado=estado_no_disp).exists():
-                    Disponibilidad.objects.create(
-                        experto=experto,
-                        fecha=reserva.Fecha,
-                        hora_inicio=reserva.Hora,
-                        hora_fin=reserva.Hora,
-                        idEstado=estado_no_disp
-                    )
-
+            # Las notificaciones se envían a todos los expertos con esa especialidad
             expertos = CustomUser.objects.filter(tipo_usuario='experto', especialidad=servicio)
             for experto in expertos:
                 Notificacion.objects.create(
@@ -539,19 +562,64 @@ def reserva(request):
             initial_data['experto_solicitado'] = experto_id
             experto_seleccionado = CustomUser.objects.filter(pk=experto_id).first()  # ✅ mostrar en template
 
-        form = ReservaForm(initial=initial_data)
+        form = ReservaForm(initial=initial_data, experto_id=experto_id)
 
+    # Obtener todos los días no disponibles de todos los expertos
     dias_no_disponibles = []
+    
     if experto_id:
+        # Si se seleccionó un experto específico, sus días no disponibles
         experto = CustomUser.objects.filter(pk=experto_id).first()
         if experto:
-            dias_no = list(
+            # 1. Días marcados manualmente como "No disponible" en Disponibilidad
+            dias_disponibilidad = list(
                 Disponibilidad.objects.filter(
                     experto=experto,
                     idEstado__Nombre__iexact='No disponible'
                 ).values_list('fecha', flat=True)
             )
-            dias_no_disponibles = [d.strftime('%Y-%m-%d') for d in dias_no]
+            
+            # 2. Días con reservas aceptadas pero no finalizadas
+            dias_reservas_activas = list(
+                Reserva.objects.filter(
+                    experto_asignado=experto,
+                    idEstado__Nombre='Aceptada',
+                    servicio_finalizado=False
+                ).values_list('Fecha', flat=True)
+            )
+            
+            # Combinar ambos conjuntos y eliminar duplicados
+            todas_fechas_no_disponibles = dias_disponibilidad + dias_reservas_activas
+            dias_no_disponibles = list(set([d.strftime('%Y-%m-%d') for d in todas_fechas_no_disponibles]))
+    else:
+        # Si no hay experto específico, mostrar días ocupados de todos los expertos
+        # que tengan la especialidad del servicio seleccionado
+        expertos_con_especialidad = CustomUser.objects.filter(
+            tipo_usuario='experto',
+            especialidad=servicio,
+            is_active=True
+        )
+        
+        # 1. Días marcados manualmente como "No disponible" en Disponibilidad
+        dias_disponibilidad = list(
+            Disponibilidad.objects.filter(
+                experto__in=expertos_con_especialidad,
+                idEstado__Nombre__iexact='No disponible'
+            ).values_list('fecha', flat=True)
+        )
+        
+        # 2. Días con reservas aceptadas pero no finalizadas de expertos con esa especialidad
+        dias_reservas_activas = list(
+            Reserva.objects.filter(
+                experto_asignado__in=expertos_con_especialidad,
+                idEstado__Nombre='Aceptada',
+                servicio_finalizado=False
+            ).values_list('Fecha', flat=True)
+        )
+        
+        # Combinar ambos conjuntos y eliminar duplicados
+        todas_fechas_no_disponibles = dias_disponibilidad + dias_reservas_activas
+        dias_no_disponibles = list(set([d.strftime('%Y-%m-%d') for d in todas_fechas_no_disponibles]))
 
     return render(request, 'reserva.html', {
         'form': form,
@@ -559,6 +627,7 @@ def reserva(request):
         'experto_id': experto_id,
         'dias_no_disponibles': dias_no_disponibles,
         'experto_seleccionado': experto_seleccionado,  # ✅ NUEVO: pasa al template
+        'cantidad_dias_ocupados': len(dias_no_disponibles),  # ✅ NUEVO: información adicional
     })
 
 
@@ -588,7 +657,6 @@ def cancelar_reserva(request, reserva_id):
 
         # Si la reserva tenía un experto asignado, liberar el día en Disponibilidad
         if reserva.experto_asignado:
-            from doit_app.models import Disponibilidad, Estado
             estado_no_disp = Estado.objects.get(Nombre='No disponible')
             # Eliminar la marca de no disponible para ese día y experto
             Disponibilidad.objects.filter(
@@ -608,27 +676,6 @@ def is_experto(user):
 
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
-def aceptar_reserva_experto(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
-
-    if reserva.idEstado.Nombre == "Aceptada" and reserva.experto_asignado:
-        messages.warning(request, "Esta reserva ya fue aceptada por otro experto.")
-        return redirect('dashboard_experto')
-
-    try:
-        estado_aceptada = Estado.objects.get(Nombre="Aceptada")
-    except Estado.DoesNotExist:
-        messages.error(request, "Error interno: el estado 'Aceptada' no está registrado.")
-        return redirect('dashboard_experto')
-
-    reserva.idEstado = estado_aceptada
-    reserva.experto_asignado = request.user
-    reserva.save()
-
-    messages.success(request, "Has aceptado la reserva exitosamente.")
-    return redirect('dashboard_experto')
-
-
 @login_required
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
@@ -653,6 +700,17 @@ def cancelar_reserva(request, reserva_id):
 
         # Cambiar estado a cancelado (ID 6, o el que uses)
         estado_cancelado = Estado.objects.get(Nombre='Cancelada')  # o Estado.objects.get(id=6)
+        
+        # Si la reserva estaba aceptada y tenía un experto asignado, liberar su disponibilidad
+        if reserva.experto_asignado and reserva.idEstado.Nombre == 'Aceptada':
+            estado_no_disp = Estado.objects.get(Nombre='No disponible')
+            # Eliminar la marca de no disponible para ese día y experto
+            Disponibilidad.objects.filter(
+                experto=reserva.experto_asignado,
+                fecha=reserva.Fecha,
+                idEstado=estado_no_disp
+            ).delete()
+        
         reserva.idEstado = estado_cancelado
         reserva.motivo_cancelacion = motivo_final
         reserva.save()
@@ -661,32 +719,6 @@ def cancelar_reserva(request, reserva_id):
         return redirect('principal')
 
     return redirect('principal')
-
-
-@login_required
-@user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url=reverse_lazy('login'))
-@require_POST
-def rechazar_reserva_experto(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
-
-    if reserva.experto_asignado and reserva.experto_asignado != request.user:
-        messages.warning(request, "Esta reserva ya ha sido asignada a otro experto.")
-        return redirect('dashboard_experto')
-
-    try:
-        estado_rechazada = Estado.objects.get(Nombre='Rechazada')
-    except Estado.DoesNotExist:
-        messages.error(request, "Error interno: el estado 'Rechazada' no está registrado.")
-        return redirect('dashboard_experto')
-
-    if reserva.experto_asignado == request.user:
-        reserva.experto_asignado = None
-
-    reserva.idEstado = estado_rechazada
-    reserva.save()
-
-    messages.info(request, "Has rechazado la reserva.")
-    return redirect('dashboard_experto')
 
 
 @login_required
@@ -739,24 +771,56 @@ def busc_experto(request):
 
         # 👇 Si hay fecha, anotar si el experto NO está disponible
         if fecha:
-            subquery = Disponibilidad.objects.filter(
+            # Verificar disponibilidad manual
+            subquery_disponibilidad = Disponibilidad.objects.filter(
                 experto=OuterRef('pk'),
                 fecha=fecha,
                 idEstado__Nombre__iexact='No disponible'
             )
-            expertos = expertos.annotate(no_disponible=Exists(subquery))
+            
+            # Verificar reservas activas
+            subquery_reservas = Reserva.objects.filter(
+                experto_asignado=OuterRef('pk'),
+                Fecha=fecha,
+                idEstado__Nombre='Aceptada',
+                servicio_finalizado=False
+            )
+            
+            expertos = expertos.annotate(
+                no_disponible_manual=Exists(subquery_disponibilidad),
+                reserva_activa=Exists(subquery_reservas)
+            ).annotate(
+                no_disponible=Case(
+                    When(Q(no_disponible_manual=True) | Q(reserva_activa=True), then=True),
+                    default=False,
+                    output_field=BooleanField()
+                )
+            )
 
 
     # Obtener días NO disponibles para cada experto
     disponibilidad_por_experto = {}
     for experto in expertos:
-        dias_no = list(
+        # 1. Días marcados manualmente como "No disponible" en Disponibilidad
+        dias_disponibilidad = list(
             Disponibilidad.objects.filter(
                 experto=experto,
                 idEstado__Nombre__iexact='No disponible'
             ).values_list('fecha', flat=True)
         )
-        dias_no_str = [d.strftime('%Y-%m-%d') for d in dias_no]
+        
+        # 2. Días con reservas aceptadas pero no finalizadas
+        dias_reservas_activas = list(
+            Reserva.objects.filter(
+                experto_asignado=experto,
+                idEstado__Nombre='Aceptada',
+                servicio_finalizado=False
+            ).values_list('Fecha', flat=True)
+        )
+        
+        # Combinar ambos conjuntos y eliminar duplicados
+        todas_fechas_no_disponibles = dias_disponibilidad + dias_reservas_activas
+        dias_no_str = list(set([d.strftime('%Y-%m-%d') for d in todas_fechas_no_disponibles]))
         disponibilidad_por_experto[experto.id] = dias_no_str
 
     return render(request, 'busc_experto.html', {
@@ -797,7 +861,6 @@ def aceptar_reserva_experto(request, reserva_id):
             reserva.save()
 
             # Sincronizar disponibilidad: marcar ese día como NO disponible para el experto
-            from doit_app.models import Disponibilidad
             estado_no_disp = Estado.objects.get(Nombre='No disponible')
             # Si no existe ya una marca de no disponible para ese día y experto, la creamos
             if not Disponibilidad.objects.filter(experto=request.user, fecha=reserva.Fecha, idEstado=estado_no_disp).exists():
@@ -833,6 +896,16 @@ def rechazar_reserva_experto(request, reserva_id):
     if request.method == 'POST':
         try:
             if reserva.experto_asignado == request.user:
+                # Si la reserva estaba aceptada, liberar disponibilidad
+                if reserva.idEstado.Nombre == 'Aceptada':
+                    estado_no_disp = Estado.objects.get(Nombre='No disponible')
+                    # Eliminar la marca de no disponible para ese día y experto
+                    Disponibilidad.objects.filter(
+                        experto=request.user,
+                        fecha=reserva.Fecha,
+                        idEstado=estado_no_disp
+                    ).delete()
+                
                 reserva.experto_asignado = None
             
             estado_rechazada = Estado.objects.get(Nombre='Rechazada')
