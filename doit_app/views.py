@@ -223,6 +223,13 @@ def dashboard_experto(request):
                         reserva.idEstado = estado_finalizado
                         reserva.save()
 
+                        # 🔥 NUEVO: Crear notificación para que el cliente califique el servicio
+                        Notificacion.objects.create(
+                            usuario=reserva.idUsuario,
+                            mensaje=f'¡Tu servicio "{reserva.idServicios.NombreServicio}" con {request.user.get_full_name() or request.user.username} ha sido completado! 🎉 Comparte tu experiencia.',
+                            url=f'/calificar_reserva/{reserva.id}/'
+                        )
+
                         # 🔥 NUEVO: Liberar disponibilidad automática cuando se finaliza el servicio
                         # Eliminar cualquier marca de "No disponible" automática para ese día
                         estado_no_disp = Estado.objects.get(Nombre='No disponible')
@@ -435,6 +442,7 @@ def principal(request):
             mensajes_no_leidos[experto.id] = mensajes_sin_leer
 
     puede_calificar = False
+    servicio_para_calificar = None
     if reserva_aceptada and reserva_aceptada.servicio_finalizado and reserva_aceptada.experto_asignado:
         ya_calificado = Calificaciones.objects.filter(
             reserva=reserva_aceptada,
@@ -442,6 +450,25 @@ def principal(request):
             tipo='cliente_a_experto'
         ).exists()
         if not ya_calificado and request.user == reserva_aceptada.idUsuario:
+            puede_calificar = True
+            servicio_para_calificar = reserva_aceptada
+    
+    # === BUSCAR OTROS SERVICIOS FINALIZADOS PENDIENTES DE CALIFICAR ===
+    if not servicio_para_calificar:
+        # Buscar el servicio más reciente finalizado que no haya sido calificado
+        servicios_sin_calificar = Reserva.objects.filter(
+            idUsuario=request.user,
+            servicio_finalizado=True,
+            idEstado__Nombre='Finalizado'
+        ).exclude(
+            id__in=Calificaciones.objects.filter(
+                calificado_por=request.user,
+                tipo='cliente_a_experto'
+            ).values_list('reserva_id', flat=True)
+        ).order_by('-actualizado_en').first()
+        
+        if servicios_sin_calificar:
+            servicio_para_calificar = servicios_sin_calificar
             puede_calificar = True
 
     # === DISPONIBILIDAD DE EXPERTOS ===
@@ -478,6 +505,7 @@ def principal(request):
         'reserva_aceptada': reserva_aceptada,
         'mensajes_no_leidos': mensajes_no_leidos,
         'puede_calificar': puede_calificar,
+        'servicio_para_calificar': servicio_para_calificar,  # 🔥 NUEVO: servicio específico para calificar
         'reserva_cancelada_info': reserva_cancelada_info,  # 🔥 NUEVO: información de cancelación una sola vez
 
         # 👇 Agregados
@@ -595,7 +623,8 @@ def reserva(request):
                 'fecha': reserva.Fecha.strftime('%d/%m/%Y'),
                 'hora': reserva.Hora.strftime('%H:%M'),
                 'direccion': reserva.direccion,
-                'ciudad': reserva.ciudad.Nombre if reserva.ciudad else 'No especificada'
+                'ciudad': reserva.ciudad.Nombre if reserva.ciudad else 'No especificada',
+                'reserva_id': reserva.id  # Agregar ID de la reserva para poder cancelarla
             }
 
             return redirect('principal')
@@ -735,6 +764,12 @@ def cancelar_reserva(request, reserva_id):
             'motivo': motivo_final,
             'mostrado': False  # Controla si ya se mostró
         }
+
+        # 🔥 NUEVO: Si la reserva cancelada corresponde a la reserva recién creada, limpiar mensaje_reserva
+        if ('mensaje_reserva' in request.session and 
+            'reserva_id' in request.session['mensaje_reserva'] and 
+            str(request.session['mensaje_reserva']['reserva_id']) == str(reserva.id)):
+            del request.session['mensaje_reserva']
 
         messages.success(request, "Servicio cancelado satisfactoriamente")
         return redirect('principal')
@@ -1173,7 +1208,7 @@ def historial_cliente(request):
 def notificaciones(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
     # Marcar como leídas todas las no leídas
-    Notificacion.objects.filter(usuario=request.user, leido=False).update(leido=True)
+    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
     return render(request, 'notificaciones.html', {'notificaciones': notificaciones})
 
 
@@ -1233,4 +1268,27 @@ def experto_perfil(request):
     }
     
     return render(request, 'experto.html', context)
+
+@login_required
+@require_POST
+def marcar_notificacion_leida(request):
+    """Vista para marcar una notificación como leída vía AJAX"""
+    reserva_id = request.POST.get('reserva_id')
+    if reserva_id:
+        try:
+            # Buscar la notificación específica de calificación para esta reserva
+            notificacion = Notificacion.objects.filter(
+                usuario=request.user,
+                url=f'/calificar_reserva/{reserva_id}/',
+                leida=False
+            ).first()
+            
+            if notificacion:
+                notificacion.leida = True
+                notificacion.save()
+                return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'error', 'message': 'ID de reserva no válido'})
 

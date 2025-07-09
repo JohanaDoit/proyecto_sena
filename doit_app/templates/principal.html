@@ -45,13 +45,21 @@
             <div class="card-body p-4">
                 <div class="reserva-info text-center" style="width:100%;">
                     <h4 class="mb-2 fw-bold text-primary" style="text-align:center;">¡Reserva realizada con éxito!</h4>
-                    <ul class="list-unstyled mb-0">
+                    <ul class="list-unstyled mb-3">
                         <li><span style="font-size:1.2em;">📌</span> <b>Servicio:</b> {{ datos.servicio }}</li>
                         <li><span style="font-size:1.2em;">🗓️</span> <b>Fecha:</b> {{ datos.fecha }}</li>
                         <li><span style="font-size:1.2em;">⏰</span> <b>Hora:</b> {{ datos.hora }}</li>
                         <li><span style="font-size:1.2em;">📍</span> <b>Ubicación:</b> {{ datos.direccion }}</li>
                         <li><span style="font-size:1.2em;">🏙️</span> <b>Ciudad:</b> {{ datos.ciudad }}</li>
                     </ul>
+                    
+                    {% if datos.reserva_id %}
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-outline-danger btn-sm btn-cancelar-reserva" onclick="mostrarFormularioCancelarReserva({{ datos.reserva_id }})">
+                                ❌ Cancelar reserva
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -183,6 +191,44 @@
 </form>
 {% endif %}
 
+<!-- Formulario para cancelar reserva recién creada -->
+{% if request.session.mensaje_reserva and request.session.mensaje_reserva.reserva_id %}
+<form id="form-cancelar-nueva" class="alert alert-warning mt-4" style="display: none; max-width: 500px; margin: 0 auto;" method="post" action="{% url 'cancelar_reserva' request.session.mensaje_reserva.reserva_id %}">
+    {% csrf_token %}
+    <div class="text-center">
+        <h5 class="mb-3">¿Estás seguro de que deseas cancelar esta reserva?</h5>
+        <p class="mb-3">Esta acción no se puede deshacer.</p>
+        
+        <p><strong>¿Por qué deseas cancelar esta reserva?</strong></p>
+        <div class="form-check text-start">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo_nueva1" value="Ya no necesito el servicio" required>
+            <label class="form-check-label" for="motivo_nueva1">Ya no necesito el servicio</label>
+        </div>
+        <div class="form-check text-start">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo_nueva2" value="Lo pedí por equivocación">
+            <label class="form-check-label" for="motivo_nueva2">Lo pedí por equivocación</label>
+        </div>
+        <div class="form-check text-start">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo_nueva3" value="Cambié de opinión">
+            <label class="form-check-label" for="motivo_nueva3">Cambié de opinión</label>
+        </div>
+        <div class="form-check text-start">
+            <input class="form-check-input" type="radio" name="motivo" id="motivo_nueva4" value="otra">
+            <label class="form-check-label" for="motivo_nueva4">Otra (especifica)</label>
+        </div>
+        <div class="form-group mt-2" id="otro_motivo_nueva_container" style="display: none;">
+            <label for="otro_motivo_nueva">Especifica el motivo:</label>
+            <textarea name="otro_motivo" id="otro_motivo_nueva" class="form-control" rows="3" placeholder="Escribe aquí tu motivo..."></textarea>
+        </div>
+        
+        <div class="mt-3 d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-danger">Confirmar cancelación</button>
+            <button type="button" class="btn btn-secondary" onclick="ocultarFormularioCancelarReserva()">Mantener reserva</button>
+        </div>
+    </div>
+</form>
+{% endif %}
+
 <!-- Calificación -->
 {% if reserva_aceptada and reserva_aceptada.idEstado.Nombre != 'Cancelado' and reserva_aceptada.servicio_finalizado and puede_calificar %}
 <div class="alert alert-success mt-3">
@@ -209,6 +255,47 @@
         {% endif %}
         <p class="mb-0"><small class="text-muted">Puedes hacer una nueva reserva cuando lo necesites. <em>(Haz clic para cerrar)</em></small></p>
     </div>
+</div>
+{% endif %}
+
+<!-- Notificación para calificar servicio finalizado -->
+{% if servicio_para_calificar and puede_calificar %}
+<div class="alert d-flex align-items-center mt-3 p-3 rounded" 
+     style="background: #f8f9fa; color: #495057;" 
+     id="notificacion-calificar">
+    
+    <div class="me-3">
+        <span style="font-size: 1.8rem;">⭐</span>
+    </div>
+    
+    <div class="flex-grow-1">
+        <h6 class="mb-1 fw-bold text-dark">
+            Servicio "{{ servicio_para_calificar.idServicios.NombreServicio }}" completado
+        </h6>
+        <p class="mb-2 text-muted small">
+            {{ servicio_para_calificar.experto_asignado.get_full_name }} finalizó tu servicio. 
+            ¿Qué tal fue tu experiencia?
+        </p>
+        
+        <div class="d-flex gap-2 align-items-center">
+            <a href="{% url 'calificar_reserva' servicio_para_calificar.id %}" 
+               class="btn btn-primary btn-sm">
+                Calificar
+            </a>
+            
+            <button type="button" 
+                    class="btn btn-link btn-sm text-muted p-0" 
+                    onclick="recordarMasTarde({{ servicio_para_calificar.id }})"
+                    style="text-decoration: none; font-size: 0.85rem;">
+                Más tarde
+            </button>
+        </div>
+    </div>
+    
+    <button type="button" 
+            class="btn-close" 
+            onclick="ocultarNotificacionCalificar()"
+            style="font-size: 0.9rem;"></button>
 </div>
 {% endif %}
 
@@ -391,6 +478,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Funciones para mostrar/ocultar el formulario de cancelar reserva recién creada
+    window.mostrarFormularioCancelarReserva = function(reservaId) {
+        const reservaExitosa = document.querySelector('.reserva-exitosa');
+        const formCancelarNueva = document.getElementById('form-cancelar-nueva');
+        
+        if (reservaExitosa && formCancelarNueva) {
+            reservaExitosa.style.display = 'none';
+            formCancelarNueva.style.display = 'block';
+        }
+    }
+
+    window.ocultarFormularioCancelarReserva = function() {
+        const reservaExitosa = document.querySelector('.reserva-exitosa');
+        const formCancelarNueva = document.getElementById('form-cancelar-nueva');
+        
+        if (reservaExitosa && formCancelarNueva) {
+            formCancelarNueva.style.display = 'none';
+            reservaExitosa.style.display = 'block';
+            
+            // Limpiar el formulario al volver
+            const radios = document.querySelectorAll('#form-cancelar-nueva input[name="motivo"]');
+            radios.forEach(radio => radio.checked = false);
+            const otroMotivoNuevaContainer = document.getElementById('otro_motivo_nueva_container');
+            if (otroMotivoNuevaContainer) otroMotivoNuevaContainer.style.display = 'none';
+            const otroMotivoNueva = document.getElementById('otro_motivo_nueva');
+            if (otroMotivoNueva) otroMotivoNueva.value = '';
+        }
+    }
+
     // Lógica para mostrar u ocultar el textarea "Otra" en el formulario de cancelación
     const motivo3 = document.getElementById('motivo3'); // El radio button "Otra"
     const otroMotivoContainer = document.getElementById('otro_motivo_container'); // El div que contiene el textarea
@@ -405,6 +521,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('otro_motivo').setAttribute('required', 'required');
                 } else {
                     document.getElementById('otro_motivo').removeAttribute('required');
+                }
+            });
+        });
+    }
+
+    // Lógica para mostrar u ocultar el textarea "Otra" en el formulario de cancelación de reserva nueva
+    const motivoNueva4 = document.getElementById('motivo_nueva4'); // El radio button "Otra"
+    const otroMotivoNuevaContainer = document.getElementById('otro_motivo_nueva_container'); // El div que contiene el textarea
+
+    if (motivoNueva4 && otroMotivoNuevaContainer) {
+        document.querySelectorAll('#form-cancelar-nueva input[name="motivo"]').forEach(input => {
+            input.addEventListener('change', () => {
+                // Muestra el contenedor de "Otro motivo" solo si el radio button "Otra" está seleccionado
+                otroMotivoNuevaContainer.style.display = motivoNueva4.checked ? 'block' : 'none';
+                // Si "Otra" está marcado, asegúrate de que el campo de texto sea requerido
+                if (motivoNueva4.checked) {
+                    document.getElementById('otro_motivo_nueva').setAttribute('required', 'required');
+                } else {
+                    document.getElementById('otro_motivo_nueva').removeAttribute('required');
                 }
             });
         });
@@ -442,6 +577,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         });
     });
+    
+    // Función para ocultar notificación de calificar
+    window.ocultarNotificacionCalificar = function() {
+        const notificacion = document.getElementById('notificacion-calificar');
+        if (notificacion) {
+            notificacion.style.transition = 'all 0.3s ease';
+            notificacion.style.transform = 'translateX(100%)';
+            notificacion.style.opacity = '0';
+            setTimeout(() => {
+                notificacion.remove();
+            }, 300);
+        }
+    }
+
+    // Función para "Recordar más tarde" - marca la notificación como leída
+    window.recordarMasTarde = function(reservaId) {
+        fetch('{% url "marcar_notificacion_leida" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'reserva_id=' + reservaId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                ocultarNotificacionCalificar();
+            } else {
+                console.error('Error al marcar notificación como leída:', data.message);
+                // Ocultar de todas formas
+                ocultarNotificacionCalificar();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Ocultar de todas formas
+            ocultarNotificacionCalificar();
+        });
+    }
 });
 </script>
 <script src="{% static 'js/expertos_por_especialidad.js' %}"></script>
