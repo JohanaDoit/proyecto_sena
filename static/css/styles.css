@@ -460,3 +460,82 @@ footer {
         border-right: none;
     }
 }
+
+/* Estilos para mensajes flotantes */
+.alert-floating {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    max-width: 450px;
+    padding: 15px 20px;
+    border-radius: var(--border-radius-base);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideInRight 0.3s ease-out;
+    cursor: pointer;
+}
+
+.alert-floating.alert-success {
+    background-color: var(--alert-success-bg);
+    border: 1px solid var(--alert-success-border);
+    color: var(--alert-success-text);
+}
+
+.alert-floating.alert-error {
+    background-color: var(--alert-danger-bg);
+    border: 1px solid var(--alert-danger-border);
+    color: var(--alert-danger-text);
+}
+
+.alert-floating.alert-info {
+    background-color: var(--alert-info-bg);
+    border: 1px solid var(--alert-info-border);
+    color: var(--alert-info-text);
+}
+
+.alert-floating.alert-warning {
+    background-color: var(--alert-warning-bg);
+    border: 1px solid var(--alert-warning-border);
+    color: var(--alert-warning-text);
+}
+
+.alert-floating.alert-secondary {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+/* Estilo específico para mensaje de cancelación */
+.alert-floating#cancelacion-mensaje {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.alert-floating.hide {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
