@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cuenta Rechazada{% endblock %}
+
+{% block content %}
+<style>
+    .rechazo-container {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8d7da;
+        padding: 20px;
+    }
+
+    .rechazo-box {
+        background-color: #fff;
+        border: 2px solid #f5c6cb;
+        padding: 40px;
+        border-radius: 10px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .rechazo-box h2 {
+        color: #721c24;
+        margin-bottom: 20px;
+    }
+
+    .rechazo-box p {
+        color: #721c24;
+        font-size: 18px;
+    }
+</style>
+
+<div class="rechazo-container">
+    <div class="rechazo-box">
+        <h2>Tu cuenta ha sido rechazada</h2>
+        <p>No puedes acceder al sistema como Cliente,<br>
+        porque no cumples con las políticas del sistema.</p>
+    </div>
+</div>
+{% endblock %}
