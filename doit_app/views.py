@@ -358,7 +358,7 @@ def principal(request):
     ultimas_reservas = Reserva.objects.filter(
         idUsuario=request.user
     ).exclude(
-        Q(idEstado__Nombre='Cancelada') | Q(idEstado__Nombre='Completada')
+        Q(idEstado__Nombre='Cancelado') | Q(idEstado__Nombre='Completada')
     ).order_by('-Fecha', '-Hora')[:3]
 
     try:
@@ -366,13 +366,37 @@ def principal(request):
     except Estado.DoesNotExist:
         estado_aceptada = None
 
+    # === VERIFICAR RESERVA ACTIVA (NO CANCELADA NI FINALIZADA) ===
     reserva_aceptada = None
     if estado_aceptada:
-        reserva_aceptada = Reserva.objects.filter(
-            idUsuario=request.user,
-            idEstado=estado_aceptada,
-            experto_asignado__isnull=False
-        ).order_by('-Fecha', '-Hora').first()
+        try:
+            # Obtener todos los estados que deben excluirse
+            estado_cancelado = Estado.objects.get(Nombre='Cancelado')
+            estado_finalizado = Estado.objects.get(Nombre='Finalizado')
+            
+            # Buscar reserva aceptada que esté activa (no cancelada, no finalizada)
+            reserva_aceptada = Reserva.objects.filter(
+                idUsuario=request.user,
+                idEstado=estado_aceptada,
+                experto_asignado__isnull=False,
+                servicio_finalizado=False  # Solo servicios no finalizados
+            ).exclude(
+                Q(idEstado=estado_cancelado) | Q(idEstado=estado_finalizado)
+            ).order_by('-Fecha', '-Hora').first()
+            
+            # 🔥 DEBUG: Verificar que no haya reservas canceladas en el resultado
+            if reserva_aceptada:
+                print(f"🟢 DEBUG: Reserva aceptada encontrada - ID: {reserva_aceptada.id}, Estado: {reserva_aceptada.idEstado.Nombre}")
+                # Doble verificación por seguridad
+                if reserva_aceptada.idEstado.Nombre in ['Cancelado', 'Finalizado']:
+                    print("🚨 ERROR: Se encontró una reserva cancelada/finalizada cuando no debería!")
+                    reserva_aceptada = None
+            else:
+                print("🔵 DEBUG: No se encontró ninguna reserva aceptada activa")
+            
+        except Estado.DoesNotExist as e:
+            print(f"⚠️ Estado no encontrado: {e}")
+            reserva_aceptada = None
 
     # === GUARDAR COMENTARIO DEL CLIENTE SI EL SERVICIO ESTÁ INICIADO ===
     if request.method == 'POST':
@@ -427,6 +451,26 @@ def principal(request):
         for experto in expertos
     }
 
+    # === INFORMACIÓN DE CANCELACIÓN (SOLO UNA VEZ) ===
+    reserva_cancelada_info = None
+    if 'reserva_cancelada' in request.session:
+        cancelacion_data = request.session['reserva_cancelada']
+        # Solo mostrar si no se ha mostrado antes
+        if not cancelacion_data.get('mostrado', False):
+            reserva_cancelada_info = cancelacion_data
+            # Marcar como mostrado
+            request.session['reserva_cancelada']['mostrado'] = True
+            request.session.modified = True
+        else:
+            # Si ya se mostró, eliminar de la sesión
+            del request.session['reserva_cancelada']
+
+    # === LIMPIEZA DE SESIÓN (datos antiguos) ===
+    # Limpiar datos de reservas exitosas antiguas si existen
+    if 'mensaje_reserva' in request.session:
+        # Opcional: puedes añadir lógica para limpiar mensajes de reserva antiguos
+        pass
+
     return render(request, 'principal.html', {
         'categorias': categorias,
         'servicios_por_categoria': servicios_por_categoria,
@@ -434,6 +478,7 @@ def principal(request):
         'reserva_aceptada': reserva_aceptada,
         'mensajes_no_leidos': mensajes_no_leidos,
         'puede_calificar': puede_calificar,
+        'reserva_cancelada_info': reserva_cancelada_info,  # 🔥 NUEVO: información de cancelación una sola vez
 
         # 👇 Agregados
         'expertos': expertos,
@@ -632,51 +677,8 @@ def reserva(request):
 
 
 @login_required
-def cancelar_reserva(request, reserva_id):
-    reserva = get_object_or_404(Reserva, id=reserva_id)
-
-    # Verificar que el usuario autenticado sea el dueño de la reserva
-    if reserva.idUsuario != request.user:
-        messages.error(request, "No tienes permiso para cancelar esta reserva.")
-        return redirect('principal')
-
-    if request.method == 'POST':
-        motivo = request.POST.get('motivo')
-        if motivo == 'otra':
-            motivo = request.POST.get('otro_motivo', '').strip()
-
-        try:
-            estado_cancelada = Estado.objects.get(Nombre='Cancelada')
-        except Estado.DoesNotExist:
-            messages.error(request, "No se pudo cancelar la reserva. Estado 'Cancelada' no existe.")
-            return redirect('principal')
-
-        reserva.idEstado = estado_cancelada
-        reserva.motivo_cancelacion = motivo
-        reserva.save()
-
-        # Si la reserva tenía un experto asignado, liberar el día en Disponibilidad
-        if reserva.experto_asignado:
-            estado_no_disp = Estado.objects.get(Nombre='No disponible')
-            # Eliminar la marca de no disponible para ese día y experto
-            Disponibilidad.objects.filter(
-                experto=reserva.experto_asignado,
-                fecha=reserva.Fecha,
-                idEstado=estado_no_disp
-            ).delete()
-
-        messages.success(request, f'Has cancelado la reserva #{reserva.id}.')
-        return redirect('principal')
-
-    return redirect('principal')
-
-
-def is_experto(user):
-    return user.is_authenticated and user.tipo_usuario == 'experto'
-
 @login_required
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
-@login_required
+@user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
 
@@ -698,8 +700,12 @@ def cancelar_reserva(request, reserva_id):
             messages.error(request, "Debes seleccionar un motivo de cancelación.")
             return redirect('principal')
 
-        # Cambiar estado a cancelado (ID 6, o el que uses)
-        estado_cancelado = Estado.objects.get(Nombre='Cancelada')  # o Estado.objects.get(id=6)
+        # Cambiar estado a cancelado
+        try:
+            estado_cancelado = Estado.objects.get(Nombre='Cancelado')
+        except Estado.DoesNotExist:
+            messages.error(request, "No se pudo cancelar la reserva. Estado 'Cancelado' no existe.")
+            return redirect('principal')
         
         # Si la reserva estaba aceptada y tenía un experto asignado, liberar su disponibilidad
         if reserva.experto_asignado and reserva.idEstado.Nombre == 'Aceptada':
@@ -713,9 +719,24 @@ def cancelar_reserva(request, reserva_id):
         
         reserva.idEstado = estado_cancelado
         reserva.motivo_cancelacion = motivo_final
+        
+        # 🔥 NUEVO: Resetear campos de servicio para evitar confusión en la UI
+        reserva.servicio_iniciado = False
+        reserva.servicio_finalizado = True  # Marcar como finalizado para que no aparezca en curso
+        
         reserva.save()
 
-        messages.success(request, "La reserva ha sido cancelada correctamente.")
+        # 🔥 NUEVO: Guardar información de cancelación en sesión para mostrar una sola vez
+        request.session['reserva_cancelada'] = {
+            'id': reserva.id,
+            'servicio': reserva.idServicios.NombreServicio,
+            'fecha': reserva.Fecha.strftime('%d/%m/%Y'),
+            'hora': reserva.Hora.strftime('%H:%M'),
+            'motivo': motivo_final,
+            'mostrado': False  # Controla si ya se mostró
+        }
+
+        messages.success(request, "Servicio cancelado satisfactoriamente")
         return redirect('principal')
 
     return redirect('principal')
@@ -924,12 +945,15 @@ def rechazar_reserva_experto(request, reserva_id):
 
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
+@login_required
+@user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
     from doit_app.models import Calificaciones
     reservas_finalizadas = Reserva.objects.filter(
         experto_asignado=request.user,
         servicio_finalizado=True
     ).order_by('-Fecha', '-Hora')
+    
     # Obtener calificaciones recibidas y realizadas para cada reserva
     historial = []
     for reserva in reservas_finalizadas:
@@ -940,6 +964,7 @@ def historial_experto(request):
             'calif_cliente': calif_cliente,
             'calif_experto': calif_experto
         })
+    
     return render(request, 'experto/historial_experto.html', {
         'historial': historial
     })
@@ -1148,7 +1173,7 @@ def historial_cliente(request):
 def notificaciones(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
     # Marcar como leídas todas las no leídas
-    Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    Notificacion.objects.filter(usuario=request.user, leido=False).update(leido=True)
     return render(request, 'notificaciones.html', {'notificaciones': notificaciones})
 
 
