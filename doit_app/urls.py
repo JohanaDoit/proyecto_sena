@@ -42,6 +42,7 @@ urlpatterns = [
     path('admin/solicitudes/', views.solicitudes_admin, name='solicitudes_admin'),
     path('api/ciudades_por_pais/', views.ciudades_por_pais, name='ciudades_por_pais'),
     path('cancelar-reserva/<int:reserva_id>/', views.cancelar_reserva, name='cancelar_reserva'),
+    path('marcar-notificacion-leida/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
     path('chat/<int:receptor_id>/', chat_view, name='chat'),
     path('notificaciones/', views.notificaciones, name='notificaciones'),
 ]
