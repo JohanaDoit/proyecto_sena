@@ -9,7 +9,7 @@
 }
 
 body {
-    background-color: #f5f1dd;
+    background-color: #f0f2f5;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -456,127 +456,139 @@ h1, h3 {
 /* Fin mensaje de finalizacion de servicio */
 
 /* Estilos para el desplegable de disponibilidad - Bootstrap 4 */
+/* === Estilos para el desplegable de disponibilidad (Bootstrap 4) === */
 .card-header[data-toggle="collapse"] {
     transition: all 0.3s ease;
     user-select: none;
+    cursor: pointer;
 }
 
 .card-header[data-toggle="collapse"]:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Icono desplegable */
 .desplegable-icono i {
     transition: transform 0.3s ease;
     font-size: 1.1rem;
 }
 
 .disponibilidad-toggle-text {
-    transition: all 0.3s ease;
     font-size: 0.85rem;
+    transition: all 0.3s ease;
 }
 
+/* Badges en resumen de disponibilidad */
 .disponibilidad-resumen .badge {
     font-size: 0.7rem;
     margin-right: 0.25rem;
     animation: pulse 2s infinite;
 }
 
-/* Animación sutil para los badges */
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
 
-/* Efecto de collapse suave para Bootstrap 4 */
+/* === Collapse Bootstrap 4 mejorado === */
 .collapse {
     transition: height 0.4s ease;
 }
-
 .collapsing {
     transition: height 0.4s ease;
 }
+#collapseDisponibilidad {
+    display: none !important;
+}
+#collapseDisponibilidad.show,
+#collapseDisponibilidad.collapsing {
+    display: block !important;
+}
 
-/* Badge personalizado para Bootstrap 4 */
-.badge-success {
+/* === Tabla de disponibilidad === */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+.table-success {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+}
+.table-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+.table th i {
+    color: #6c757d;
+}
+
+/* Ajustes para columnas específicas */
+.td-estado {
+    min-width: 120px;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+}
+.td-eliminar {
+    background-color: transparent !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Badge de estado */
+.badge.estado {
+    padding: 0.45em 0.75em;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    display: inline-block;
+    border-radius: 12px;
+}
+
+/* === Botones y acciones === */
+.btn-eliminar {
+    transition: all 0.3s ease;
+}
+.btn-eliminar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+.duracion-automatica {
+    font-weight: 500;
+    color: #495057;
+}
+.duracion-texto {
+    transition: opacity 0.3s ease;
+}
+.btn-sm i {
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* === Badges personalizados === */
+.badge-success, .badge.bg-success {
     background-color: #28a745 !important;
     color: white;
 }
-
-.badge-danger {
+.badge-danger, .badge.bg-danger {
     background-color: #dc3545 !important;
     color: white;
 }
-
 .badge-warning {
     background-color: #ffc107 !important;
     color: #212529;
 }
 
-/* Estilos para la tabla de disponibilidad */
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.btn-eliminar {
-    transition: all 0.3s ease;
-}
-
-.btn-eliminar:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
-}
-
-.duracion-automatica {
-    font-weight: 500;
-    color: #495057;
-}
-
-.table-success {
-    background-color: rgba(25, 135, 84, 0.1) !important;
-}
-
-.table-danger {
-    background-color: rgba(220, 53, 69, 0.1) !important;
-}
-
-/* Animación de carga para las duraciones */
-.duracion-texto {
-    transition: opacity 0.3s ease;
-}
-
-/* Badge personalizado para estados */
-.badge.bg-success {
-    background-color: #525553 !important;
-    color: #ffffff;
-}
-
-.badge.bg-danger {
-    background-color: #0f6918 !important;
-    color: white;
-}
-
-/* Iconos en la tabla */
-.table th i {
-    color: #6c757d;
-}
-
-/* Asegurar que el collapse esté oculto por defecto */
-#collapseDisponibilidad {
-    display: none !important;
-}
-
-#collapseDisponibilidad.show {
-    display: block !important;
-}
-
-#collapseDisponibilidad.collapsing {
-    display: block !important;
-}
-
-/* Estilos para los selectores de hora */
+/* === Selectores de hora === */
 .form-control select {
     padding: 8px 12px;
     border-radius: 4px;
@@ -584,14 +596,13 @@ h1, h3 {
     background-color: white;
     font-size: 14px;
 }
-
 .form-control select:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     outline: 0;
 }
 
-/* Contenedor de campos de hora */
+/* === Campos de hora === */
 .hora-inputs {
     background-color: #f8f9fa;
     padding: 15px;
@@ -599,26 +610,25 @@ h1, h3 {
     border: 1px solid #e9ecef;
     margin-bottom: 15px;
 }
-
 .hora-inputs .form-label {
     font-weight: 600;
     color: #495057;
     margin-bottom: 8px;
 }
-
-/* Icono de reloj en los labels */
 .hora-label::before {
     content: "🕐";
     margin-right: 8px;
 }
 
-/* --- Estilos para el bloque de controles del calendario experto --- */
+/* === Bloque de controles del calendario === */
 .card.calendario-controles {
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(13,110,253,0.10);
+    box-shadow: 0 2px 12px rgba(13, 110, 253, 0.10);
     border: none;
     background: #f4f8fb;
+    margin-bottom: 2rem;
 }
+
 .card.calendario-controles .card-header {
     background: #fff;
     border-radius: 16px 16px 0 0;
@@ -629,6 +639,7 @@ h1, h3 {
     align-items: center;
     flex-wrap: wrap;
 }
+
 .card.calendario-controles .btn-outline-success,
 .card.calendario-controles .btn-outline-danger {
     border-radius: 7px;
@@ -637,6 +648,7 @@ h1, h3 {
     font-weight: 600;
     padding: 0.5em 1.2em;
 }
+
 .card.calendario-controles .btn-light {
     border-radius: 7px;
     border: 1.5px solid #b6c6e3;
@@ -644,12 +656,14 @@ h1, h3 {
     font-weight: 600;
     padding: 0.5em 1.2em;
 }
+
 .card.calendario-controles .navegacion-mes span {
     font-size: 1.13em;
     color: #2563eb;
     letter-spacing: 0.01em;
     font-weight: 700;
 }
+
 .card.calendario-controles small {
     color: #638eec;
     font-size: 0.97em;
@@ -659,10 +673,11 @@ h1, h3 {
     margin-bottom: 0.3em;
 }
 
+/* Barra de botones */
 .barra-controles-calendario {
-    background: linear-gradient(90deg, #15223d 60%, #1e3a8a 100%);
+    background: #f0f2f5;
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(30,58,138,0.10);
+    box-shadow: 0 2px 10px rgba(30, 58, 138, 0.10);
     padding: 0.7rem 1.2rem;
     display: flex;
     flex-wrap: wrap;
@@ -675,23 +690,7 @@ h1, h3 {
     align-items: flex-end !important;
     gap: 0.7em;
 }
-.barra-controles-calendario #modoDisponible {
-    background: linear-gradient(90deg, #1b8090 60%, #9aa8c7 100%) !important;
-    color: #fff !important;
-    border: none !important;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(34,211,238,0.13);
-    transition: background 0.2s, box-shadow 0.2s;
-}
-.barra-controles-calendario #modoDisponible:hover {
-    background: linear-gradient(90deg, #7891c8 60%, #73b2f1 100%) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 16px rgba(37,99,235,0.18);
-}
-.barra-controles-calendario #modoNoDisponible {
-    order: 2;
-    margin-top: 0;
-}
+
 .barra-controles-calendario .botones-disponibilidad {
     display: flex !important;
     flex-direction: column !important;
@@ -699,19 +698,32 @@ h1, h3 {
     gap: 0.7em;
 }
 
-/* cambios en disponible - no disponible */
+/* Botones modo disponible/no disponible */
+.barra-controles-calendario #modoDisponible {
+    background: #93dc93 !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(34, 211, 238, 0.13);
+    transition: background 0.2s, box-shadow 0.2s;
+}
 
+.barra-controles-calendario #modoDisponible:hover {
+    background: linear-gradient(90deg, #7891c8 60%, #73b2f1 100%) !important;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.18);
+}
 
+.barra-controles-calendario #modoNoDisponible {
+    order: 2;
+    margin-top: 0;
+}
 
-/* Contenedor principal */
+/* === Estilo personalizado de calendario === */
 .custom-card {
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(13, 110, 253, 0.10);
-    border: none;
-    background: #8ea4b5;
-}   
+    background: #f0f2f5;
+}
 
-/* Encabezado */
 .custom-card-header {
     background: linear-gradient(135deg, #3f5eae, #a8bae4);
     border-radius: 16px 16px 0 0;
@@ -719,40 +731,33 @@ h1, h3 {
     border-bottom: 2px solid #d1cccb;
 }
 
-/* Botones de disponibilidad */
 .custom-button {
     border-radius: 7px;
     font-size: 1.05em;
     border-width: 2px;
 }
 
-/* Botones de navegación */
 .custom-nav-button {
     border-radius: 7px;
     border: 1.5px solid #4a5f85;
     color: #adb5c9;
 }
 
-/* Texto del mes actual */
 .custom-mes-actual {
     font-size: 1.13em;
     color: #c2c8d3;
     letter-spacing: 0.01em;
 }
 
-/* Instrucciones */
 .custom-instruction {
     color: #05070a;
     font-size: 0.97em;
 }
 
-/* Espaciado personalizado entre elementos (gap no está en Bootstrap por defecto) */
 .gap-1em {
     gap: 3em;
 }
 
-
-/* Botón "Anterior" */
 .btn-anterior {
     border-radius: 7px;
     border: 1.5px solid #0b0b0b;
@@ -760,12 +765,80 @@ h1, h3 {
     background: linear-gradient(135deg, #1a5ce0, #637fa7);
 }
 
-/* Botón "Siguiente" */
 .btn-siguiente {
     border-radius: 7px;
     border: 1.5px solid #212122;
     color: #4e535c;
     background: linear-gradient(135deg, #dbe5f3, #eef2fa);
 }
+/* ---- Ajustes de tamaño y espaciado en la tabla de disponibilidad ---- */
 
-/* aca termina disponible- no disponible */
+/* Reduce el tamaño general de texto en la tabla */
+#collapseDisponibilidad .table {
+    font-size: 0.88rem; /* Más pequeño pero aún legible */
+}
+
+/* Reduce espacio vertical dentro de las celdas */
+#collapseDisponibilidad .table td,
+#collapseDisponibilidad .table th {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    vertical-align: middle;
+}
+
+/* Ajusta el tamaño de los badges */
+#collapseDisponibilidad .badge {
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+}
+
+/* Reduce íconos ligeramente */
+#collapseDisponibilidad i {
+    font-size: 0.85rem;
+}
+
+/* Reduce margen entre elementos dentro de la fila */
+#collapseDisponibilidad .d-flex.align-items-center > * {
+    margin-right: 0.4rem;
+}
+
+/* Disminuye ligeramente el espaciado del encabezado del bloque */
+.card-header[data-toggle="collapse"] h6 {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+#modoDisponible {
+    background: linear-gradient(135deg, #a4d8cc, #7cc6ba) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold !important;
+    border-radius: 7px !important;
+    min-width: 120px !important;
+    padding: 8px 14px !important;
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+#modoDisponible:hover {
+    background: linear-gradient(135deg, #62b7a8, #5aa99c) !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3) !important;
+}
+
+#modoNoDisponible {
+    background: linear-gradient(135deg, #f5bcbc, #ff8a8a) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: bold !important;
+    border-radius: 7px !important;
+    min-width: 120px !important;
+    padding: 8px 14px !important;
+    box-shadow: 0 2px 6px rgba(255, 0, 0, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+
+#modoNoDisponible:hover {
+    background: linear-gradient(135deg, #f17777, #e25f5f) !important;
+    transform: scale(1.03) !important;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3) !important;
+}
