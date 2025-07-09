@@ -45,13 +45,9 @@
                         {% endfor %}
                     </p>
 
-                    <p class="experto-usuario">@{{ experto.username }}</p>
-
+                    
 
                     <!-- Calendario de disponibilidad individual -->
-                    <div class="calendario-disponibilidad-container">
-                        <input type="text" id="calendario-disponibilidad-{{ experto.id }}" readonly style="background: #fff; cursor: pointer; width: 100%; max-width: 250px;" />
-                    </div>
 
                     <div class="experto-contacto" style="margin-left:0; margin-top:12px; width:100%; display:flex; justify-content:center;">
                         <a href="{% url 'reserva' %}?experto_id={{ experto.id }}" class="boton-seleccionar">Reservar</a>

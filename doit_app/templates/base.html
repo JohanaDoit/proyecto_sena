@@ -26,40 +26,46 @@
     {# Ahora controlamos la visibilidad del sidebar según el tipo de usuario #}
     {% if user.is_authenticated and not user.is_staff and not user.is_superuser %}
     <div id="sidebar">
-        <div class="perfil-header">
-            <div class="perfil-foto-container">
-                {# Muestra la foto de perfil del usuario si existe, de lo contrario una por defecto #}
-                {% if user.foto_perfil %}
-                    <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="perfil-foto">
-                {% else %}
-                    {# Si no hay foto, usa una imagen estática por defecto #}
-                    <img src="{% static 'images/default_profile.jpg' %}" alt="Foto de perfil por defecto" class="perfil-foto">
-                {% endif %}
+
+
+
+            <div class="perfil-header">
+                <div class="perfil-foto-container">
+                    {% if user.foto_perfil %}
+                        <img src="{{ user.foto_perfil.url }}" alt="Foto de perfil de {{ user.username }}" class="perfil-foto">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.jpg' %}" alt="Foto de perfil por defecto" class="perfil-foto">
+                    {% endif %}
+                </div>
+
                 {% if user.tipo_usuario == 'experto' %}
                     <div class="calificacion-experto" style="margin-top: 8px;">
                         <div class="star-display rating-display" data-rating="{{ promedio_calificacion|default:0 }}" data-show-number="true"></div>
                     </div>
                 {% endif %}
+
                 <p class="perfil-nombre">
-                    {# Lógica mejorada para mostrar el nombre del usuario logueado #}
                     {% if user.first_name and user.last_name %}
                         {{ user.first_name }} {{ user.last_name }}
                     {% elif user.first_name %}
                         {{ user.first_name }}
-                    {% elif user.username %} {# Si no hay nombre ni apellido, usa el nombre de usuario #}
+                    {% elif user.username %}
                         {{ user.username }}
-                    {% else %} {# Fallback para un caso muy improbable #}
+                    {% else %}
                         Usuario Desconocido
                     {% endif %}
                 </p>
+
+                <div>
+                    <a href="{% url 'editar_perfil' %}">
+                        <button class="modificar-perfil-btn">Modificar perfil</button>
+                    </a>
+                </div>
             </div>
-            <div>
-                {# Ajustado para usar el nuevo nombre de URL 'editar_perfil' #}
-                <a href="{% url 'editar_perfil' %}"> 
-                    <button class="modificar-perfil-btn">Modificar perfil</button>
-                </a>
-            </div>
-        </div>
+
+
+
+
         <ul class="list-unstyled components">
             {# Enlaces para clientes #}
             {% if user.is_authenticated and user.is_usuario_normal %} {# 'is_usuario_normal' es el método en tu CustomUser #}
@@ -119,7 +125,7 @@
                                 <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="130">
                             </a>
                         {% else %} {# Fallback, ej. si es staff pero no superuser #}
-                             <a href="{% url 'home' %}">
+                            <a href="{% url 'home' %}">
                                 <img src="{% static 'images/Doit_logo.png' %}" alt="Logo Doit" width="130">
                             </a>
                         {% endif %}
