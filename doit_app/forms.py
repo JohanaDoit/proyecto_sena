@@ -471,6 +471,8 @@ class ReservaForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        # Extraer el experto_id del kwargs si existe
+        experto_id = kwargs.pop('experto_id', None)
         super().__init__(*args, **kwargs)
 
         # Generar horas desde 06:00 hasta 21:00, cada 30 minutos
@@ -484,6 +486,25 @@ class ReservaForm(forms.ModelForm):
             hora_actual += timedelta(minutes=30)
 
         self.fields['Hora'].choices = opciones
+
+        # Filtrar servicios si se ha seleccionado un experto específico
+        if experto_id:
+            try:
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                experto = User.objects.get(id=experto_id, tipo_usuario='experto')
+                # Solo mostrar los servicios que el experto tiene registrados
+                servicios_experto = experto.especialidad.all()
+                if servicios_experto.exists():
+                    self.fields['idServicios'].queryset = servicios_experto.order_by('NombreServicio')
+                    self.fields['idServicios'].empty_label = "Selecciona un servicio del experto"
+                else:
+                    # Si el experto no tiene servicios registrados, mostrar mensaje apropiado
+                    self.fields['idServicios'].queryset = Servicios.objects.none()
+                    self.fields['idServicios'].empty_label = "Este experto no tiene servicios registrados"
+            except (User.DoesNotExist, ValueError):
+                # Si el experto no existe o hay un error, usar todos los servicios
+                pass
 
 
 
