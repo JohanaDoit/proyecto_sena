@@ -1,3 +1,10 @@
 # Archivos de caché de Python
+# Ignorar base de datos SQLite
+db.sqlite3
+
+# Ignorar archivos compilados de Python
 __pycache__/
-migrations/
+*.pyc
+
+# Ignorar migraciones si no deseas subirlas (solo si estás seguro)
+# doit_app/migrations/

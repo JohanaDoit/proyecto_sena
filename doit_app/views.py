@@ -17,8 +17,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Q  # ← Esto soluciona lo de Q
-from .models import Mensaje  # ← Asegúrate de importar tu modelo correctamente
+from django.db.models import Q 
+from .models import Mensaje
 from django.http import HttpResponseForbidden
 from django.urls import reverse
 from datetime import timedelta
@@ -26,12 +26,13 @@ from .models import Calificaciones
 from django.contrib.auth.decorators import login_required
 from .models import Notificacion
 from django.db import models
-from .models import Disponibilidad  # 👈 Asegúrate de tener este modelo
-from .forms import DisponibilidadForm  # 👈 Y este formulario
+from .models import Disponibilidad  
+from .forms import DisponibilidadForm 
 from django.db.models import Value, OuterRef, Exists, CharField
 from django.db.models.functions import Concat
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseRedirect
+from django.contrib.auth import get_user_model
 
 
 
@@ -71,10 +72,6 @@ def chat_view(request, receptor_id):
 
 
 
-
-
-
-
 # Funciones de test para @user_passes_test
 def is_cliente(user):
     return user.is_authenticated and user.tipo_usuario == 'cliente'
@@ -92,15 +89,6 @@ def home(request):
     return render(request, 'home.html')
 
 
-
-
-
-
-
-
-
-
-
 @login_required(login_url='login')
 @user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url='login')
 @require_http_methods(["GET", "POST"])
@@ -108,9 +96,9 @@ def dashboard_experto(request):
     print(f"DEBUG dashboard_experto: Accediendo. User: {request.user.username}, Tipo: {request.user.tipo_usuario}")
 
     if request.user.verificado == 'pendiente':
-        return render(request, 'espera_verificacion.html')
+        return render(request, 'experto/espera_verificacion.html')
     elif request.user.verificado == 'rechazado':
-        return render(request, 'rechazado.html')
+        return render(request, 'experto/rechazado.html')
 
     form_disponibilidad = DisponibilidadForm()
     mostrar_mensaje_finalizado = False
@@ -331,15 +319,24 @@ def dashboard_experto(request):
 
 
 
-
-
-
-
 @login_required
 def principal(request):
-    if request.user.tipo_usuario == 'experto':
+    # ✅ Forzar recarga del usuario desde la base de datos
+    User = get_user_model()
+    usuario_actualizado = User.objects.get(id=request.user.id)
+
+    # ✅ Redireccionar si es cliente y su estado no es 'aprobado'
+    if usuario_actualizado.tipo_usuario == 'cliente' and usuario_actualizado.aprobado_cliente != 'aprobado':
+        if usuario_actualizado.aprobado_cliente == 'rechazado':
+            messages.error(request, "Tu cuenta ha sido rechazada por un administrador.")
+            return render(request, 'cliente/cliente_rechazado.html')  # ✅ Nuevo template para rechazados
+        else:
+            messages.warning(request, "Tu cuenta aún está siendo revisada por un administrador.")
+            return render(request, 'cliente/cliente_en_aprobacion.html')  # Pendiente
+
+    if usuario_actualizado.tipo_usuario == 'experto':
         return redirect('dashboard_experto')
-    elif request.user.tipo_usuario == 'admin':
+    elif usuario_actualizado.tipo_usuario == 'admin':
         return redirect('admin_principal')
 
     categorias = Categorias.objects.all()
@@ -433,7 +430,6 @@ def principal(request):
         'expertos': expertos,
         'disponibilidad_por_experto': disponibilidad_por_experto,
     })
-
 
 
 
@@ -566,8 +562,6 @@ def reserva(request):
     })
 
 
-
-
 @login_required
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
@@ -633,10 +627,6 @@ def aceptar_reserva_experto(request, reserva_id):
 
     messages.success(request, "Has aceptado la reserva exitosamente.")
     return redirect('dashboard_experto')
-
-
-
-
 
 
 @login_required
@@ -713,32 +703,12 @@ def mis_reservas_cliente(request):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def ciudades_por_pais(request):
     pais_id = request.GET.get('pais_id')
     if pais_id:
         ciudades = Ciudad.objects.filter(departamento__pais_id=pais_id).values('id', 'Nombre')
         return JsonResponse(list(ciudades), safe=False)
     return JsonResponse({'error': 'No se proporcionó un ID de país'}, status=400)
-
-
-
-
-
 
 
 
@@ -798,58 +768,6 @@ def busc_experto(request):
 
 
 
-
-
-@login_required
-def modificar(request):
-    return redirect('editar_perfil')
-
-@login_required
-def servicioAceptado(request):
-    return render(request, 'servicioAceptado.html')
-
-@login_required
-def servicioAceptadoexpe(request):
-    return render(request, 'servicioAceptadoexpe.html')
-
-
-@login_required
-def servicioCancelado(request):
-    return render(request, 'servicioCancelado.html')
-
-@login_required
-def servicioCanceladoexpe(request):
-    return render(request, 'servicioCanceladoexpe.html')
-
-
-
-
-# ESTA ES LA ÚNICA DEFINICIÓN DE dashboard_experto QUE DEBE QUEDAR
-from django.contrib.auth.decorators import user_passes_test
-from django.urls import reverse_lazy
-from django.db.models import Q
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import Reserva, Estado
-from django.views.decorators.http import require_http_methods
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @login_required
 @user_passes_test(lambda u: u.tipo_usuario == 'experto', login_url=reverse_lazy('login'))
 def aceptar_reserva_experto(request, reserva_id):
@@ -903,8 +821,6 @@ def aceptar_reserva_experto(request, reserva_id):
     return render(request, 'experto/confirmar_aceptar_reserva.html', {'reserva': reserva})
 
 
-
-
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def rechazar_reserva_experto(request, reserva_id):
@@ -933,9 +849,6 @@ def rechazar_reserva_experto(request, reserva_id):
     return render(request, 'experto/confirmar_rechazar_reserva.html', {'reserva': reserva})
 
 
-
-
-
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
@@ -960,34 +873,6 @@ def historial_experto(request):
 
 
 @login_required
-def fin(request):
-    return render(request, 'fin.html')
-
-@login_required
-def normalizacion(request):
-    return render(request, 'normalizacion.html')
-
-@login_required
-def modelo_relacional(request):
-    return render(request, 'modelo_relacional.html')
-
-@login_required
-def sentenciasddl(request):
-    return render(request, 'sentenciasddl.html')
-
-@login_required
-def sentencias_dml(request):
-    return render(request, 'sentencias_dml.html')
-
-@login_required
-def diccionario_de_datos(request):
-    return render(request, 'diccionario_de_datos.html')
-
-@login_required
-def diagrama_de_clases(request):
-    return render(request, 'diagrama_de_clases.html')
-
-@login_required
 @user_passes_test(is_admin, login_url=reverse_lazy('login'))
 def admin_principal(request):
     total_users = CustomUser.objects.count()
@@ -1010,7 +895,6 @@ def solicitudes_admin(request):
 
 
 # --- Vistas de Autenticación y Registro (NO deben tener @login_required) ---
-
 def user_login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -1088,7 +972,6 @@ def login_admin(request):
 
 
 
-
 def registrarse(request):
     if request.user.is_authenticated:
         if request.user.tipo_usuario == 'experto':
@@ -1127,57 +1010,6 @@ def registrarse(request):
         'form': form,
         'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY
     })
-
-
-
-
-
-
-
-
-
-
-
-
-def regisexperto(request):
-    if request.user.is_authenticated:
-        if request.user.tipo_usuario == 'experto':
-            return redirect('dashboard_experto')
-        else:
-            return redirect('principal')
-
-    if request.method == 'POST':
-        form = RegistroForm(request.POST, request.FILES)
-
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-        data = {
-            'secret': settings.RECAPTCHA_PRIVATE_KEY,
-            'response': recaptcha_response
-        }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
-        result = r.json()
-
-        if not result.get('success'):
-            messages.error(request, '⚠️ Debes verificar que no eres un robot.')
-        elif form.is_valid():
-            user = form.save(commit=False)
-            user.tipo_usuario = 'experto'  # Aseguramos que sea experto
-            user.save()
-            auth_login(request, user)
-            messages.success(request, '🎉 ¡Registro de experto exitoso! Bienvenido a DoIt.')
-            return redirect('dashboard_experto')
-        else:
-            messages.error(request, 'Hubo un error al registrarte como experto. Por favor, revisa los datos.')
-            print("Errores del formulario de registro de experto:", form.errors)
-    else:
-        form = RegistroForm(initial={'tipo_usuario': 'experto'})
-
-    return render(request, 'regisexperto.html', {
-        'form': form,
-        'RECAPTCHA_SITE_KEY': settings.RECAPTCHA_SITE_KEY
-    })
-
-
 
 
 
@@ -1303,7 +1135,4 @@ def experto_perfil(request):
     }
     
     return render(request, 'experto.html', context)
-
-
-
 

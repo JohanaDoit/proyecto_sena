@@ -57,6 +57,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 'foto_perfil',
                 'especialidad',
                 'verificado',
+                'aprobado_cliente',  # 👈 Ahora es CharField (desplegable)
             )
         }),
     )
@@ -74,6 +75,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 'foto_perfil',
                 'especialidad',
                 'verificado',
+                'aprobado_cliente',
             )
         }),
     )
@@ -87,6 +89,7 @@ class CustomUserAdmin(BaseUserAdmin):
         'tipo_usuario',
         'genero',
         'verificado',
+        'aprobado_cliente',
     )
 
     search_fields = (
@@ -105,9 +108,12 @@ class CustomUserAdmin(BaseUserAdmin):
         'tipo_usuario',
         'genero',
         'verificado',
+        'aprobado_cliente',
     )
 
     ordering = ('username',)
+
+    
 
     
 

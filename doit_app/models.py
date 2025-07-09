@@ -65,6 +65,12 @@ class CustomUser(AbstractUser):
         ('experto', 'Experto'),
     ]
 
+    estado_aprobacion_choices = [
+        ('pendiente', 'Pendiente'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
     genero = models.ForeignKey(Genero, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Género")
     tipo_usuario = models.CharField(max_length=20, choices=tipo_usuario_choices, default='cliente', verbose_name="Tipo de Usuario")
     nacionalidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nacionalidad")
@@ -80,17 +86,25 @@ class CustomUser(AbstractUser):
         blank=True,
         verbose_name="Servicios que ofrece el experto"
     )
-    
+
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
     barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
     documento_identidad_pdf = models.FileField(upload_to='documentos_identidad/', blank=True, null=True, verbose_name="Documento de Identidad (PDF)")
 
-    # 👉 CAMPO AGREGADO: verificación de expertos
+    # 👉 Estado de verificación del experto
     verificado = models.CharField(
         max_length=20,
         choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')],
         default='pendiente',
         verbose_name="Estado de verificación del experto"
+    )
+
+    # 👉 Estado de aprobación del cliente
+    aprobado_cliente = models.CharField(
+        max_length=20,
+        choices=estado_aprobacion_choices,
+        default='pendiente',
+        verbose_name="Estado de aprobación del cliente"
     )
 
     class Meta:
@@ -107,7 +121,6 @@ class CustomUser(AbstractUser):
     def is_experto(self):
         return self.tipo_usuario == 'experto'
     
-
 
 
 
