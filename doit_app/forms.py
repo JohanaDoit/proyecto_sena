@@ -533,27 +533,27 @@ class CalificacionForm(forms.ModelForm):
 
 
 class DisponibilidadForm(forms.ModelForm):
-    # Generar opciones de tiempo en bloques de 30 minutos
+    # Generar opciones de tiempo en bloques de 30 minutos (6:00 AM - 9:00 PM)
     HORA_CHOICES = []
-    for hour in range(24):
+    for hour in range(6, 21 + 1):  # De 6 a 21 horas (6am a 9pm)
         for minute in [0, 30]:
             time_obj = time(hour, minute)
             time_str = time_obj.strftime('%H:%M')
-            display_str = time_obj.strftime('%I:%M %p')
+            display_str = time_obj.strftime('%I:%M %p')  # Ej: 06:00 AM
             HORA_CHOICES.append((time_str, display_str))
-    
+
     hora_inicio = forms.ChoiceField(
         choices=HORA_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Hora de inicio'
     )
-    
+
     hora_fin = forms.ChoiceField(
         choices=HORA_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Hora de fin'
     )
-    
+
     class Meta:
         model = Disponibilidad
         fields = ['fecha', 'hora_inicio', 'hora_fin', 'idEstado']
@@ -561,18 +561,18 @@ class DisponibilidadForm(forms.ModelForm):
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'idEstado': forms.Select(attrs={'class': 'form-select'}),
         }
-    
+
     def clean(self):
         cleaned_data = super().clean()
         hora_inicio = cleaned_data.get('hora_inicio')
         hora_fin = cleaned_data.get('hora_fin')
-        
+
         if hora_inicio and hora_fin:
-            # Convertir strings a objetos time
             hora_inicio_obj = time.fromisoformat(hora_inicio)
             hora_fin_obj = time.fromisoformat(hora_fin)
-            
+
+            # Validar que hora_inicio sea menor que hora_fin
             if hora_inicio_obj >= hora_fin_obj:
                 raise forms.ValidationError("La hora de fin debe ser posterior a la hora de inicio.")
-        
+
         return cleaned_data
