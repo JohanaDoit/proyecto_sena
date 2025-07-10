@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cuenta Pendiente de Aprobación{% endblock %}
+
+{% block extra_css %}
+<style>
+.pendiente-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.pendiente-icon {
+    font-size: 4rem;
+    color: #ffc107;
+    margin-bottom: 20px;
+}
+
+.pendiente-title {
+    color: #495057;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.pendiente-message {
+    color: #6c757d;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.estado-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.estado-pendiente {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.estado-rechazado {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.info-list {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.info-list h4 {
+    color: #495057;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.info-list ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.info-list li {
+    margin-bottom: 8px;
+    color: #6c757d;
+}
+
+.contact-info {
+    background: #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.contact-info p {
+    margin: 0;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.btn-logout {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.btn-logout:hover {
+    background: #c82333;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pendiente-container">
+    <div class="pendiente-icon">
+        {% if estado == 'pendiente' %}
+            ⏳
+        {% elif estado == 'rechazado' %}
+            ❌
+        {% endif %}
+    </div>
+
+    <h1 class="pendiente-title">
+        {% if estado == 'pendiente' %}
+            Cuenta Pendiente de Aprobación
+        {% elif estado == 'rechazado' %}
+            Cuenta Rechazada
+        {% endif %}
+    </h1>
+
+    <div class="estado-badge {% if estado == 'pendiente' %}estado-pendiente{% elif estado == 'rechazado' %}estado-rechazado{% endif %}">
+        Estado: {{ estado|capfirst }}
+    </div>
+
+    <div class="pendiente-message">
+        {% if estado == 'pendiente' %}
+            {% if tipo_usuario == 'cliente' %}
+                Tu cuenta de cliente está siendo revisada por nuestro equipo de administradores.
+            {% else %}
+                Tu cuenta de experto está siendo revisada por nuestro equipo de administradores.
+            {% endif %}
+            <br><br>
+            <strong>No puedes acceder a las funcionalidades de la plataforma hasta que tu cuenta sea aprobada.</strong>
+        {% elif estado == 'rechazado' %}
+            Lamentablemente, tu solicitud de registro ha sido rechazada por el administrador.
+            <br><br>
+            Para más información sobre el motivo del rechazo, por favor contacta al administrador.
+        {% endif %}
+    </div>
+
+    {% if estado == 'pendiente' %}
+        <div class="info-list">
+            <h4>Mientras esperas la aprobación:</h4>
+            <ul>
+                <li>Tu cuenta está siendo revisada por nuestro equipo</li>
+                <li>Recibirás una notificación una vez que sea aprobada</li>
+                {% if tipo_usuario == 'experto' %}
+                    <li>Asegúrate de haber completado toda la documentación requerida</li>
+                {% endif %}
+                <li>El proceso de aprobación puede tomar entre 24-48 horas</li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="contact-info">
+        <p><strong>¿Necesitas ayuda?</strong></p>
+        <p>Contacta al administrador para cualquier consulta sobre tu cuenta.</p>
+    </div>
+
+    <a href="{% url 'user_logout' %}" class="btn-logout">
+        Cerrar Sesión
+    </a>
+</div>
+{% endblock %}

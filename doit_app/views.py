@@ -33,12 +33,84 @@ from django.db.models.functions import Concat
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponseRedirect
 from django.contrib.auth import get_user_model
+from functools import wraps
+from django.core.mail import send_mail
+from django.conf import settings
+
+
+def usuario_aprobado_required(view_func):
+    """
+    Decorador que verifica si el usuario está aprobado antes de permitir el acceso.
+    Para clientes: verifica aprobado_cliente == 'aprobado'
+    Para expertos: verifica verificado == 'aprobado'
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        # Permitir acceso a superusuarios/admin
+        if request.user.is_superuser or request.user.tipo_usuario == 'admin':
+            return view_func(request, *args, **kwargs)
+        
+        # Verificar estado de aprobación según tipo de usuario
+        if request.user.tipo_usuario == 'cliente':
+            if request.user.aprobado_cliente != 'aprobado':
+                messages.warning(request, 'Tu cuenta está pendiente de aprobación por parte del administrador. No puedes acceder a todas las funcionalidades hasta que sea aprobada.')
+                return render(request, 'pendiente_aprobacion.html', {
+                    'tipo_usuario': 'cliente',
+                    'estado': request.user.aprobado_cliente
+                })
+        elif request.user.tipo_usuario == 'experto':
+            if request.user.verificado != 'aprobado':
+                messages.warning(request, 'Tu cuenta está pendiente de aprobación por parte del administrador. No puedes acceder a todas las funcionalidades hasta que sea aprobada.')
+                return render(request, 'pendiente_aprobacion.html', {
+                    'tipo_usuario': 'experto',
+                    'estado': request.user.verificado
+                })
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
+from functools import wraps
 
 
 
-
+def usuario_aprobado_required(view_func):
+    """
+    Decorador que verifica si el usuario está aprobado antes de permitir el acceso.
+    Para clientes: verifica aprobado_cliente == 'aprobado'
+    Para expertos: verifica verificado == 'aprobado'
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        # Permitir acceso a superusuarios/admin
+        if request.user.is_superuser or request.user.tipo_usuario == 'admin':
+            return view_func(request, *args, **kwargs)
+        
+        # Verificar estado de aprobación según tipo de usuario
+        if request.user.tipo_usuario == 'cliente':
+            if request.user.aprobado_cliente != 'aprobado':
+                messages.warning(request, 'Tu cuenta está pendiente de aprobación por parte del administrador. No puedes acceder a todas las funcionalidades hasta que sea aprobada.')
+                return render(request, 'pendiente_aprobacion.html', {
+                    'tipo_usuario': 'cliente',
+                    'estado': request.user.aprobado_cliente
+                })
+        elif request.user.tipo_usuario == 'experto':
+            if request.user.verificado != 'aprobado':
+                messages.warning(request, 'Tu cuenta está pendiente de aprobación por parte del administrador. No puedes acceder a todas las funcionalidades hasta que sea aprobada.')
+                return render(request, 'pendiente_aprobacion.html', {
+                    'tipo_usuario': 'experto',
+                    'estado': request.user.verificado
+                })
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 @login_required
+@usuario_aprobado_required
 def chat_view(request, receptor_id):
     receptor = get_object_or_404(CustomUser, id=receptor_id)
 
@@ -522,6 +594,7 @@ def principal(request):
 
 
 @login_required
+@usuario_aprobado_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login')) 
 def reserva(request):
     from doit_app.models import CustomUser  # ✅ Import al principio
@@ -720,7 +793,7 @@ def reserva(request):
 
 
 @login_required
-@login_required
+@usuario_aprobado_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def cancelar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
@@ -792,6 +865,7 @@ def cancelar_reserva(request, reserva_id):
 
 
 @login_required
+@usuario_aprobado_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def mis_reservas_cliente(request):
     from doit_app.models import Calificaciones, Notificacion
@@ -875,6 +949,7 @@ def ciudades_por_pais(request):
 
 
 @login_required
+@usuario_aprobado_required
 def busc_experto(request):
     q = request.GET.get('q', '').strip()
     fecha = request.GET.get('fecha', '').strip()  # nueva línea
@@ -1059,6 +1134,7 @@ def rechazar_reserva_experto(request, reserva_id):
     
 
 @login_required
+@usuario_aprobado_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
     from doit_app.models import Calificaciones, Estado
@@ -1347,6 +1423,7 @@ def historial_cliente(request):
     })
 
 @login_required
+@usuario_aprobado_required
 def notificaciones(request):
     notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha')
     # Marcar como leídas todas las no leídas
@@ -1399,7 +1476,7 @@ def expertos_por_especialidad(request):
     return JsonResponse({'expertos': data})
 
 @login_required
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+@usuario_aprobado_required
 def experto_perfil(request):
     """Vista para el perfil del experto"""
     # Promedio de calificaciones del experto
@@ -1448,4 +1525,88 @@ def marcar_notificacion_leida(request):
             return JsonResponse({'status': 'error', 'message': str(e)})
     
     return JsonResponse({'status': 'error', 'message': 'ID de reserva no válido'})
+
+
+@login_required
+@usuario_aprobado_required
+def pqr_view(request):
+    from .forms import PQRForm
+    from .models import PQR
+    
+    if request.method == 'POST':
+        form = PQRForm(request.POST)
+        if form.is_valid():
+            pqr = form.save(commit=False)
+            pqr.usuario = request.user
+            pqr.save()
+            
+            # Enviar correo electrónico
+            try:
+                tipo_pqr = pqr.get_tipo_display()
+                usuario_info = f"{request.user.get_full_name()}" if request.user.get_full_name() else request.user.username
+                
+                asunto_correo = f"Nuevo {tipo_pqr} - {pqr.asunto}"
+                
+                mensaje_correo = f"""
+Has recibido un nuevo {tipo_pqr} desde la plataforma DOIT.
+
+INFORMACIÓN DEL USUARIO:
+- Nombre: {usuario_info}
+- Usuario: {request.user.username}
+- Email: {request.user.email}
+- Tipo de usuario: {request.user.get_tipo_usuario_display()}
+- Teléfono: {request.user.telefono or 'No registrado'}
+
+DETALLES DEL {tipo_pqr.upper()}:
+- Tipo: {tipo_pqr}
+- Asunto: {pqr.asunto}
+- Fecha: {pqr.fecha_creacion.strftime('%d/%m/%Y %H:%M')}
+
+DESCRIPCIÓN:
+{pqr.descripcion}
+
+---
+PQR ID: #{pqr.id}
+Sistema DOIT - Plataforma de Servicios
+                """
+                
+                send_mail(
+                    subject=asunto_correo,
+                    message=mensaje_correo,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=['ose.luis.quintero@gmail.com'],
+                    fail_silently=False,
+                )
+                
+                messages.success(request, f'Tu {tipo_pqr.lower()} ha sido enviado exitosamente. Recibirás una respuesta pronto.')
+                
+            except Exception as e:
+                messages.warning(request, f'Tu {tipo_pqr.lower()} fue registrado, pero hubo un problema enviando el correo. El equipo ha sido notificado.')
+            
+            # Redirigir según el tipo de usuario
+            if request.user.tipo_usuario == 'cliente':
+                return redirect('principal')
+            else:
+                return redirect('dashboard_experto')
+    else:
+        form = PQRForm()
+    
+    return render(request, 'pqr_form.html', {
+        'form': form,
+        'titulo': 'Enviar PQR (Petición, Queja o Reclamo)'
+    })
+
+
+@login_required
+@usuario_aprobado_required  
+def mis_pqrs(request):
+    """Vista para que el usuario vea sus PQRs enviados"""
+    from .models import PQR
+    
+    pqrs = PQR.objects.filter(usuario=request.user).order_by('-fecha_creacion')
+    
+    return render(request, 'mis_pqrs.html', {
+        'pqrs': pqrs,
+        'titulo': 'Mis PQRs'
+    })
 

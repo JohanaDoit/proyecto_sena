@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 # Importa todos los modelos necesarios
 # Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
-from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones
+from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones, PQR, PQR
 from datetime import datetime, timedelta, time, date
 from .models import Disponibilidad
 from django.conf import settings
@@ -576,3 +576,48 @@ class DisponibilidadForm(forms.ModelForm):
                 raise forms.ValidationError("La hora de fin debe ser posterior a la hora de inicio.")
 
         return cleaned_data
+
+
+class PQRForm(forms.ModelForm):
+    class Meta:
+        model = PQR
+        fields = ['tipo', 'asunto', 'descripcion']
+        widgets = {
+            'tipo': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_tipo'
+            }),
+            'asunto': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Escribe el asunto de tu PQR',
+                'maxlength': '200'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Describe detalladamente tu petición, queja, reclamo o sugerencia...',
+                'rows': 5
+            })
+        }
+        labels = {
+            'tipo': 'Tipo de PQR',
+            'asunto': 'Asunto',
+            'descripcion': 'Descripción detallada'
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Agregar clases de validación de Bootstrap
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' mb-3'})
+    
+    def clean_asunto(self):
+        asunto = self.cleaned_data.get('asunto')
+        if len(asunto.strip()) < 5:
+            raise forms.ValidationError("El asunto debe tener al menos 5 caracteres.")
+        return asunto.strip()
+    
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get('descripcion')
+        if len(descripcion.strip()) < 20:
+            raise forms.ValidationError("La descripción debe tener al menos 20 caracteres para poder ayudarte mejor.")
+        return descripcion.strip()

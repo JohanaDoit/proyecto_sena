@@ -67,20 +67,28 @@
 
 
         <ul class="list-unstyled components">
-            {# Enlaces para clientes #}
-            {% if user.is_authenticated and user.is_usuario_normal %} {# 'is_usuario_normal' es el método en tu CustomUser #}
+            {# Enlaces para clientes - Solo si está aprobado #}
+            {% if user.is_authenticated and user.is_usuario_normal and user.aprobado_cliente == 'aprobado' %}
                 <li><a href="{% url 'principal' %}"><i class="fas fa-home"></i> Inicio Cliente</a></li>
                 <li><a href="{% url 'mis_reservas_cliente' %}"><i class="fas fa-calendar-alt"></i> Mis Reservas</a></li>
                 <li><a href="{% url 'reserva' %}"><i class="fas fa-plus-circle"></i> Nueva Reserva</a></li>
                 <li><a href="{% url 'busc_experto' %}"><i class="fas fa-search"></i> Buscar Experto</a></li>
+                <li><a href="{% url 'pqr' %}"><i class="fas fa-envelope"></i> Enviar PQR</a></li>
+                <li><a href="{% url 'mis_pqrs' %}"><i class="fas fa-list-alt"></i> Mis PQRs</a></li>
+            {% elif user.is_authenticated and user.is_usuario_normal and user.aprobado_cliente != 'aprobado' %}
+                <li><span class="nav-disabled"><i class="fas fa-clock"></i> Pendiente de aprobación</span></li>
             {% endif %}
 
-            {# Enlaces para expertos #}
-            {% if user.is_authenticated and user.is_experto %} {# 'is_experto' es el método en tu CustomUser #}
+            {# Enlaces para expertos - Solo si está verificado #}
+            {% if user.is_authenticated and user.is_experto and user.verificado == 'aprobado' %}
                 <li><a href="{% url 'dashboard_experto' %}"><i class="fas fa-tachometer-alt"></i> Dashboard Experto</a></li>
                 <li><a href="{% url 'historial_experto' %}"><i class="fas fa-history"></i> Historial de Servicios</a></li>
+                <li><a href="{% url 'pqr' %}"><i class="fas fa-envelope"></i> Enviar PQR</a></li>
+                <li><a href="{% url 'mis_pqrs' %}"><i class="fas fa-list-alt"></i> Mis PQRs</a></li>
                 {# Puedes añadir más enlaces específicos para expertos aquí, ej. para gestionar perfil de experto #}
                 {# <li><a href="{% url 'editar_perfil_experto' %}"><i class="fas fa-user-cog"></i> Configurar Perfil Experto</a></li> #}
+            {% elif user.is_authenticated and user.is_experto and user.verificado != 'aprobado' %}
+                <li><span class="nav-disabled"><i class="fas fa-clock"></i> Pendiente de verificación</span></li>
             {% endif %}
 
             {# Enlaces para administradores (si acceden a través de este dashboard, si no, usan el admin de Django) #}

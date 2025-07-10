@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.pqrs-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+.pqrs-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pqrs-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.btn-nuevo-pqr {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: background 0.2s ease;
+}
+
+.btn-nuevo-pqr:hover {
+    background: #218838;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    transition: background 0.2s ease;
+}
+
+.btn-volver:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+.pqr-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-left: 4px solid;
+}
+
+.pqr-card.peticion {
+    border-left-color: #007bff;
+}
+
+.pqr-card.queja {
+    border-left-color: #ffc107;
+}
+
+.pqr-card.reclamo {
+    border-left-color: #dc3545;
+}
+
+.pqr-card.sugerencia {
+    border-left-color: #28a745;
+}
+
+.pqr-header-card {
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.pqr-tipo {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.pqr-tipo.peticion {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.pqr-tipo.queja {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.pqr-tipo.reclamo {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.pqr-tipo.sugerencia {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.pqr-asunto {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+    margin: 8px 0;
+}
+
+.pqr-fecha {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.pqr-body {
+    padding: 20px;
+}
+
+.pqr-descripcion {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.pqr-estado {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.pqr-estado.pendiente {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.pqr-estado.respondido {
+    background: #d4edda;
+    color: #155724;
+}
+
+.pqr-respuesta {
+    background: #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.pqr-respuesta h6 {
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    color: #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .pqrs-container {
+        margin: 15px;
+        padding: 0 10px;
+    }
+    
+    .pqrs-header {
+        padding: 20px;
+    }
+    
+    .pqr-header-card,
+    .pqr-body {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pqrs-container">
+    <div class="pqrs-header">
+        <h1><i class="fas fa-list-alt"></i> {{ titulo }}</h1>
+        <p>Aquí puedes ver el historial de todos tus PQRs enviados</p>
+    </div>
+    
+    {% if user.tipo_usuario == 'cliente' %}
+        <a href="{% url 'principal' %}" class="btn-volver">
+            <i class="fas fa-arrow-left"></i> Volver al inicio
+        </a>
+    {% else %}
+        <a href="{% url 'dashboard_experto' %}" class="btn-volver">
+            <i class="fas fa-arrow-left"></i> Volver al dashboard
+        </a>
+    {% endif %}
+    
+    <a href="{% url 'pqr' %}" class="btn-nuevo-pqr">
+        <i class="fas fa-plus"></i> Enviar nuevo PQR
+    </a>
+    
+    {% if pqrs %}
+        {% for pqr in pqrs %}
+            <div class="pqr-card {{ pqr.tipo }}">
+                <div class="pqr-header-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="pqr-tipo {{ pqr.tipo }}">{{ pqr.get_tipo_display }}</span>
+                            <div class="pqr-asunto">{{ pqr.asunto }}</div>
+                            <div class="pqr-fecha">
+                                <i class="fas fa-calendar"></i> {{ pqr.fecha_creacion|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                        <div>
+                            {% if pqr.respondido %}
+                                <span class="pqr-estado respondido">
+                                    <i class="fas fa-check-circle"></i> Respondido
+                                </span>
+                            {% else %}
+                                <span class="pqr-estado pendiente">
+                                    <i class="fas fa-clock"></i> Pendiente
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pqr-body">
+                    <div class="pqr-descripcion">
+                        {{ pqr.descripcion|linebreaks }}
+                    </div>
+                    
+                    {% if pqr.respondido and pqr.respuesta %}
+                        <div class="pqr-respuesta">
+                            <h6><i class="fas fa-reply"></i> Respuesta del administrador:</h6>
+                            <div>{{ pqr.respuesta|linebreaks }}</div>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> Respondido el {{ pqr.fecha_respuesta|date:"d/m/Y H:i" }}
+                            </small>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            PQR #{{ pqr.id }} 
+                            {% if not pqr.respondido %}
+                                • Recibirás una respuesta por correo electrónico
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No has enviado ningún PQR</h3>
+            <p>Cuando envíes peticiones, quejas, reclamos o sugerencias, aparecerán aquí.</p>
+            <a href="{% url 'pqr' %}" class="btn-nuevo-pqr">
+                <i class="fas fa-plus"></i> Enviar tu primer PQR
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

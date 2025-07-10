@@ -14,7 +14,8 @@ from .models import (
     Pagos,    # <--- Si quieres gestionar Pagos
     Profesion, # <--- Si quieres gestionar Profesiones
     Calificaciones, # <--- Si quieres gestionar Calificaciones
-    Reserva   # <--- Si quieres gestionar Reservas
+    Reserva,   # <--- Si quieres gestionar Reservas
+    PQR        # <--- Nuevo modelo PQR
 )
 from django.utils.html import format_html
 
@@ -234,3 +235,43 @@ class CiudadAdmin(admin.ModelAdmin):
     list_display = ['id', 'Nombre', 'departamento']
     list_filter = ['departamento__pais', 'departamento'] # Filtra por país y luego por departamento
     search_fields = ['Nombre', 'departamento__Nombre', 'departamento__pais__Nombre']
+
+
+@admin.register(PQR)
+class PQRAdmin(admin.ModelAdmin):
+    list_display = ['id', 'tipo', 'asunto', 'usuario', 'fecha_creacion', 'respondido']
+    list_filter = ['tipo', 'respondido', 'fecha_creacion']
+    search_fields = ['asunto', 'descripcion', 'usuario__username', 'usuario__email']
+    readonly_fields = ['usuario', 'tipo', 'asunto', 'descripcion', 'fecha_creacion']
+    fieldsets = (
+        ('Información del PQR', {
+            'fields': ('usuario', 'tipo', 'asunto', 'descripcion', 'fecha_creacion')
+        }),
+        ('Gestión de Respuesta', {
+            'fields': ('respondido', 'respuesta', 'fecha_respuesta'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if change and obj.respondido and not obj.fecha_respuesta:
+            from django.utils import timezone
+            obj.fecha_respuesta = timezone.now()
+        super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related('usuario')
+    
+    actions = ['marcar_como_respondido', 'marcar_como_pendiente']
+    
+    def marcar_como_respondido(self, request, queryset):
+        from django.utils import timezone
+        updated = queryset.update(respondido=True, fecha_respuesta=timezone.now())
+        self.message_user(request, f'{updated} PQRs marcados como respondidos.')
+    marcar_como_respondido.short_description = "Marcar PQRs seleccionados como respondidos"
+    
+    def marcar_como_pendiente(self, request, queryset):
+        updated = queryset.update(respondido=False, fecha_respuesta=None)
+        self.message_user(request, f'{updated} PQRs marcados como pendientes.')
+    marcar_como_pendiente.short_description = "Marcar PQRs seleccionados como pendientes"

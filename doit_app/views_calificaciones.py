@@ -3,8 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Reserva, Calificaciones
 from .forms import CalificacionForm
+from .views import usuario_aprobado_required
 
 @login_required
+@usuario_aprobado_required
 def calificar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
     user = request.user
