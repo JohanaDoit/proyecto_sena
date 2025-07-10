@@ -572,6 +572,25 @@ document.addEventListener('DOMContentLoaded', function() {
     window.ocultarNotificacionCalificar = function() {
         const notificacion = document.getElementById('notificacion-calificar');
         if (notificacion) {
+            // Obtener el ID de la reserva desde el botón "Más tarde"
+            const botonMasTarde = notificacion.querySelector('[onclick*="recordarMasTarde"]');
+            if (botonMasTarde) {
+                const match = botonMasTarde.getAttribute('onclick').match(/recordarMasTarde\((\d+)\)/);
+                if (match) {
+                    const reservaId = match[1];
+                    // Marcar como leída antes de ocultar
+                    fetch('{% url "marcar_notificacion_leida" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: 'reserva_id=' + reservaId
+                    }).catch(error => console.error('Error al marcar como leída:', error));
+                }
+            }
+            
+            // Ocultar con animación
             notificacion.style.transition = 'all 0.3s ease';
             notificacion.style.transform = 'translateX(100%)';
             notificacion.style.opacity = '0';

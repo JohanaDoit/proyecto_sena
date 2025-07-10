@@ -3,41 +3,146 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+<style>
+.filtros-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+.filtros-form {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+}
+.filter-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #495057;
+    font-size: 0.9em;
+}
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9em;
+}
+.filter-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    height: fit-content;
+}
+.filter-btn:hover {
+    background: #0056b3;
+}
+.clear-filters {
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    height: fit-content;
+}
+.clear-filters:hover {
+    background: #545b62;
+    color: white;
+    text-decoration: none;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <h1>Mis Reservas</h1>
+
+<!-- Filtros -->
+<div class="filtros-container">
+    <form method="GET" class="filtros-form">
+        <div class="filter-group">
+            <label for="estado">Estado:</label>
+            <select name="estado" id="estado">
+                <option value="todos" {% if estado_actual == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="pendiente" {% if estado_actual == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="en_proceso" {% if estado_actual == 'en_proceso' %}selected{% endif %}>En proceso</option>
+                <option value="finalizado" {% if estado_actual == 'finalizado' %}selected{% endif %}>Finalizado</option>
+                <option value="cancelado" {% if estado_actual == 'cancelado' %}selected{% endif %}>Cancelado</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="orden">Ordenar por:</label>
+            <select name="orden" id="orden">
+                <option value="fecha_desc" {% if orden_actual == 'fecha_desc' %}selected{% endif %}>Fecha (más reciente)</option>
+                <option value="fecha_asc" {% if orden_actual == 'fecha_asc' %}selected{% endif %}>Fecha (más antigua)</option>
+                <option value="estado" {% if orden_actual == 'estado' %}selected{% endif %}>Estado</option>
+                <option value="calificacion_desc" {% if orden_actual == 'calificacion_desc' %}selected{% endif %}>Calificados primero</option>
+                <option value="calificacion_asc" {% if orden_actual == 'calificacion_asc' %}selected{% endif %}>Sin calificar primero</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="filter-btn">Aplicar filtros</button>
+        <a href="{% url 'mis_reservas_cliente' %}" class="clear-filters">Limpiar</a>
+    </form>
+</div>
+
 <div class="reservas-lista">
   {% for reserva in reservas %}
-    <div class="reserva-card {% if reserva.servicio_finalizado %}finalizada{% else %}pendiente{% endif %}">
+    <div class="reserva-card {% if reserva.idEstado.Nombre == 'Finalizado' %}finalizada{% elif reserva.idEstado.Nombre == 'Cancelado' %}cancelada{% else %}pendiente{% endif %}">
       <div class="reserva-header">
         <div class="reserva-info">
           <span><strong>Experto:</strong> {% if reserva.experto_asignado %}{{ reserva.experto_asignado.get_full_name|default:reserva.experto_asignado.username }}{% else %}Sin asignar{% endif %}</span>
           <span><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</span>
           <span><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }}</span>
         </div>
-        <span class="reserva-estado {% if reserva.servicio_finalizado %}finalizada{% else %}pendiente{% endif %}">
-          {% if reserva.servicio_finalizado %}Finalizado{% elif reserva.servicio_iniciado %}En proceso{% else %}Pendiente{% endif %}
+        <span class="reserva-estado {% if reserva.idEstado.Nombre == 'Finalizado' %}finalizada{% elif reserva.idEstado.Nombre == 'Cancelado' %}cancelada{% else %}pendiente{% endif %}">
+          {% if reserva.idEstado.Nombre == 'Finalizado' %}Finalizado
+          {% elif reserva.idEstado.Nombre == 'Cancelado' %}Cancelado
+          {% elif reserva.servicio_iniciado %}En proceso
+          {% else %}{{ reserva.idEstado.Nombre }}{% endif %}
         </span>
       </div>
       <div class="reserva-calificacion">
-        {% if reserva.servicio_finalizado %}
-          {% if not reserva.calificacion_cliente %}
-            <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
-          {% else %}
-            <span>Calificado</span>
+        {% if reserva.idEstado.Nombre == 'Finalizado' and reserva.servicio_finalizado %}
+          {% if reserva.calificacion_cliente %}
+            <!-- Ya existe calificación -->
+            <span class="text-success fw-bold">✓ Calificado</span>
             <div class="star-display rating-display" data-rating="{{ reserva.calificacion_cliente.puntuacion }}" data-show-number="true"></div>
+          {% else %}
+            <!-- Servicio finalizado pero sin calificar -->
+            <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
+          {% endif %}
+        {% elif reserva.idEstado.Nombre == 'Cancelado' %}
+          <!-- Reserva cancelada -->
+          <span class="text-danger">Cancelado</span>
+          {% if reserva.motivo_cancelacion %}
+            <small class="text-muted d-block">Motivo: {{ reserva.motivo_cancelacion|truncatechars:50 }}</small>
           {% endif %}
         {% else %}
-          <span>---</span>
+          <!-- Servicio no finalizado -->
+          <span class="text-muted">---</span>
         {% endif %}
       </div>
-      {% if reserva.servicio_finalizado and reserva.calificacion_cliente and reserva.calificacion_cliente.comentario %}
+      {% if reserva.idEstado.Nombre == 'Finalizado' and reserva.calificacion_cliente and reserva.calificacion_cliente.comentario %}
         <div class="reserva-comentario">
           <strong>Comentario:</strong> {{ reserva.calificacion_cliente.comentario }}
         </div>
       {% endif %}
     </div>
+  {% empty %}
+    <p>No tienes reservas{% if estado_actual != 'todos' %} con estado "{{ estado_actual|capfirst }}"{% endif %}.</p>
   {% endfor %}
 </div>
 

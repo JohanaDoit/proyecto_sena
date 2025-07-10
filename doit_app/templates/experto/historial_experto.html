@@ -3,10 +3,91 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/calificaciones.css' %}">
+<style>
+.filtros-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+.filtros-form {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+.filter-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #495057;
+    font-size: 0.9em;
+}
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9em;
+}
+.filter-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    height: fit-content;
+}
+.filter-btn:hover {
+    background: #0056b3;
+}
+.clear-filters {
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    height: fit-content;
+}
+.clear-filters:hover {
+    background: #545b62;
+    color: white;
+    text-decoration: none;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <h1>Historial de Servicios Finalizados</h1>
+
+<!-- Filtros -->
+<div class="filtros-container">
+    <form method="GET" class="filtros-form">
+        <div class="filter-group">
+            <label for="orden">Ordenar por:</label>
+            <select name="orden" id="orden">
+                <option value="fecha_desc" {% if orden_actual == 'fecha_desc' %}selected{% endif %}>Fecha (más reciente)</option>
+                <option value="fecha_asc" {% if orden_actual == 'fecha_asc' %}selected{% endif %}>Fecha (más antigua)</option>
+                <option value="calificacion_recibida_desc" {% if orden_actual == 'calificacion_recibida_desc' %}selected{% endif %}>Calificación recibida (mayor)</option>
+                <option value="calificacion_recibida_asc" {% if orden_actual == 'calificacion_recibida_asc' %}selected{% endif %}>Calificación recibida (menor)</option>
+                <option value="calificacion_dada_desc" {% if orden_actual == 'calificacion_dada_desc' %}selected{% endif %}>Calificación dada (mayor)</option>
+                <option value="calificacion_dada_asc" {% if orden_actual == 'calificacion_dada_asc' %}selected{% endif %}>Calificación dada (menor)</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="filter-btn">Aplicar filtros</button>
+        <a href="{% url 'historial_experto' %}" class="clear-filters">Limpiar</a>
+    </form>
+</div>
+
 <div class="reservas-lista">
   {% for item in historial %}
     <div class="reserva-card finalizada">

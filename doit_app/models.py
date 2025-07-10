@@ -331,6 +331,9 @@ class Reserva(models.Model):
     comentario_durante_servicio = models.TextField(blank=True, null=True, verbose_name="Comentario del Experto")
     duracion_estimada = models.CharField(max_length=50, null=True, blank=True, verbose_name="duracion del servicio")
     comentario_cliente = models.TextField(blank=True, null=True, verbose_name="Comentario del Cliente")
+    
+    # Campo para rastrear si el cliente ya descartó la notificación de calificar
+    notificacion_calificar_descartada = models.BooleanField(default=False, verbose_name="Notificación de Calificar Descartada")
 
     # Auditoría
     creado_en = models.DateTimeField(auto_now_add=True)

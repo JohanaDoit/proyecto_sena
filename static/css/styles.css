@@ -340,6 +340,11 @@ footer {
     border-left-color: var(--alert-success-border);
 }
 
+.reserva-card.cancelada {
+    border-left-color: var(--alert-danger-border);
+    background: #fdf2f2;
+}
+
 .reserva-header {
     display: flex;
     flex-wrap: wrap;

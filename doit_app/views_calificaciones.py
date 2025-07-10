@@ -22,8 +22,9 @@ def calificar_reserva(request, reserva_id):
         return redirect('home')
 
     # Evitar doble calificación
-    if Calificaciones.objects.filter(reserva=reserva, calificado_por=user, tipo=tipo).exists():
-        messages.info(request, 'Ya has calificado esta reserva.')
+    calificacion_existente = Calificaciones.objects.filter(reserva=reserva, calificado_por=user, tipo=tipo).first()
+    if calificacion_existente:
+        messages.info(request, f'Ya has calificado esta reserva con {calificacion_existente.puntuacion} estrellas.')
         return redirect(redir)
 
     if request.method == 'POST':
@@ -35,6 +36,12 @@ def calificar_reserva(request, reserva_id):
             calificacion.calificado_a = calificado_a
             calificacion.tipo = tipo
             calificacion.save()
+            
+            # Marcar la notificación de calificar como descartada si es el cliente
+            if tipo == 'cliente_a_experto':
+                reserva.notificacion_calificar_descartada = True
+                reserva.save()
+            
             messages.success(request, '¡Calificación registrada exitosamente!')
             return redirect(redir)
     else:
