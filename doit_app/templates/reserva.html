@@ -6,6 +6,18 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/reserva.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        .flatpickr-calendar {
+            z-index: 9999 !important;
+        }
+        .fecha-input-container {
+            position: relative;
+        }
+        .fecha-reserva {
+            cursor: pointer;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -124,76 +136,6 @@
                 {% endif %}
             </div>
             
-            <script src="https:
-            <script src="https:
-            <link rel="stylesheet" href="https:
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    var diasNoDisponibles = {{ dias_no_disponibles|safe }};
-                    var mensaje = document.getElementById('mensaje-dia-no-disponible');
-                    var helperText = document.querySelector('.fecha-helper-text span');
-                    var fechaInput = document.getElementById('calendario-reserva-experto');
-                    
-                    flatpickr("#calendario-reserva-experto", {
-                        dateFormat: 'Y-m-d',
-                        locale: 'es',
-                        disable: diasNoDisponibles,
-                        minDate: 'today',
-                        disableMobile: true,
-                        onChange: function(selectedDates, dateStr, instance) {
-                            
-                            if (diasNoDisponibles.includes(dateStr)) {
-                                mensaje.style.display = 'block';
-                                setTimeout(function() {
-                                    mensaje.style.display = 'none';
-                                }, 4000);
-                                instance.clear();
-                                
-                                if (helperText) {
-                                    helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
-                                }
-                            } else if (selectedDates.length > 0) {
-                                
-                                if (helperText) {
-                                    var fechaFormateada = selectedDates[0].toLocaleDateString('es-ES', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    });
-                                    helperText.innerHTML = '✓ Fecha seleccionada: ' + fechaFormateada;
-                                }
-                            }
-                        },
-                        onValueUpdate: function(selectedDates, dateStr, instance) {
-                            
-                            if (diasNoDisponibles.includes(dateStr)) {
-                                mensaje.style.display = 'block';
-                                setTimeout(function() {
-                                    mensaje.style.display = 'none';
-                                }, 4000);
-                                instance.clear();
-                                
-                                if (helperText) {
-                                    helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
-                                }
-                            }
-                        },
-                        onOpen: function(selectedDates, dateStr, instance) {
-                            
-                            if (helperText && selectedDates.length === 0) {
-                                helperText.innerHTML = '📅 Selecciona un día disponible del calendario';
-                            }
-                        },
-                        onClose: function(selectedDates, dateStr, instance) {
-                            
-                            if (helperText && selectedDates.length === 0) {
-                                helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
-                            }
-                        }
-                    });
-                });
-            </script>
             {% for error in form.Fecha.errors %}
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}
@@ -301,5 +243,96 @@
             ciudadSelect.innerHTML = '<option value="">-- Selecciona un País primero --</option>';
         }
     });
+</script>
+
+<!-- Scripts para el calendario Flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing calendar...');
+    
+    // Verificar si flatpickr está disponible
+    if (typeof flatpickr === 'undefined') {
+        console.error('Flatpickr no está cargado');
+        return;
+    }
+    
+    var diasNoDisponibles = {{ dias_no_disponibles|safe }};
+    console.log('Días no disponibles:', diasNoDisponibles);
+    
+    var mensaje = document.getElementById('mensaje-dia-no-disponible');
+    var helperText = document.querySelector('.fecha-helper-text span');
+    var fechaInput = document.getElementById('calendario-reserva-experto');
+    
+    if (!fechaInput) {
+        console.error('No se encontró el elemento del calendario');
+        return;
+    }
+    
+    try {
+        var calendar = flatpickr("#calendario-reserva-experto", {
+            dateFormat: 'Y-m-d',
+            locale: 'es',
+            disable: diasNoDisponibles,
+            minDate: 'today',
+            disableMobile: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                if (diasNoDisponibles.includes(dateStr)) {
+                    mensaje.style.display = 'block';
+                    setTimeout(function() {
+                        mensaje.style.display = 'none';
+                    }, 4000);
+                    instance.clear();
+                    
+                    if (helperText) {
+                        helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
+                    }
+                } else if (selectedDates.length > 0) {
+                    if (helperText) {
+                        var fechaFormateada = selectedDates[0].toLocaleDateString('es-ES', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        helperText.innerHTML = '✓ Fecha seleccionada: ' + fechaFormateada;
+                    }
+                }
+            },
+            onValueUpdate: function(selectedDates, dateStr, instance) {
+                if (diasNoDisponibles.includes(dateStr)) {
+                    mensaje.style.display = 'block';
+                    setTimeout(function() {
+                        mensaje.style.display = 'none';
+                    }, 4000);
+                    instance.clear();
+                    
+                    if (helperText) {
+                        helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
+                    }
+                }
+            },
+            onOpen: function(selectedDates, dateStr, instance) {
+                console.log('Calendar opened');
+                if (helperText && selectedDates.length === 0) {
+                    helperText.innerHTML = '📅 Selecciona un día disponible del calendario';
+                }
+            },
+            onClose: function(selectedDates, dateStr, instance) {
+                console.log('Calendar closed');
+                if (helperText && selectedDates.length === 0) {
+                    helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
+                }
+            }
+        });
+        
+        console.log('Calendar initialized successfully');
+        
+    } catch (error) {
+        console.error('Error initializing calendar:', error);
+        alert('Error al cargar el calendario. Por favor, recarga la página.');
+    }
+});
 </script>
 {% endblock %}
