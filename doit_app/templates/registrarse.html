@@ -35,6 +35,7 @@
             {% endif %}
         </div>
 
+
         <!-- Campos comunes -->
         {% for field in form.visible_fields %}
             {% if field.name != "tipo_usuario" and field.name != "experienciaTrabajo" and field.name != "evidenciaTrabajo" and field.name != "hojaVida" and field.name != "hojaVida_file" and field.name != "especialidad" and field.name != "foto_perfil" and field.name != "documento_identidad_pdf" and field.name != "acepta_terminos" and field.name != "acepta_tratamiento_datos" %}
@@ -49,6 +50,19 @@
                 </div>
             {% endif %}
         {% endfor %}
+
+        <!-- ✅ Mostrar campo foto_perfil si el usuario es cliente -->
+        <div class="form-group" id="foto-perfil-cliente" style="display: none;">
+            {{ form.foto_perfil.label_tag }}
+            {{ form.foto_perfil }}
+            {% if form.foto_perfil.errors %}
+                <div class="text-danger">
+                    {% for error in form.foto_perfil.errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+
 
         <!-- Campos solo para expertos -->
         <div id="experto-fields" style="display: none;">
@@ -119,7 +133,7 @@
             <!-- Aceptación de términos y condiciones y tratamiento de datos (los correctos) -->
             <div class="form-check mb-2">
                 <input type="checkbox" name="acepta_terminos" id="id_acepta_terminos" class="form-check-input" {% if form.acepta_terminos.value %}checked{% endif %}>
-                <label class="form-check-label" for="id_acepta_terminos">
+                <label class="form-check-label terminos-texto" for="id_acepta_terminos">
                     Acepto los <a href="{% url 'terminos_condiciones' %}" target="_blank">Términos y Condiciones</a>
                 </label>
                 {% if form.acepta_terminos.errors %}
@@ -128,9 +142,10 @@
                     </div>
                 {% endif %}
             </div>
+
             <div class="form-check mb-3">
                 <input type="checkbox" name="acepta_tratamiento_datos" id="id_acepta_tratamiento_datos" class="form-check-input" {% if form.acepta_tratamiento_datos.value %}checked{% endif %}>
-                <label class="form-check-label" for="id_acepta_tratamiento_datos">
+                <label class="form-check-label terminos-texto" for="id_acepta_tratamiento_datos">
                     Acepto la <a href="{% url 'tratamiento_datos' %}" target="_blank">Política de Tratamiento de Datos</a>
                 </label>
                 {% if form.acepta_tratamiento_datos.errors %}
@@ -139,7 +154,7 @@
                     </div>
                 {% endif %}
             </div>
-
+            
             <!-- Botón de registro -->
             <button type="submit" class="btn btn-primary mt-3">Registrarse</button>
 
@@ -147,82 +162,86 @@
 
 <!-- Mostrar campos solo si se elige "experto" -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tipoUsuarioSelect = document.getElementById('id_tipo_usuario');
-        const expertoFields = document.getElementById('experto-fields');
+document.addEventListener('DOMContentLoaded', function () {
+    const tipoUsuarioSelect = document.getElementById('id_tipo_usuario');
+    const expertoFields = document.getElementById('experto-fields');
+    const fotoCliente = document.getElementById('foto-perfil-cliente');
 
-        function toggleExpertoFields() {
-            expertoFields.style.display = tipoUsuarioSelect.value === 'experto' ? 'block' : 'none';
-        }
+    function toggleUserFields() {
+        const esExperto = tipoUsuarioSelect.value === 'experto';
 
-        toggleExpertoFields();
-        tipoUsuarioSelect.addEventListener('change', toggleExpertoFields);
-    });
+        expertoFields.style.display = esExperto ? 'block' : 'none';
+        fotoCliente.style.display = !esExperto ? 'block' : 'none';
+    }
+
+    toggleUserFields();
+    tipoUsuarioSelect.addEventListener('change', toggleUserFields);
+});
 </script>
 
 <!-- Limitar selección de especialidades a 3 -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const select = document.getElementById('id_especialidad_custom');
-        const displayContainer = document.getElementById('especialidades-seleccionadas');
-        const realSelect = document.getElementById('id_especialidad');
-        const maxSeleccion = 3;
+document.addEventListener('DOMContentLoaded', function () {
+    const select = document.getElementById('id_especialidad_custom');
+    const displayContainer = document.getElementById('especialidades-seleccionadas');
+    const realSelect = document.getElementById('id_especialidad');
+    const maxSeleccion = 3;
 
-        // Ocultar el select original de Django
-        realSelect.style.display = 'none';
+    // Ocultar el select original de Django
+    realSelect.style.display = 'none';
 
-        // Cada vez que se seleccione algo del desplegable
-        select.addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
-            const selectedValue = selectedOption.value;
-            const selectedText = selectedOption.text;
+    // Cada vez que se seleccione algo del desplegable
+    select.addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const selectedValue = selectedOption.value;
+        const selectedText = selectedOption.text;
 
-            if (!selectedValue || Array.from(realSelect.options).filter(o => o.selected).length >= maxSeleccion) {
-                return;
+        if (!selectedValue || Array.from(realSelect.options).filter(o => o.selected).length >= maxSeleccion) {
+            return;
+        }
+
+        if ([...realSelect.selectedOptions].some(opt => opt.value === selectedValue)) {
+            return;
+        }
+
+        for (let opt of realSelect.options) {
+            if (opt.value === selectedValue) {
+                opt.selected = true;
+                break;
             }
+        }
 
-                        // Verifica si ya está seleccionado
-                        if ([...realSelect.selectedOptions].some(opt => opt.value === selectedValue)) {
-                            return;
-                        }
+        const badge = document.createElement('div');
+        badge.className = 'badge badge-pill badge-info d-inline-block mr-2 mb-2 p-2';
+        badge.textContent = selectedText;
+        badge.dataset.value = selectedValue;
 
-                        // Añadir al real select (el escondido)
-                        for (let opt of realSelect.options) {
-                            if (opt.value === selectedValue) {
-                                opt.selected = true;
-                                break;
-                            }
-                        }
+        const removeBtn = document.createElement('span');
+        removeBtn.textContent = ' ×';
+        removeBtn.style.cursor = 'pointer';
+        removeBtn.style.marginLeft = '8px';
+        removeBtn.style.color = '#dc3545';
 
-                        // Mostrar visualmente
-                        const badge = document.createElement('div');
-                        badge.className = 'badge badge-pill badge-info d-inline-block mr-2 mb-2 p-2';
-                        badge.textContent = selectedText;
-                        badge.dataset.value = selectedValue;
+        removeBtn.addEventListener('click', () => {
+            badge.remove();
+            for (let opt of realSelect.options) {
+                if (opt.value === selectedValue) {
+                    opt.selected = false;
+                    break;
+                }
+            }
+        });
 
-                        const removeBtn = document.createElement('span');
-                        removeBtn.textContent = ' ×';
-                        removeBtn.style.cursor = 'pointer';
-                        removeBtn.style.marginLeft = '8px';
-                        removeBtn.style.color = '#dc3545';
+        badge.appendChild(removeBtn);
+        displayContainer.appendChild(badge);
+    });
+});
+</script>
 
-                        removeBtn.addEventListener('click', () => {
-                            // Quitar del DOM
-                            badge.remove();
-                            // Quitar del select real
-                            for (let opt of realSelect.options) {
-                                if (opt.value === selectedValue) {
-                                    opt.selected = false;
-                                    break;
-                                }
-                            }
-                        });
 
-                        badge.appendChild(removeBtn);
-                        displayContainer.appendChild(badge);
-                    });
-                });
-            </script>
+
+
+
 
 
 {% endblock %}

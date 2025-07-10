@@ -223,15 +223,12 @@ def dashboard_experto(request):
                         reserva.idEstado = estado_finalizado
                         reserva.save()
 
-                        # 🔥 NUEVO: Crear notificación para que el cliente califique el servicio
                         Notificacion.objects.create(
                             usuario=reserva.idUsuario,
                             mensaje=f'¡Tu servicio "{reserva.idServicios.NombreServicio}" con {request.user.get_full_name() or request.user.username} ha sido completado! 🎉 Comparte tu experiencia.',
                             url=f'/calificar_reserva/{reserva.id}/'
                         )
 
-                        # 🔥 NUEVO: Liberar disponibilidad automática cuando se finaliza el servicio
-                        # Eliminar cualquier marca de "No disponible" automática para ese día
                         estado_no_disp = Estado.objects.get(Nombre='No disponible')
                         Disponibilidad.objects.filter(
                             experto=request.user,
@@ -239,7 +236,6 @@ def dashboard_experto(request):
                             idEstado=estado_no_disp
                         ).delete()
 
-                        # Activar mensaje y redirección a calificación en el mismo template
                         mostrar_mensaje_finalizado = True
                         reserva_id_calificar = reserva.id
 
@@ -250,11 +246,10 @@ def dashboard_experto(request):
             except Exception as e:
                 print(f"⚠️ Error inesperado: {e}")
                 messages.error(request, "Ocurrió un error inesperado.")
-            # 🔁 NO HACEMOS redirect AQUÍ. Deja que la vista continúe al render
 
-    # === GET ===
     estado_pendiente = Estado.objects.filter(Nombre='Pendiente').first()
     estado_finalizado = Estado.objects.filter(Nombre='Finalizado').first()
+    estado_rechazada = Estado.objects.filter(Nombre='Rechazada').first()
 
     reservas_pendientes = Reserva.objects.filter(
         Q(idEstado=estado_pendiente) & Q(experto_asignado__isnull=True) &
@@ -273,13 +268,20 @@ def dashboard_experto(request):
         experto_asignado=request.user,
         motivo_cancelacion__isnull=True
     ).exclude(
-        Q(idEstado=estado_pendiente) | Q(idEstado=estado_finalizado)
+        Q(idEstado=estado_pendiente) |
+        Q(idEstado=estado_finalizado) |
+        Q(idEstado__Nombre='Rechazada')  # ✅ ← CORRECCIÓN agregada aquí
     ).select_related('idUsuario', 'idServicios')
 
     reservas_canceladas = Reserva.objects.filter(
         experto_asignado=request.user,
         motivo_cancelacion__isnull=False
     ).order_by('-Fecha', '-Hora')
+
+    reservas_rechazadas = Reserva.objects.filter(
+        experto_asignado=request.user,
+        idEstado=estado_rechazada
+    ).select_related('idUsuario', 'idServicios').order_by('-Fecha', '-Hora')
 
     mensajes_no_leidos = {
         reserva.idUsuario.id: Mensaje.objects.filter(
@@ -321,6 +323,7 @@ def dashboard_experto(request):
         'reservas_pendientes': reservas_pendientes,
         'reservas_asignadas': reservas_asignadas,
         'reservas_canceladas': reservas_canceladas,
+        'reservas_rechazadas': reservas_rechazadas,  # ✅ Añadido
         'user_especialidad': request.user.especialidad,
         'mensajes_no_leidos': mensajes_no_leidos,
         'puede_calificar_experto': puede_calificar_experto,
@@ -332,6 +335,8 @@ def dashboard_experto(request):
         'mostrar_mensaje_finalizado': mostrar_mensaje_finalizado,
         'reserva_id_calificar': reserva_id_calificar,
     })
+
+
 
 
 
@@ -1016,59 +1021,70 @@ def rechazar_reserva_experto(request, reserva_id):
     if reserva.experto_asignado and reserva.experto_asignado != request.user:
         messages.warning(request, "Esta reserva ya ha sido asignada a otro experto y no puedes rechazarla.")
         return redirect('dashboard_experto')
-    
+
     if request.method == 'POST':
         try:
             if reserva.experto_asignado == request.user:
-                # Si la reserva estaba aceptada, liberar disponibilidad
                 if reserva.idEstado.Nombre == 'Aceptada':
                     estado_no_disp = Estado.objects.get(Nombre='No disponible')
-                    # Eliminar la marca de no disponible para ese día y experto
                     Disponibilidad.objects.filter(
                         experto=request.user,
                         fecha=reserva.Fecha,
                         idEstado=estado_no_disp
                     ).delete()
-                
-                reserva.experto_asignado = None
-            
+
+                # ✅ Ya no eliminamos experto_asignado
+
+            else:
+                # ✅ Si aún no tenía experto_asignado, lo asignamos antes de rechazar
+                reserva.experto_asignado = request.user
+
             estado_rechazada = Estado.objects.get(Nombre='Rechazada')
             reserva.idEstado = estado_rechazada
-
             reserva.save()
+
+            messages.success(request, "La reserva ha sido rechazada correctamente.")
             return redirect('dashboard_experto')
         except Estado.DoesNotExist:
+            messages.error(request, "El estado 'Rechazada' no existe en la base de datos.")
             return redirect('dashboard_experto')
         except Exception as e:
             messages.error(request, f"Ocurrió un error al rechazar la reserva: {e}")
             return redirect('dashboard_experto')
-    
+
     return render(request, 'experto/confirmar_rechazar_reserva.html', {'reserva': reserva})
 
 
-@login_required
-@user_passes_test(is_experto, login_url=reverse_lazy('login'))
+
+    
+
 @login_required
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
-    from doit_app.models import Calificaciones
-    
+    from doit_app.models import Calificaciones, Estado
+
     # Obtener parámetros de filtrado
     orden = request.GET.get('orden', 'fecha_desc')  # Por defecto: fecha descendente
-    
+
     # Base queryset - solo servicios finalizados
     reservas_finalizadas = Reserva.objects.filter(
         experto_asignado=request.user,
         servicio_finalizado=True
     )
-    
-    # Aplicar ordenamiento
+
+    # ✅ Reservas rechazadas también
+    estado_rechazada = Estado.objects.filter(Nombre='Rechazada').first()
+    reservas_rechazadas = Reserva.objects.filter(
+        experto_asignado=request.user,
+        idEstado=estado_rechazada
+    ).order_by('-Fecha', '-Hora')
+
+    # Aplicar ordenamiento a finalizadas
     if orden == 'fecha_asc':
         reservas_finalizadas = reservas_finalizadas.order_by('Fecha', 'Hora')
     elif orden == 'fecha_desc':
         reservas_finalizadas = reservas_finalizadas.order_by('-Fecha', '-Hora')
     elif orden == 'calificacion_recibida_desc':
-        # Ordenar por calificación recibida del cliente (mayor a menor)
         reservas_finalizadas = reservas_finalizadas.annotate(
             calificacion_valor=models.Subquery(
                 Calificaciones.objects.filter(
@@ -1078,7 +1094,6 @@ def historial_experto(request):
             )
         ).order_by('-calificacion_valor', '-Fecha')
     elif orden == 'calificacion_recibida_asc':
-        # Ordenar por calificación recibida del cliente (menor a mayor)
         reservas_finalizadas = reservas_finalizadas.annotate(
             calificacion_valor=models.Subquery(
                 Calificaciones.objects.filter(
@@ -1088,7 +1103,6 @@ def historial_experto(request):
             )
         ).order_by('calificacion_valor', '-Fecha')
     elif orden == 'calificacion_dada_desc':
-        # Ordenar por calificación dada al cliente (mayor a menor)
         reservas_finalizadas = reservas_finalizadas.annotate(
             calificacion_dada_valor=models.Subquery(
                 Calificaciones.objects.filter(
@@ -1098,7 +1112,6 @@ def historial_experto(request):
             )
         ).order_by('-calificacion_dada_valor', '-Fecha')
     elif orden == 'calificacion_dada_asc':
-        # Ordenar por calificación dada al cliente (menor a mayor)
         reservas_finalizadas = reservas_finalizadas.annotate(
             calificacion_dada_valor=models.Subquery(
                 Calificaciones.objects.filter(
@@ -1109,8 +1122,8 @@ def historial_experto(request):
         ).order_by('calificacion_dada_valor', '-Fecha')
     else:
         reservas_finalizadas = reservas_finalizadas.order_by('-Fecha', '-Hora')
-    
-    # Obtener calificaciones recibidas y realizadas para cada reserva
+
+    # Historial con calificaciones
     historial = []
     for reserva in reservas_finalizadas:
         calif_cliente = Calificaciones.objects.filter(reserva=reserva, tipo='cliente_a_experto').first()
@@ -1120,12 +1133,18 @@ def historial_experto(request):
             'calif_cliente': calif_cliente,
             'calif_experto': calif_experto
         })
-    
+
     context = {
         'historial': historial,
         'orden_actual': orden,
+        'reservas_rechazadas': reservas_rechazadas,  # ✅ Agregado
     }
+
     return render(request, 'experto/historial_experto.html', context)
+
+
+
+
 
 
 @login_required

@@ -90,6 +90,7 @@ class CustomUser(AbstractUser):
     direccion = models.CharField(max_length=255, blank=True, null=True, verbose_name="Dirección de Residencia")
     barrio = models.CharField(max_length=100, blank=True, null=True, verbose_name="Barrio")
     documento_identidad_pdf = models.FileField(upload_to='documentos_identidad/', blank=True, null=True, verbose_name="Documento de Identidad (PDF)")
+    hoja_vida_file = models.FileField(upload_to='hojas_vida/', null=True, blank=True, verbose_name="Hoja de Vida (PDF)")
 
     # 👉 Estado de verificación del experto
     verificado = models.CharField(
@@ -347,6 +348,8 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva #{self.id} de {self.idServicios.NombreServicio} por {self.idUsuario.username} - Estado: {self.idEstado.Nombre}"
+
+
 
 
 

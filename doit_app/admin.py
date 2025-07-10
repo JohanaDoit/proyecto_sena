@@ -16,6 +16,7 @@ from .models import (
     Calificaciones, # <--- Si quieres gestionar Calificaciones
     Reserva   # <--- Si quieres gestionar Reservas
 )
+from django.utils.html import format_html
 
 # Importa UserAdmin del módulo de autenticación de Django para tu CustomUser
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -55,9 +56,14 @@ class CustomUserAdmin(BaseUserAdmin):
                 'fechaNacimiento',
                 'tipo_documento',
                 'foto_perfil',
+                'mostrar_foto_perfil',  # ✅ vista previa
+                'documento_identidad_pdf',
+                'mostrar_documento_identidad_pdf',  # ✅ vista previa
+                'hoja_vida_file',
+                'mostrar_hoja_vida_file',  # ✅ vista previa
                 'especialidad',
                 'verificado',
-                'aprobado_cliente',  # 👈 Ahora es CharField (desplegable)
+                'aprobado_cliente',
             )
         }),
     )
@@ -73,11 +79,19 @@ class CustomUserAdmin(BaseUserAdmin):
                 'fechaNacimiento',
                 'tipo_documento',
                 'foto_perfil',
+                'documento_identidad_pdf',
+                'hoja_vida_file',
                 'especialidad',
                 'verificado',
                 'aprobado_cliente',
             )
         }),
+    )
+
+    readonly_fields = (
+        'mostrar_foto_perfil',
+        'mostrar_documento_identidad_pdf',
+        'mostrar_hoja_vida_file',
     )
 
     list_display = (
@@ -97,7 +111,7 @@ class CustomUserAdmin(BaseUserAdmin):
         'email',
         'first_name',
         'last_name',
-        'numDoc'
+        'numDoc',
     )
 
     list_filter = (
@@ -112,6 +126,29 @@ class CustomUserAdmin(BaseUserAdmin):
     )
 
     ordering = ('username',)
+
+    # ✅ Vista previa: foto de perfil
+    def mostrar_foto_perfil(self, obj):
+        if obj.foto_perfil:
+            return format_html('<img src="{}" width="100" height="100" style="object-fit:cover; border-radius:8px;" />', obj.foto_perfil.url)
+        return "Sin foto"
+    mostrar_foto_perfil.short_description = "Foto de Perfil"
+
+    # ✅ Vista previa: documento de identidad
+    def mostrar_documento_identidad_pdf(self, obj):
+        if obj.documento_identidad_pdf:
+            return format_html('<a href="{}" target="_blank">📄 Ver Documento</a>', obj.documento_identidad_pdf.url)
+        return "No cargado"
+    mostrar_documento_identidad_pdf.short_description = "Documento de Identidad"
+
+    # ✅ Vista previa: hoja de vida
+    def mostrar_hoja_vida_file(self, obj):
+        if obj.hoja_vida_file:
+            return format_html('<a href="{}" target="_blank">📄 Ver Hoja de Vida</a>', obj.hoja_vida_file.url)
+        return "No cargada"
+    mostrar_hoja_vida_file.short_description = "Hoja de Vida"
+
+
 
     
 

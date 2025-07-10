@@ -223,6 +223,7 @@ class RegistroForm(UserCreationForm):
 
 
 
+
     
 # --- PERFIL USUARIO FORM (para edición de perfil) ---
 # Esta clase es para editar un usuario existente, no para crear uno nuevo.
