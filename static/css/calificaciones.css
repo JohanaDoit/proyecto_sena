@@ -1,4 +1,4 @@
-/* Estilos para el sistema de calificaciones con estrellas */
+/* --- Estilos para el sistema de calificaciones con estrellas --- */
 
 .rating-display {
     display: inline-flex;
@@ -7,9 +7,9 @@
 }
 
 .star {
-    font-size: 1.2em;
-    color: #bdbdbd; /* gris más notorio */
-    transition: color 0.2s ease;
+    font-size: 1.3em;
+    color: #c5c5c5;
+    transition: color 0.25s ease;
 }
 
 .star.filled, .star.half-filled {
@@ -24,20 +24,31 @@
     -webkit-text-fill-color: transparent;
 }
 
-/* Para el formulario de calificación */
+/* --- Para el formulario de calificación --- */
 .rating-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 1.2rem;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 2px solid var(--amarillo, #a8d0e6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    max-width: 600px;
+    margin: auto;
 }
 
 .rating-input {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    gap: 5px;
+    justify-content: center;
+    gap: 8px;
     margin: 10px 0;
     align-items: center;
+    background: #fffefc;
+    border-radius: 12px;
+    padding: 0.8rem;
+    transition: background 0.3s ease;
 }
 
 .rating-input input[type="radio"] {
@@ -45,34 +56,28 @@
 }
 
 .rating-input label {
-    font-size: 2em;
+    font-size: 2.3em;
     color: #ddd;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.25s ease, color 0.25s ease;
     user-select: none;
     position: relative;
 }
 
 .rating-input label:hover {
     color: #ffc107;
-    transform: scale(1.1);
+    transform: scale(1.15);
 }
 
 .rating-input input[type="radio"]:checked + label {
     color: #ffc107;
 }
 
-/* Animación sutil para las estrellas cuando se seleccionan */
+/* --- Animación suave para estrellas seleccionadas --- */
 @keyframes starPulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }
 
 .rating-input input[type="radio"]:checked + label {
@@ -82,27 +87,27 @@
 .rating-input label::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+    width: 130%;
+    height: 130%;
     background: rgba(255, 193, 7, 0.2);
     border-radius: 50%;
-    transform: scale(0);
-    transition: transform 0.2s ease;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.25s ease;
     z-index: -1;
 }
 
 .rating-input label:hover::before {
-    transform: scale(1.3);
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .rating-input input[type="radio"]:checked + label::before {
-    transform: scale(1.1);
+    transform: translate(-50%, -50%) scale(1);
     background: rgba(255, 193, 7, 0.3);
 }
 
-/* Indicador visual cuando se selecciona una calificación */
+/* --- Indicador visual cuando se selecciona --- */
 .rating-input.selected {
     border: 2px solid #ffc107;
     border-radius: 10px;
@@ -110,22 +115,23 @@
     background: rgba(255, 193, 7, 0.05);
 }
 
-/* Texto de ayuda más visible */
+/* --- Texto de ayuda --- */
 .form-text.text-muted {
-    color: #666 !important;
-    font-size: 0.9em;
+    color: #555 !important;
+    font-size: 0.92em;
     margin-top: 8px;
+    text-align: center;
 }
 
-/* Estilo para cuando se pasa el mouse sobre todo el contenedor */
+/* --- Hover general del bloque de estrellas --- */
 .rating-input:hover {
     background: rgba(255, 193, 7, 0.03);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 5px;
     transition: all 0.2s ease;
 }
 
-/* Mejorar la visualización de la calificación en el sidebar */
+/* --- Visualización en el sidebar o panel --- */
 .calificacion-experto .star-display {
     margin-top: 4px;
 }
@@ -134,7 +140,7 @@
     font-size: 1.1em;
 }
 
-/* Estilo para las calificaciones en cards de reservas */
+/* --- Calificaciones en tarjetas de reservas --- */
 .reserva-calificacion .star-display {
     display: inline-flex;
     align-items: center;
@@ -146,13 +152,63 @@
     font-size: 0.85em;
 }
 
-/* Estilos responsivos */
+/* --- Responsivo --- */
 @media (max-width: 768px) {
     .rating-input label {
-        font-size: 1.5em;
+        font-size: 1.9em;
     }
-    
+
     .star {
         font-size: 1em;
     }
+
+    .rating-form {
+        padding: 1.5rem;
+    }
+}
+
+/* --- Botón estilizado --- */
+.rating-form button[type="submit"] {
+    background-color:#01304a;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1.05em;
+    padding: 0.75em 2em;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    text-align: center;
+    width: fit-content;
+    align-self: center;
+}
+
+.rating-form button[type="submit"]:hover {
+    background-color: #01304a;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+/* --- Campo de comentario mejorado --- */
+.rating-form textarea {
+    width: 90%;
+    max-width: 500px;
+    min-height: 80px;
+    border-radius: 12px;
+    border: 2px solid #dee2e6;
+    padding: 0.9em 1em;
+    font-size: 0.98em;
+    font-family: "Segoe UI", sans-serif;
+    background: #fdfdfd;
+    resize: vertical;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+    align-self: center;
+}
+
+.rating-form textarea:focus {
+    border-color: var(--amarillo, #ffc107);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.15);
 }

@@ -1,5 +1,4 @@
-/* Estilos para la página de notificaciones */
-
+/* Contenedor principal */
 .notificaciones-container {
     max-width: 1000px;
     min-width: 340px;
@@ -8,52 +7,57 @@
     border-radius: 14px;
     box-shadow: 0 4px 18px rgba(30,58,138,0.07);
     padding: 2.2em 2em 1.5em 2em;
-    word-break: normal;
-    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
+/* Título de sección */
 .notificaciones-container h2 {
     color: #2563eb;
     font-weight: 700;
-    margin-bottom: 1.2em;
+    margin-bottom: 1.5em;
     letter-spacing: 0.01em;
+    text-align: center;
 }
 
-.notificaciones-container .list-group-item,
-.notificaciones-container .list-group-item span,
-.notificaciones-container .noti-servicio {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: anywhere;
-}
-
+/* Ítems de lista */
 .list-group-item {
-    background: #fff;
+    background: #ffffff;
     border: 1.5px solid #e3eaf7;
-    border-radius: 8px !important;
-    margin-bottom: 0.7em;
-    box-shadow: 0 1px 6px rgba(30,58,138,0.04);
-    font-size: 1.04em;
+    border-radius: 10px !important;
+    margin-bottom: 1em;
+    box-shadow: 0 2px 8px rgba(30,58,138,0.05);
+    padding: 1.2em 1.5em;
     display: flex;
-    align-items: center;
+    flex-direction: row;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 1em 1.2em;
-    transition: background 0.2s;
+    gap: 1em;
+    transition: background 0.2s ease;
 }
 
+/* Variante especial de notificación */
 .list-group-item-info {
     background: linear-gradient(90deg, #e3f0ff 60%, #f5faff 100%) !important;
     border-left: 4px solid #2563eb !important;
     font-weight: 600;
 }
 
+/* Mensaje principal */
+.list-group-item .mensaje {
+    flex: 1;
+    font-size: 1.05em;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* Botón tipo "ver" */
 .list-group-item .btn-link {
     color: #10285b;
     font-weight: 600;
     text-decoration: underline;
-    margin-left: 1.2em;
-    margin-right: 0.5em;
-    font-size: 0.98em;
+    font-size: 0.95em;
+    margin-left: 0.7em;
+    white-space: nowrap;
 }
 
 .list-group-item .btn-link:hover {
@@ -61,30 +65,44 @@
     text-decoration: none;
 }
 
-.list-group-item .text-muted {
-    margin-left: auto;
-    font-size: 0.93em;
-}
-
+/* Fecha destacada */
 .noti-servicio {
-    color: #fff;
     background: linear-gradient(90deg, #2563eb 60%, #4f8cff 100%);
-    font-weight: 800;
+    font-weight: 700;
+    color: #fff;
     border-radius: 10px;
-    padding: 0.22em 1.1em;
-    font-size: 1.08em;
-    margin-left: 0.8em;
-    margin-right: 0.2em;
-    box-shadow: 0 2px 8px rgba(30,58,138,0.10);
-    letter-spacing: 0.01em;
+    padding: 0.4em 0.8em;
+    font-size: 0.9em;
+    margin-left: auto;
+    box-shadow: 0 2px 6px rgba(30,58,138,0.12);
+    border: 1.5px solid #1746a2;
+    text-shadow: 0 1px 2px #1746a233;
+    white-space: nowrap;
     display: inline-block;
-    text-transform: uppercase;
-    border: 2px solid #1746a2;
-    text-shadow: 0 1px 2px #1746a222;
-    transition: background 0.2s, color 0.2s;
+    text-align: center;
+    transition: background 0.3s ease;
 }
 
 .noti-servicio:hover {
     background: linear-gradient(90deg, #1746a2 60%, #2563eb 100%);
     color: #fffbe7;
 }
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .list-group-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .noti-servicio {
+        margin-top: 0.5em;
+        align-self: flex-end;
+    }
+
+    .list-group-item .btn-link {
+        margin-left: 0;
+        margin-top: 0.5em;
+    }
+}
+
