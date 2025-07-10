@@ -511,7 +511,7 @@ h1, h3 {
 }
 
 .badge-warning {
-    background-color: #ffc107 !important;
+    background-color: #69b369 !important;
     color: #212529;
 }
 
@@ -549,13 +549,11 @@ h1, h3 {
 
 /* Badge personalizado para estados */
 .badge.bg-success {
-    background-color: #525553 !important;
-    color: #ffffff;
+    color: #69b369;
 }
 
 .badge.bg-danger {
-    background-color: #0f6918 !important;
-    color: white;
+    color: #dc3545;
 }
 
 /* Iconos en la tabla */
@@ -678,7 +676,7 @@ h1, h3 {
     gap: 0.7em;
 }
 .barra-controles-calendario #modoDisponible {
-    background: linear-gradient(90deg, #1b8090 60%, #9aa8c7 100%) !important;
+    background: #93dc93 !important;
     color: #fff !important;
     border: none !important;
     font-weight: 700;
@@ -686,7 +684,7 @@ h1, h3 {
     transition: background 0.2s, box-shadow 0.2s;
 }
 .barra-controles-calendario #modoDisponible:hover {
-    background: linear-gradient(90deg, #7891c8 60%, #f3f4f6 100%) !important;
+    background: #69b369 !important;
     color: #fff !important;
     box-shadow: 0 4px 16px rgba(37,99,235,0.18);
 }
@@ -709,7 +707,7 @@ h1, h3 {
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(13, 110, 253, 0.10);
     border: none;
-    background: #8ea4b5;
+    background: linear-gradient(90deg, #ffffff 60%, #a3adca 100%);
 }   
 
 /* Encabezado */
@@ -723,7 +721,7 @@ h1, h3 {
 /* Botones de disponibilidad */
 .custom-button {
     border-radius: 7px;
-    font-size: 1.05em;
+    font-size: 0.85em;
     border-width: 2px;
 }
 
@@ -779,7 +777,7 @@ h1, h3 {
 
 
 .info-disponibilidad {
-    font-size: 1em;
+    font-size: 0.85em;
     font-weight: 500;
     text-align: center;
     color: #0d0e0e; /* Azul */
@@ -787,7 +785,7 @@ h1, h3 {
 
 /* Disminuye ligeramente el espaciado del encabezado del bloque */
 .card-header[data-toggle="collapse"] h6 {
-    font-size: 1rem;
+    font-size: 0.85rem;
     margin-bottom: 0;
 }
 #modoDisponible {
