@@ -137,5 +137,29 @@
   {% endfor %}
 </div>
 
+
+<h2 class="mt-5">Reservas Rechazadas</h2>
+<div class="reservas-lista">
+  {% for reserva in reservas_rechazadas %}
+    <div class="reserva-card rechazada">
+      <div class="reserva-header">
+        <div class="reserva-info">
+          <span><strong>Cliente:</strong> {{ reserva.idUsuario.get_full_name|default:reserva.idUsuario.username }}</span>
+          <span><strong>Servicio:</strong> {{ reserva.idServicios.NombreServicio }}</span>
+          <span><strong>Fecha:</strong> {{ reserva.Fecha|date:"d/m/Y" }} {{ reserva.Hora|time:"H:i" }}</span>
+        </div>
+        <span class="reserva-estado rechazada">Rechazada</span>
+      </div>
+      <div class="reserva-comentario">
+        <strong>Motivo:</strong> Esta reserva fue rechazada por ti.
+      </div>
+    </div>
+  {% empty %}
+    <p>No tienes reservas rechazadas.</p>
+  {% endfor %}
+</div>
+
+
+
 <script src="{% static 'js/calificaciones.js' %}"></script>
 {% endblock %}

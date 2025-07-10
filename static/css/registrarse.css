@@ -174,3 +174,22 @@
         margin-top: 4px;
     }
 }
+
+
+
+.terminos-texto {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.4;
+}
+
+.terminos-texto a {
+    color: #d3670f;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.terminos-texto a:hover {
+    color: #d3670f;
+    text-decoration: none;
+}
