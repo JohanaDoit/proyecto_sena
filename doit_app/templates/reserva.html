@@ -59,7 +59,7 @@
                 <p class="errorlist">{{ error }}</p>
             {% endfor %}
         </div>
-        <!-- ✅ Campo nuevo -->
+        
         {% if experto_seleccionado %}
         <div class="d-flex align-items-center gap-3 p-3 mb-3 border rounded bg-light">
             {% if experto_seleccionado.foto_perfil %}
@@ -102,7 +102,7 @@
                 </small>
             {% endif %}
             
-            <!-- Campo de fecha mejorado con placeholder y estilos -->
+            
             <div class="fecha-input-container">
                 <input type="text" 
                        id="calendario-reserva-experto" 
@@ -123,10 +123,10 @@
                     Ese día no hay expertos disponibles para este servicio (pueden tener servicios en curso o estar marcados como no disponibles), por favor selecciona otro día.
                 {% endif %}
             </div>
-            <!-- Usar flatpickr desde CDN para evitar errores de carga local -->
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-            <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+            
+            <script src="https:
+            <script src="https:
+            <link rel="stylesheet" href="https:
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     var diasNoDisponibles = {{ dias_no_disponibles|safe }};
@@ -141,19 +141,19 @@
                         minDate: 'today',
                         disableMobile: true,
                         onChange: function(selectedDates, dateStr, instance) {
-                            // Si el usuario intenta escribir manualmente una fecha deshabilitada
+                            
                             if (diasNoDisponibles.includes(dateStr)) {
                                 mensaje.style.display = 'block';
                                 setTimeout(function() {
                                     mensaje.style.display = 'none';
                                 }, 4000);
                                 instance.clear();
-                                // Restaurar texto helper
+                                
                                 if (helperText) {
                                     helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
                                 }
                             } else if (selectedDates.length > 0) {
-                                // Fecha válida seleccionada
+                                
                                 if (helperText) {
                                     var fechaFormateada = selectedDates[0].toLocaleDateString('es-ES', {
                                         weekday: 'long',
@@ -166,27 +166,27 @@
                             }
                         },
                         onValueUpdate: function(selectedDates, dateStr, instance) {
-                            // Si el usuario intenta escribir manualmente una fecha deshabilitada
+                            
                             if (diasNoDisponibles.includes(dateStr)) {
                                 mensaje.style.display = 'block';
                                 setTimeout(function() {
                                     mensaje.style.display = 'none';
                                 }, 4000);
                                 instance.clear();
-                                // Restaurar texto helper
+                                
                                 if (helperText) {
                                     helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
                                 }
                             }
                         },
                         onOpen: function(selectedDates, dateStr, instance) {
-                            // Cambiar texto cuando se abre el calendario
+                            
                             if (helperText && selectedDates.length === 0) {
                                 helperText.innerHTML = '📅 Selecciona un día disponible del calendario';
                             }
                         },
                         onClose: function(selectedDates, dateStr, instance) {
-                            // Restaurar texto si no se seleccionó nada
+                            
                             if (helperText && selectedDates.length === 0) {
                                 helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
                             }
@@ -272,7 +272,7 @@
 
 {% block extra_js %}
 <script>
-    // Cargar ciudades basado en país
+    
     document.getElementById('id_pais').addEventListener('change', function () {
         var paisId = this.value;
         var ciudadSelect = document.getElementById('id_ciudad');
