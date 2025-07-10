@@ -9,7 +9,7 @@
 
 {% block content %}
 <div class="chat-container">
-    <!-- Header del chat -->
+    
     <div class="chat-header">
         <div class="chat-user-info">
             <div class="user-avatar">
@@ -34,11 +34,11 @@
             </div>
         </div>
         <div class="chat-actions">
-            <!-- Búsqueda de mensajes -->
+            
             <button type="button" class="btn-search" id="toggle-search" title="Buscar mensajes">
                 <i class="fas fa-search"></i>
             </button>
-            <!-- Notificaciones -->
+            
             <button type="button" class="btn-notifications" id="toggle-notifications" title="Activar notificaciones">
                 <i class="fas fa-bell"></i>
             </button>
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <!-- Barra de búsqueda (inicialmente oculta) -->
+    
     <div class="search-bar" id="search-bar" style="display: none;">
         <div class="search-container">
             <input type="text" id="search-input" placeholder="Buscar en la conversación..." maxlength="100">
@@ -71,7 +71,7 @@
         <div class="search-results" id="search-results"></div>
     </div>
 
-    <!-- Área de mensajes -->
+    
     <div class="chat-messages" id="chat-messages">
         {% for mensaje in mensajes %}
             <div class="message-wrapper {% if mensaje.emisor == request.user %}sent{% else %}received{% endif %}">
@@ -89,7 +89,7 @@
                     <div class="message-content">
                         {{ mensaje.contenido|linebreaksbr }}
                     </div>
-                    <!-- Reacciones rápidas -->
+                    
                     <div class="message-reactions" style="display: none;">
                         <button type="button" class="reaction-btn" data-reaction="👍" title="Me gusta">👍</button>
                         <button type="button" class="reaction-btn" data-reaction="❤️" title="Me encanta">❤️</button>
@@ -117,7 +117,7 @@
             </div>
         {% endfor %}
         
-        <!-- Indicador de escritura -->
+        
         <div class="typing-indicator" id="typing-indicator" style="display: none;">
             <div class="typing-bubble">
                 <div class="typing-dots">
@@ -130,7 +130,7 @@
         </div>
     </div>
 
-    <!-- Formulario de envío -->
+    
     <div class="chat-input-container">
         <form method="POST" class="chat-form" id="chat-form">
             {% csrf_token %}
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const charCount = document.getElementById('char-count');
     const chatForm = document.getElementById('chat-form');
     
-    // Variables para búsqueda
+    
     const toggleSearch = document.getElementById('toggle-search');
     const searchBar = document.getElementById('search-bar');
     const searchInput = document.getElementById('search-input');
@@ -171,19 +171,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchNext = document.getElementById('search-next');
     const closeSearch = document.getElementById('close-search');
     
-    // Variables para notificaciones
+    
     const toggleNotifications = document.getElementById('toggle-notifications');
     let notificationsEnabled = localStorage.getItem('chatNotifications') === 'true';
     
-    // Auto-scroll al final
+    
     function scrollToBottom() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
-    // Scroll inicial
+    
     scrollToBottom();
     
-    // Contador de caracteres
+    
     messageInput.addEventListener('input', function() {
         const length = this.value.length;
         charCount.textContent = length;
@@ -196,12 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
             charCount.style.color = '#718096';
         }
         
-        // Auto-resize textarea
+        
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
     
-    // Envío con Enter (Shift+Enter para nueva línea)
+    
     messageInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -211,19 +211,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Focus automático en el input
+    
     messageInput.focus();
     
-    // Scroll después de enviar
+    
     chatForm.addEventListener('submit', function() {
         setTimeout(scrollToBottom, 100);
     });
 
-    // === FUNCIONALIDAD DE BÚSQUEDA ===
+    
     let searchResults_array = [];
     let currentSearchIndex = -1;
 
-    // Toggle búsqueda
+    
     toggleSearch.addEventListener('click', function() {
         const isVisible = searchBar.style.display !== 'none';
         searchBar.style.display = isVisible ? 'none' : 'block';
@@ -234,13 +234,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Cerrar búsqueda
+    
     closeSearch.addEventListener('click', function() {
         searchBar.style.display = 'none';
         clearSearchHighlights();
     });
 
-    // Buscar mensajes
+    
     searchInput.addEventListener('input', function() {
         const query = this.value.trim().toLowerCase();
         if (query.length < 2) {
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
             parent.normalize();
         });
         
-        // Remover clases de resultado activo
+        
         const activeResults = chatMessages.querySelectorAll('.search-result-active');
         activeResults.forEach(el => el.classList.remove('search-result-active'));
     }
@@ -302,18 +302,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function scrollToSearchResult(index) {
         if (index >= 0 && index < searchResults_array.length) {
-            // Remover highlight previo
+            
             const prevActive = chatMessages.querySelector('.search-result-active');
             if (prevActive) prevActive.classList.remove('search-result-active');
             
-            // Agregar highlight actual
+            
             const result = searchResults_array[index];
             result.element.closest('.message-wrapper').classList.add('search-result-active');
             result.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
 
-    // Navegación de resultados
+    
     searchNext.addEventListener('click', function() {
         if (searchResults_array.length > 0) {
             currentSearchIndex = (currentSearchIndex + 1) % searchResults_array.length;
@@ -334,9 +334,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
-    // === FUNCIONALIDAD DE NOTIFICACIONES ===
     
-    // Actualizar icono de notificaciones
+    
+    
     function updateNotificationIcon() {
         const icon = toggleNotifications.querySelector('i');
         if (notificationsEnabled) {
@@ -350,13 +350,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Toggle notificaciones
+    
     toggleNotifications.addEventListener('click', function() {
         if (notificationsEnabled) {
             notificationsEnabled = false;
             localStorage.setItem('chatNotifications', 'false');
         } else {
-            // Solicitar permiso para notificaciones
+            
             if ("Notification" in window) {
                 Notification.requestPermission().then(function(permission) {
                     if (permission === "granted") {
@@ -372,11 +372,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showNotification(title, body) {
         if (notificationsEnabled && "Notification" in window && Notification.permission === "granted") {
-            // Solo mostrar si la ventana no está enfocada
+            
             if (document.hidden) {
                 const notification = new Notification(title, {
                     body: body,
-                    icon: '/static/images/logo.png', // Asegúrate de tener un icono
+                    icon: '/static/images/logo.png', 
                     tag: 'chat-message'
                 });
                 
@@ -385,60 +385,60 @@ document.addEventListener('DOMContentLoaded', function() {
                     notification.close();
                 };
                 
-                // Auto-cerrar después de 5 segundos
+                
                 setTimeout(() => notification.close(), 5000);
             }
         }
     }
 
-    // Inicializar estado de notificaciones
+    
     updateNotificationIcon();
 
-    // Simular notificación para nuevos mensajes (en una implementación real, esto vendría del WebSocket)
-    // Esta es solo una demostración
+    
+    
     chatForm.addEventListener('submit', function() {
-        // Simular recepción de respuesta después de un tiempo (solo para demo)
+        
         setTimeout(() => {
-            // En una implementación real, esto se activaría cuando llegue un mensaje real
-            // showNotification('Nuevo mensaje', 'Has recibido un nuevo mensaje en el chat');
+            
+            
         }, 3000);
     });
 
-    // === AUTO-REFRESH PARA NUEVOS MENSAJES ===
-    // Esto simula una funcionalidad de tiempo real
-    // En una implementación real, usarías WebSockets o Server-Sent Events
+    
+    
+    
     
     let lastMessageCount = document.querySelectorAll('.message-wrapper').length;
     
     function checkForNewMessages() {
-        // Solo verificar si la página está visible
+        
         if (!document.hidden) {
-            // En una implementación real, harías una petición AJAX aquí
-            // fetch('/api/chat/{{ receptor.id }}/messages/').then(...)
+            
+            
         }
     }
     
-    // Verificar nuevos mensajes cada 30 segundos cuando la ventana está activa
+    
     const refreshInterval = setInterval(checkForNewMessages, 30000);
     
-    // Pausar refresh cuando la ventana no está visible
+    
     document.addEventListener('visibilitychange', function() {
         if (document.hidden) {
-            // Ventana no visible - podríamos aumentar el intervalo o pausarlo
+            
         } else {
-            // Ventana visible - verificar inmediatamente
+            
             checkForNewMessages();
         }
     });
     
-    // Limpiar interval al salir de la página
+    
     window.addEventListener('beforeunload', function() {
         clearInterval(refreshInterval);
     });
 
-    // === REACCIONES RÁPIDAS ===
     
-    // Mostrar/ocultar reacciones al hacer hover
+    
+    
     const messageWrappers = document.querySelectorAll('.message-wrapper');
     messageWrappers.forEach(wrapper => {
         const reactions = wrapper.querySelector('.message-reactions');
@@ -452,13 +452,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Manejar clics en reacciones
+    
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('reaction-btn')) {
             const reaction = e.target.getAttribute('data-reaction');
             const messageWrapper = e.target.closest('.message-wrapper');
             
-            // Agregar animación de reacción
+            
             const reactionElement = document.createElement('div');
             reactionElement.className = 'floating-reaction';
             reactionElement.textContent = reaction;
@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reactionElement.style.pointerEvents = 'none';
             reactionElement.style.animation = 'float-reaction 1.5s ease-out forwards';
             
-            // Posicionar la reacción
+            
             const rect = e.target.getBoundingClientRect();
             reactionElement.style.left = rect.left + 'px';
             reactionElement.style.top = rect.top + 'px';
@@ -475,48 +475,48 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.body.appendChild(reactionElement);
             
-            // Remover después de la animación
+            
             setTimeout(() => {
                 reactionElement.remove();
             }, 1500);
             
-            // Aquí podrías enviar la reacción al servidor
+            
             console.log('Reacción enviada:', reaction);
         }
     });
 
-    // === INDICADOR DE ESCRITURA ===
+    
     
     const typingIndicator = document.getElementById('typing-indicator');
     let typingTimer;
     let isTyping = false;
     
-    // Simular indicador cuando el usuario está escribiendo
+    
     messageInput.addEventListener('input', function() {
         if (!isTyping) {
-            // En una implementación real, enviarías un evento de "empezó a escribir"
+            
             showTypingIndicator();
             isTyping = true;
         }
         
-        // Resetear timer
+        
         clearTimeout(typingTimer);
         typingTimer = setTimeout(() => {
-            // En una implementación real, enviarías un evento de "dejó de escribir"
+            
             hideTypingIndicator();
             isTyping = false;
         }, 2000);
     });
     
     function showTypingIndicator() {
-        // Esta función simula que el otro usuario está escribiendo
-        // En una implementación real, esto se activaría por WebSocket
+        
+        
         setTimeout(() => {
-            if (Math.random() > 0.7) { // 30% de probabilidad de mostrar
+            if (Math.random() > 0.7) { 
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
                 
-                // Ocultar después de 2-4 segundos
+                
                 setTimeout(hideTypingIndicator, 2000 + Math.random() * 2000);
             }
         }, 1000 + Math.random() * 2000);

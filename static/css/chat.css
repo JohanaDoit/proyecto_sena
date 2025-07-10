@@ -1,4 +1,4 @@
-/* Chat Styles - Diseño moderno tipo WhatsApp/Telegram */
+
 
 .chat-container {
     display: flex;
@@ -13,7 +13,7 @@
     position: relative;
 }
 
-/* Header del chat */
+
 .chat-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -109,7 +109,7 @@
     transform: translateY(-1px);
 }
 
-/* Área de mensajes */
+
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -229,7 +229,7 @@
     color: rgba(255, 255, 255, 0.7);
 }
 
-/* Estado sin mensajes */
+
 .no-messages {
     display: flex;
     flex-direction: column;
@@ -256,7 +256,7 @@
     font-size: 0.9rem;
 }
 
-/* Formulario de chat */
+
 .chat-input-container {
     background: white;
     border-top: 1px solid #e2e8f0;
@@ -334,9 +334,9 @@
     padding-right: 8px;
 }
 
-/* === ESTILOS PARA BÚSQUEDA Y NOTIFICACIONES === */
 
-/* Botones en header */
+
+
 .chat-actions {
     display: flex;
     align-items: center;
@@ -368,7 +368,7 @@
     color: white;
 }
 
-/* Barra de búsqueda */
+
 .search-bar {
     background: #f7fafc;
     border-bottom: 1px solid #e2e8f0;
@@ -429,7 +429,7 @@
     padding: 5px 0;
 }
 
-/* Highlights de búsqueda */
+
 .search-highlight {
     background: #ffd700;
     color: #1a202c;
@@ -456,7 +456,7 @@
     }
 }
 
-/* Mejoras responsivas para las nuevas características */
+
 @media (max-width: 768px) {
     .chat-actions {
         gap: 5px;
@@ -504,7 +504,7 @@
     }
 }
 
-/* Animaciones adicionales */
+
 .message-wrapper:hover .message-bubble {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -516,7 +516,7 @@
     transform: none !important;
 }
 
-/* === REACCIONES RÁPIDAS === */
+
 
 .message-reactions {
     display: none;
@@ -565,7 +565,7 @@
     }
 }
 
-/* Mejoras en hover para mensajes */
+
 .message-wrapper:hover {
     background: rgba(102, 126, 234, 0.02);
     border-radius: 8px;
@@ -584,7 +584,7 @@
     padding: 8px;
 }
 
-/* === INDICADOR DE ESCRITURA === */
+
 
 .typing-indicator {
     padding: 10px 20px;
@@ -656,7 +656,7 @@
     }
 }
 
-/* Tema oscuro (opcional) */
+
 @media (prefers-color-scheme: dark) {
     .chat-container {
         background: #1a1a1a;

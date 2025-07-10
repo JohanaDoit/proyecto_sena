@@ -68,7 +68,7 @@
 {% block content %}
 <h1>Mis Reservas</h1>
 
-<!-- Filtros -->
+
 <div class="filtros-container">
     <form method="GET" class="filtros-form">
         <div class="filter-group">
@@ -117,21 +117,21 @@
       <div class="reserva-calificacion">
         {% if reserva.idEstado.Nombre == 'Finalizado' and reserva.servicio_finalizado %}
           {% if reserva.calificacion_cliente %}
-            <!-- Ya existe calificación -->
+            
             <span class="text-success fw-bold">✓ Calificado</span>
             <div class="star-display rating-display" data-rating="{{ reserva.calificacion_cliente.puntuacion }}" data-show-number="true"></div>
           {% else %}
-            <!-- Servicio finalizado pero sin calificar -->
+            
             <a href="{% url 'calificar_reserva' reserva.id %}" class="btn btn-warning btn-sm">Califica el servicio</a>
           {% endif %}
         {% elif reserva.idEstado.Nombre == 'Cancelado' %}
-          <!-- Reserva cancelada -->
+          
           <span class="text-danger">Cancelado</span>
           {% if reserva.motivo_cancelacion %}
             <small class="text-muted d-block">Motivo: {{ reserva.motivo_cancelacion|truncatechars:50 }}</small>
           {% endif %}
         {% else %}
-          <!-- Servicio no finalizado -->
+          
           <span class="text-muted">---</span>
         {% endif %}
       </div>

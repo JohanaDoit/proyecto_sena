@@ -1,12 +1,12 @@
-/* --- reserva.css (el CSS de tu formulario específico) --- */
 
-/* --- Variables CSS (Personalización sencilla) --- */
+
+
 :root {
     --blanco: #f9f9f9;
-    --azul-principal: #1e3a8a; /* Darker blue, for headings and main elements */
-    --azul-secundario: #3b82f6; /* Brighter blue, for accents and hovers */
-    --gris-claro: #e5e7eb; /* Light gray, for borders */
-    --gris-oscuro: #6b7280; /* Darker gray, for text */
+    --azul-principal: #1e3a8a; 
+    --azul-secundario: #3b82f6; 
+    --gris-claro: #e5e7eb; 
+    --gris-oscuro: #6b7280; 
     --sombra-suave: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --sombra-fuerte: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --borde-redondeado: 0.5rem;
@@ -15,7 +15,7 @@
     --espaciado-grande: 2rem;
     --fuente-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-    /* Colores para mensajes de alerta */
+    
     --alert-info-bg: #d1ecf1;
     --alert-info-border: #bee5eb;
     --alert-info-text: #0c5460;
@@ -29,26 +29,23 @@
     --alert-danger-text: #721c24;
 }
 
-/*
-    *** ¡IMPORTANTE! Asegúrate de que NO haya estilos 'html' o 'body' aquí. ***
-    *** Esos estilos de layout global los maneja 'styles.css' ahora.         ***
-*/
 
-/* --- Estilos del Contenedor del Formulario --- */
-/* Las clases .container y .mt-5 ya son de Bootstrap, si las estás usando */
-/* Si no usas Bootstrap CDN, estas reglas para .container son buenas. */
-.container.mt-5 { /* Específico para este contenedor, si es diferente a otros .container */
+
+
+
+
+.container.mt-5 { 
     background-color: var(--blanco);
     border-radius: var(--borde-redondeado);
     box-shadow: var(--sombra-suave);
     padding: var(--espaciado-grande);
     width: 100%;
-    max-width: 520px; /* Un ancho razonable para formularios */
-    margin: 3rem auto; /* Ajusta este margen si mt-5 de Bootstrap no es suficiente */
+    max-width: 520px; 
+    margin: 3rem auto; 
     text-align: left;
 }
 
-/* --- Título del Formulario --- */
+
 .container.mt-5 h2 {
     color: var(--azul-principal);
     margin-bottom: var(--espaciado-grande);
@@ -59,21 +56,21 @@
     text-align: center;
 }
 
-/* --- Estilos de los Grupos de Campos (div.form-group) --- */
+
 .form-group {
-    margin-bottom: var(--espaciado-mediano); /* Espacio entre cada grupo de campo */
+    margin-bottom: var(--espaciado-mediano); 
 }
 
-/* --- Estilos de las Etiquetas (Labels) --- */
+
 .form-group label {
-    display: block; /* Cada etiqueta en su propia línea */
-    margin-bottom: var(--espaciado-pequeno); /* Espacio entre etiqueta y input */
+    display: block; 
+    margin-bottom: var(--espaciado-pequeno); 
     font-weight: 600;
     color: var(--azul-principal);
     font-size: 0.95rem;
 }
 
-/* --- Estilos de los Campos de Entrada (Input, Textarea, Select con clase .form-control) --- */
+
 .form-control {
     width: 100%;
     padding: var(--espaciado-pequeno);
@@ -81,49 +78,48 @@
     border: 1px solid var(--gris-claro);
     font-size: 1rem;
     background-color: var(--blanco);
-    box-sizing: border-box; /* Asegura que padding y border no aumenten el ancho total */
+    box-sizing: border-box; 
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-/* Estilo al enfocar (click) en un campo */
+
 .form-control:focus {
     outline: none;
     border-color: var(--azul-secundario);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Sombra azul tenue */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); 
 }
 
-/* Estilos específicos para textarea */
-textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la clase form-control */
+
+textarea.form-control { 
     min-height: 100px;
-    resize: vertical; /* Permite redimensionar verticalmente */
+    resize: vertical; 
 }
 
-/* Estilos para campos deshabilitados (ej. select de departamento/ciudad antes de seleccionar país) */
+
 .form-control:disabled {
-    background-color: #f2f2f2; /* Un gris más claro para indicar que está deshabilitado */
+    background-color: #f2f2f2; 
     cursor: not-allowed;
     opacity: 0.7;
 }
 
-/* --- Estilos para los mensajes de error de campo (.errorlist) --- */
+
 .errorlist {
-    color: var(--alert-danger-text); /* Rojo para errores */
-    list-style-type: none; /* Eliminar viñetas */
+    color: var(--alert-danger-text); 
+    list-style-type: none; 
     padding-left: 0;
     margin-top: .25rem;
-    font-size: .875em; /* Tamaño de fuente más pequeño */
+    font-size: .875em; 
 }
 
-/* --- Estilos para el texto de ayuda (helptext), si lo usas con Django por defecto #}
-/* Si usas la clase 'form-text' en tu HTML, usa ese selector */
-.form-text.text-muted { /* Esto apunta a <small class="form-text text-muted"> */
+
+.form-text.text-muted { 
     font-size: .875em;
     color: var(--gris-oscuro);
     margin-top: .25rem;
-    display: block; /* Para que ocupe su propia línea */
+    display: block; 
 }
 
-/* --- Estilos del Botón de Envío (.btn-primary) --- */
+
 .btn-primary {
     background: linear-gradient(90deg, #a6c1ec 80%, #1e3a8a 100%);
     color: var(--blanco);
@@ -146,7 +142,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
 .btn-primary:hover {
     background: linear-gradient(90deg, #1e3a8a 80%, #3b82f6 100%);
     box-shadow: var(--sombra-fuerte);
-    transform: translateY(-2px); /* Pequeño efecto de levantamiento */
+    transform: translateY(-2px); 
 }
 
 .btn-primary:active {
@@ -154,7 +150,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     box-shadow: var(--sombra-suave);
 }
 
-/* --- Estilos para los mensajes de alerta (si no usas Bootstrap CDN, estos son esenciales) --- */
+
 .alert {
     padding: var(--espaciado-pequeno) var(--espaciado-mediano);
     margin-bottom: var(--espaciado-mediano);
@@ -176,26 +172,26 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     border-color: var(--alert-success-border);
 }
 
-.alert-danger { /* Usado para form.non_field_errors */
+.alert-danger { 
     color: var(--alert-danger-text);
     background-color: var(--alert-danger-bg);
     border-color: var(--alert-danger-border);
 }
 
-/* Estilo para texto estático de servicio preseleccionado */
+
 .form-control-static {
-    padding-top: .375rem; /* Alineación con los inputs */
+    padding-top: .375rem; 
     padding-bottom: .375rem;
     margin-bottom: 0;
     line-height: 1.5;
     color: #333;
     font-weight: bold;
-    /* Asegúrate de que tenga el mismo padding y fuente que .form-control para consistencia */
+    
     padding: var(--espaciado-pequeno); 
     font-size: 1rem;
 }
 
-/* Media Queries para responsividad (opcional pero recomendado) */
+
 @media (max-width: 768px) {
     .container.mt-5 {
         padding: var(--espaciado-mediano);
@@ -211,7 +207,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     }
 }
 
-/* estilos de seleccionar la hora */
+
 
 .hora-select {
     font-size: 1.0rem;
@@ -225,23 +221,23 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     cursor: pointer;
 }
 
-/* Efecto al enfocar */
+
 .hora-select:focus {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
     outline: none;
 }
 
-/* Forzar que el contenedor no recorte el desplegable */
+
 .form-group {
     position: relative;
     overflow: visible;
-    z-index: 50; /* mayor para asegurar visibilidad */
+    z-index: 50; 
 }
 
-/* termina seleccion de hora */
 
-/* Estilos para el campo de fecha mejorado */
+
+
 .fecha-input-container {
     position: relative;
     margin-bottom: 15px;
@@ -296,7 +292,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     animation: bounce-gentle 1.5s infinite;
 }
 
-/* Animaciones sutiles */
+
 @keyframes pulse-gentle {
     0%, 100% {
         box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -315,7 +311,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     }
 }
 
-/* Estilos para cuando se selecciona una fecha */
+
 .fecha-reserva:not(:placeholder-shown) {
     background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%) !important;
     border-color: #48bb78 !important;
@@ -336,7 +332,7 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     content: " - ¡Fecha seleccionada!";
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
     .fecha-reserva {
         font-size: 1rem !important;

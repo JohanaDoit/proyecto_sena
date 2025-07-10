@@ -1,16 +1,10 @@
-# doit_app/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-
-# Importa todos los modelos necesarios
-# Asegúrate de que CustomUser es tu modelo de usuario personalizado que extiende AbstractUser o AbstractBaseUser
 from .models import CustomUser, Genero, TipoDoc, Pais, Departamento, Ciudad, Servicios, Estado, Metodo, Reserva, Calificaciones, PQR, PQR
 from datetime import datetime, timedelta, time, date
 from .models import Disponibilidad
 from django.conf import settings
 from django.contrib.auth import get_user_model
-
-
 class RegistroForm(UserCreationForm):
     acepta_terminos = forms.BooleanField(
         required=True,
@@ -33,7 +27,6 @@ class RegistroForm(UserCreationForm):
         label="Correo Electrónico",
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
-
     genero = forms.ModelChoiceField(
         queryset=Genero.objects.all().order_by('Nombre'),
         empty_label="Selecciona tu género",
@@ -41,41 +34,35 @@ class RegistroForm(UserCreationForm):
         label="Género",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     tipo_usuario = forms.ChoiceField(
         choices=CustomUser.tipo_usuario_choices,
         initial='cliente',
         label="Tipo de Usuario",
         widget=forms.Select(attrs={'class': 'form-control', 'id': 'id_tipo_usuario'})
     )
-
     nacionalidad = forms.CharField(
         max_length=100,
         required=False,
         label="Nacionalidad",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     numDoc = forms.CharField(
         max_length=100,
         required=False,
         label="Número de Documento",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     telefono = forms.CharField(
         max_length=100,
         required=False,
         label="Teléfono",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     fechaNacimiento = forms.DateField(
         required=False,
         label="Fecha de Nacimiento",
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
-
     tipo_documento = forms.ModelChoiceField(
         queryset=TipoDoc.objects.all().order_by('Nombre'),
         empty_label="Selecciona tipo de documento",
@@ -83,19 +70,16 @@ class RegistroForm(UserCreationForm):
         label="Tipo de Documento",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     hojaVida_file = forms.FileField(
         required=False,
         label="Subir Hoja de Vida (PDF, DOCX, etc.)",
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-
     foto_perfil = forms.ImageField(
         required=False,
         label="Foto de Perfil",
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-
     especialidad = forms.ModelMultipleChoiceField(
         queryset=Servicios.objects.select_related('idCategorias').order_by('NombreServicio'),
         required=False,
@@ -103,33 +87,27 @@ class RegistroForm(UserCreationForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         help_text="Puedes seleccionar hasta 3 especialidades."
     )
-
     direccion = forms.CharField(
         max_length=255,
         required=False,
         label="Dirección de Residencia",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     barrio = forms.CharField(
         max_length=100,
         required=False,
         label="Barrio",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     documento_identidad_pdf = forms.FileField(
         required=False,
         label="Documento de Identidad (PDF)",
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Elimina el campo especialidad de forma segura si existe
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
-
     class Meta(UserCreationForm.Meta):
         model = CustomUser
         fields = UserCreationForm.Meta.fields + (
@@ -170,35 +148,29 @@ class RegistroForm(UserCreationForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
     def clean(self):
         cleaned_data = super().clean()
         tipo_usuario = cleaned_data.get('tipo_usuario')
-
         if tipo_usuario == 'experto':
             campos_requeridos = ['hojaVida_file', 'foto_perfil', 'especialidad', 'documento_identidad_pdf']
             for campo in campos_requeridos:
                 if not cleaned_data.get(campo):
                     self.add_error(campo, 'Este campo es obligatorio para expertos.')
         return cleaned_data
-
     def clean_email(self):
         email = self.cleaned_data['email']
         if CustomUser.objects.filter(email=email).exists():
             raise forms.ValidationError("Este correo electrónico ya está registrado.")
         return email
-
     def clean_especialidad(self):
         especialidades = self.cleaned_data.get('especialidad')
         tipo_usuario = self.cleaned_data.get('tipo_usuario')
-
         if tipo_usuario == 'experto':
             if not especialidades or len(especialidades) == 0:
                 raise forms.ValidationError("Debes seleccionar al menos un servicio.")
             if len(especialidades) > 3:
                 raise forms.ValidationError("Solo puedes seleccionar hasta 3 servicios.")
         return especialidades
-
     def save(self, commit=True):
         user = super().save(commit=False)
         for campo in [
@@ -206,33 +178,12 @@ class RegistroForm(UserCreationForm):
             'fechaNacimiento', 'tipo_documento', 'direccion', 'barrio', 'documento_identidad_pdf'
         ]:
             setattr(user, campo, self.cleaned_data.get(campo))
-
         if commit:
             user.save()
-
-        # Guardar especialidades (ManyToMany) después de guardar el usuario
         if user.tipo_usuario == 'experto':
             user.especialidad.set(self.cleaned_data.get('especialidad'))
-
         return user
-    
-
-
-
-
-
-
-
-
-    
-# --- PERFIL USUARIO FORM (para edición de perfil) ---
-# Esta clase es para editar un usuario existente, no para crear uno nuevo.
-class PerfilUsuarioForm(UserChangeForm): 
-    # El campo 'tipo_usuario' es mejor que no sea editable en este formulario
-    # si se decide que un usuario no puede cambiar su rol fácilmente.
-    # Si se necesita cambiar, se requeriría una lógica de negocio más compleja.
-    # Por ahora, se dejará readonly o se podría incluso excluir si el rol es fijo.
-    
+class PerfilUsuarioForm(UserChangeForm):
     genero = forms.ModelChoiceField(
         queryset=Genero.objects.all().order_by('Nombre'),
         empty_label="Selecciona tu género",
@@ -247,14 +198,11 @@ class PerfilUsuarioForm(UserChangeForm):
         label="Tipo de Documento",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    
-    # Solo dejar los campos permitidos, eliminar los campos de evidenciaTrabajo, experienciaTrabajo, hojaVida, hojaVida_file
     foto_perfil = forms.ImageField(
-        required=False, 
-        label="Foto de Perfil", 
+        required=False,
+        label="Foto de Perfil",
         widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
     )
-
     direccion = forms.CharField(
         max_length=255,
         required=False,
@@ -267,19 +215,14 @@ class PerfilUsuarioForm(UserChangeForm):
         label="Barrio",
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )
-
     class Meta:
         model = CustomUser
-        # UserChangeForm incluye 'password' en sus fields por defecto como un enlace a la página de cambio de contraseña.
-        # No incluyas 'password' o 'password2' como campos de entrada directa aquí para edición.
-        # Usa campos específicos para cambio de contraseña si es necesario.
         fields = (
             'username', 'first_name', 'last_name', 'email',
             'genero', 'tipo_usuario', 'nacionalidad', 'numDoc', 'telefono',
-            'fechaNacimiento', 'tipo_documento', 'foto_perfil', 
+            'fechaNacimiento', 'tipo_documento', 'foto_perfil',
             'direccion', 'barrio',
         )
-        
         labels = {
             'username': 'Nombre de Usuario',
             'first_name': 'Nombres',
@@ -301,81 +244,46 @@ class PerfilUsuarioForm(UserChangeForm):
             'direccion': forms.TextInput(attrs={'class': 'form-control'}),
             'barrio': forms.TextInput(attrs={'class': 'form-control'}),
         }
-        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # El campo tipo_usuario debe ser inmutable o manejado con cuidado en PerfilUsuarioForm.
-        # Si la instancia ya existe (es decir, estamos editando un usuario), haz el campo de sólo lectura.
         if self.instance and self.instance.pk:
             self.fields['tipo_usuario'].widget.attrs['readonly'] = True
-            # self.fields['tipo_usuario'].widget.attrs['disabled'] = True # Esto impide que el valor se envíe
-
-        # Elimina cualquier referencia a 'especialidad' para evitar KeyError
-        # if self.instance and hasattr(self.instance, 'tipo_usuario') and self.instance.tipo_usuario == 'cliente':
-        #     self.fields['especialidad'].required = False
-        #     self.fields['especialidad'].widget = forms.HiddenInput()
-        #     self.fields['foto_perfil'].widget = forms.ClearableFileInput(attrs={'class': 'form-control'})
-        # else:
-        #     self.fields['especialidad'].widget = forms.SelectMultiple(attrs={'class': 'form-control'})
-        #     self.fields['especialidad'].required = False
-        #     self.fields['foto_perfil'].widget = forms.ClearableFileInput(attrs={'class': 'form-control'})
-
-        # Aplica la clase 'form-control' a la mayoría de los campos si no la tienen ya
         for field_name, field in self.fields.items():
-            # Excluye tipos de widgets que ya tienen un manejo específico, o que no son de texto/select,
-            # y los campos que ya tienen 'form-control' definido en el widget.
             if not isinstance(field.widget, (
-                forms.widgets.DateInput, 
-                forms.widgets.TimeInput, 
-                forms.widgets.Textarea, 
-                forms.widgets.ClearableFileInput, 
+                forms.widgets.DateInput,
+                forms.widgets.TimeInput,
+                forms.widgets.Textarea,
+                forms.widgets.ClearableFileInput,
                 forms.widgets.Select,
                 forms.widgets.HiddenInput,
                 forms.widgets.URLInput,
-                forms.widgets.CheckboxInput, # Para campos booleanos si tuvieras
-                forms.widgets.PasswordInput, # UserChangeForm los maneja de forma diferente
+                forms.widgets.CheckboxInput,
+                forms.widgets.PasswordInput,
             )) and 'class' not in field.widget.attrs:
                 field.widget.attrs.update({'class': 'form-control'})
-
-    # Sobreescribe clean_email para PerfilUsuarioForm para permitir que el usuario mantenga su propio email
     def clean_email(self):
         email = self.cleaned_data['email']
-        # Si el email ya existe en otro usuario (excluyendo el usuario que se está editando)
         if CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Este correo electrónico ya está en uso por otro usuario.")
         return email
-
     def save(self, commit=True):
         user = super().save(commit=False)
-        # Obtenemos el usuario original para comparar el tipo_usuario
-        # Esto es importante si el tipo_usuario podría cambiarse (aunque lo hicimos readonly)
-        # o si quieres limpiar los campos de experto al cambiar de experto a cliente.
         try:
             original_user = CustomUser.objects.get(pk=user.pk)
             original_tipo_usuario = original_user.tipo_usuario
         except CustomUser.DoesNotExist:
-            original_tipo_usuario = None # O maneja el error como prefieras
-
-        # Si el tipo de usuario cambia de experto a cliente (o ya era cliente), limpia los campos de experto
-        # Esto es crucial para no mantener datos de experto en un cliente.
+            original_tipo_usuario = None
         if self.cleaned_data.get('tipo_usuario') == 'cliente' and original_tipo_usuario == 'experto':
-            user.especialidad = "" 
-            
-            # Borra el archivo físico si existe y el campo cambia a None
+            user.especialidad = ""
             if original_user.hojaVida_file:
-                original_user.hojaVida_file.delete(save=False) 
-            user.hojaVida_file = None 
-
-            if original_user.foto_perfil and original_user.tipo_usuario == 'experto': # Asumiendo foto_perfil es solo para expertos
+                original_user.hojaVida_file.delete(save=False)
+            user.hojaVida_file = None
+            if original_user.foto_perfil and original_user.tipo_usuario == 'experto':
                 original_user.foto_perfil.delete(save=False)
             user.foto_perfil = None
-        
         if commit:
             user.save()
         return user
-
-
 class ReservaForm(forms.ModelForm):
     metodoDePago = forms.ModelChoiceField(
         queryset=Metodo.objects.all().order_by('Nombre'),
@@ -384,7 +292,6 @@ class ReservaForm(forms.ModelForm):
         label="Método de Pago Preferido",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     pais = forms.ModelChoiceField(
         queryset=Pais.objects.all().order_by('Nombre'),
         empty_label="Selecciona un país",
@@ -392,7 +299,6 @@ class ReservaForm(forms.ModelForm):
         label="País del Servicio",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     ciudad = forms.ModelChoiceField(
         queryset=Ciudad.objects.all().order_by('Nombre'),
         empty_label="Selecciona una ciudad",
@@ -400,7 +306,6 @@ class ReservaForm(forms.ModelForm):
         label="Ciudad del Servicio",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     idServicios = forms.ModelChoiceField(
         queryset=Servicios.objects.all().order_by('NombreServicio'),
         empty_label="Selecciona el tipo de servicio",
@@ -408,19 +313,16 @@ class ReservaForm(forms.ModelForm):
         label="Tipo de Servicio Solicitado",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     Fecha = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         input_formats=['%Y-%m-%d'],
         label='Fecha del Servicio'
     )
-
     Hora = forms.ChoiceField(
-        choices=[],  # se llenará dinámicamente en __init__
+        choices=[],
         label='Hora del Servicio',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     pago_ofrecido = forms.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -428,15 +330,12 @@ class ReservaForm(forms.ModelForm):
         label="Pago Ofrecido por el Cliente (ej. 50000.00 CLP)",
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
     )
-
-    # ✅ Campo adicional: permitir seleccionar un experto específico
     experto_solicitado = forms.ModelChoiceField(
         queryset=get_user_model().objects.filter(tipo_usuario='experto', is_active=True).order_by('username'),
         required=False,
         label="Solicitar un experto específico (opcional)",
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
     class Meta:
         model = Reserva
         fields = [
@@ -450,7 +349,7 @@ class ReservaForm(forms.ModelForm):
             'ciudad',
             'idServicios',
             'pago_ofrecido',
-            'experto_solicitado',  # ✅ nuevo campo agregado aquí
+            'experto_solicitado',
         ]
         labels = {
             'Fecha': 'Fecha Preferida del Servicio',
@@ -470,54 +369,32 @@ class ReservaForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'detallesAdicionales': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
-
     def __init__(self, *args, **kwargs):
-        # Extraer el experto_id del kwargs si existe
         experto_id = kwargs.pop('experto_id', None)
         super().__init__(*args, **kwargs)
-
-        # Generar horas desde 06:00 hasta 21:00, cada 30 minutos
         opciones = []
         hora_actual = datetime.strptime("06:00", "%H:%M")
         fin = datetime.strptime("21:00", "%H:%M")
         while hora_actual <= fin:
-            valor = hora_actual.strftime("%H:%M")          # Valor que se guarda
-            etiqueta = hora_actual.strftime("%I:%M %p")    # Texto visible en el select
+            valor = hora_actual.strftime("%H:%M")
+            etiqueta = hora_actual.strftime("%I:%M %p")
             opciones.append((valor, etiqueta))
             hora_actual += timedelta(minutes=30)
-
         self.fields['Hora'].choices = opciones
-
-        # Filtrar servicios si se ha seleccionado un experto específico
         if experto_id:
             try:
                 from django.contrib.auth import get_user_model
                 User = get_user_model()
                 experto = User.objects.get(id=experto_id, tipo_usuario='experto')
-                # Solo mostrar los servicios que el experto tiene registrados
                 servicios_experto = experto.especialidad.all()
                 if servicios_experto.exists():
                     self.fields['idServicios'].queryset = servicios_experto.order_by('NombreServicio')
                     self.fields['idServicios'].empty_label = "Selecciona un servicio del experto"
                 else:
-                    # Si el experto no tiene servicios registrados, mostrar mensaje apropiado
                     self.fields['idServicios'].queryset = Servicios.objects.none()
                     self.fields['idServicios'].empty_label = "Este experto no tiene servicios registrados"
             except (User.DoesNotExist, ValueError):
-                # Si el experto no existe o hay un error, usar todos los servicios
                 pass
-
-
-
-
-
-
-
-
-
-
-# --- FORMULARIO DE CALIFICACION ---
-# Este formulario es para que los usuarios califiquen un servicio con estrellas y un comentario.
 class CalificacionForm(forms.ModelForm):
     class Meta:
         model = Calificaciones
@@ -530,30 +407,24 @@ class CalificacionForm(forms.ModelForm):
             'puntuacion': 'Calificación',
             'comentario': 'Comentario',
         }
-
-
 class DisponibilidadForm(forms.ModelForm):
-    # Generar opciones de tiempo en bloques de 30 minutos (6:00 AM - 9:00 PM)
     HORA_CHOICES = []
-    for hour in range(6, 21 + 1):  # De 6 a 21 horas (6am a 9pm)
+    for hour in range(6, 21 + 1):
         for minute in [0, 30]:
             time_obj = time(hour, minute)
             time_str = time_obj.strftime('%H:%M')
-            display_str = time_obj.strftime('%I:%M %p')  # Ej: 06:00 AM
+            display_str = time_obj.strftime('%I:%M %p')
             HORA_CHOICES.append((time_str, display_str))
-
     hora_inicio = forms.ChoiceField(
         choices=HORA_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Hora de inicio'
     )
-
     hora_fin = forms.ChoiceField(
         choices=HORA_CHOICES,
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Hora de fin'
     )
-
     class Meta:
         model = Disponibilidad
         fields = ['fecha', 'hora_inicio', 'hora_fin', 'idEstado']
@@ -561,23 +432,16 @@ class DisponibilidadForm(forms.ModelForm):
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'idEstado': forms.Select(attrs={'class': 'form-select'}),
         }
-
     def clean(self):
         cleaned_data = super().clean()
         hora_inicio = cleaned_data.get('hora_inicio')
         hora_fin = cleaned_data.get('hora_fin')
-
         if hora_inicio and hora_fin:
             hora_inicio_obj = time.fromisoformat(hora_inicio)
             hora_fin_obj = time.fromisoformat(hora_fin)
-
-            # Validar que hora_inicio sea menor que hora_fin
             if hora_inicio_obj >= hora_fin_obj:
                 raise forms.ValidationError("La hora de fin debe ser posterior a la hora de inicio.")
-
         return cleaned_data
-
-
 class PQRForm(forms.ModelForm):
     class Meta:
         model = PQR
@@ -603,19 +467,15 @@ class PQRForm(forms.ModelForm):
             'asunto': 'Asunto',
             'descripcion': 'Descripción detallada'
         }
-    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Agregar clases de validación de Bootstrap
         for field_name, field in self.fields.items():
             field.widget.attrs.update({'class': field.widget.attrs.get('class', '') + ' mb-3'})
-    
     def clean_asunto(self):
         asunto = self.cleaned_data.get('asunto')
         if len(asunto.strip()) < 5:
             raise forms.ValidationError("El asunto debe tener al menos 5 caracteres.")
         return asunto.strip()
-    
     def clean_descripcion(self):
         descripcion = self.cleaned_data.get('descripcion')
         if len(descripcion.strip()) < 20:
