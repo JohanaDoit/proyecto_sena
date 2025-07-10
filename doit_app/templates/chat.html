@@ -1,33 +1,530 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Chat con {{ receptor.get_full_name|default:receptor.username }}{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/chat.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="chat-container">
+    <!-- Header del chat -->
     <div class="chat-header">
-        Conversación con {{ receptor.get_full_name|default:receptor.username }}
-    </div>
-
-    <div class="chat-box">
-        {% for mensaje in mensajes %}
-            <div class="message {% if mensaje.emisor == request.user %}sent{% else %}received{% endif %}">
-                <strong>{{ mensaje.emisor.username }}</strong><br>
-                {{ mensaje.contenido|linebreaksbr }}
-                <small>{{ mensaje.fecha_envio|date:"d/m/Y H:i" }}</small>
+        <div class="chat-user-info">
+            <div class="user-avatar">
+                {% if receptor.foto_perfil %}
+                    <img src="{{ receptor.foto_perfil.url }}" alt="Foto de {{ receptor.get_full_name|default:receptor.username }}">
+                {% else %}
+                    <div class="avatar-placeholder">
+                        {{ receptor.get_full_name.0|default:receptor.username.0|upper }}
+                    </div>
+                {% endif %}
+                <div class="online-indicator"></div>
             </div>
-            <div class="clearfix"></div>
-        {% empty %}
-            <p class="no-mensajes">No hay mensajes aún.</p>
-        {% endfor %}
+            <div class="user-details">
+                <h3>{{ receptor.get_full_name|default:receptor.username }}</h3>
+                <span class="user-type">
+                    {% if receptor.tipo_usuario == 'experto' %}
+                        <i class="fas fa-star"></i> Experto
+                    {% else %}
+                        <i class="fas fa-user"></i> Cliente
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <!-- Búsqueda de mensajes -->
+            <button type="button" class="btn-search" id="toggle-search" title="Buscar mensajes">
+                <i class="fas fa-search"></i>
+            </button>
+            <!-- Notificaciones -->
+            <button type="button" class="btn-notifications" id="toggle-notifications" title="Activar notificaciones">
+                <i class="fas fa-bell"></i>
+            </button>
+            {% if user.tipo_usuario == 'cliente' %}
+                <a href="{% url 'principal' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            {% else %}
+                <a href="{% url 'dashboard_experto' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            {% endif %}
+        </div>
     </div>
 
-    <form method="POST" class="chat-form">
-        {% csrf_token %}
-        <textarea name="contenido" rows="2" placeholder="Escribe tu mensaje..." required></textarea>
-        <button type="submit">Enviar</button>
-    </form>
+    <!-- Barra de búsqueda (inicialmente oculta) -->
+    <div class="search-bar" id="search-bar" style="display: none;">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar en la conversación..." maxlength="100">
+            <button type="button" id="search-prev" title="Resultado anterior">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+            <button type="button" id="search-next" title="Siguiente resultado">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <button type="button" id="close-search" title="Cerrar búsqueda">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="search-results" id="search-results"></div>
+    </div>
+
+    <!-- Área de mensajes -->
+    <div class="chat-messages" id="chat-messages">
+        {% for mensaje in mensajes %}
+            <div class="message-wrapper {% if mensaje.emisor == request.user %}sent{% else %}received{% endif %}">
+                <div class="message-bubble">
+                    <div class="message-header">
+                        <span class="sender-name">
+                            {% if mensaje.emisor == request.user %}
+                                Tú
+                            {% else %}
+                                {{ mensaje.emisor.get_full_name|default:mensaje.emisor.username }}
+                            {% endif %}
+                        </span>
+                        <span class="message-time">{{ mensaje.fecha_envio|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div class="message-content">
+                        {{ mensaje.contenido|linebreaksbr }}
+                    </div>
+                    <!-- Reacciones rápidas -->
+                    <div class="message-reactions" style="display: none;">
+                        <button type="button" class="reaction-btn" data-reaction="👍" title="Me gusta">👍</button>
+                        <button type="button" class="reaction-btn" data-reaction="❤️" title="Me encanta">❤️</button>
+                        <button type="button" class="reaction-btn" data-reaction="😊" title="Me alegra">😊</button>
+                        <button type="button" class="reaction-btn" data-reaction="👏" title="Excelente">👏</button>
+                    </div>
+                    {% if mensaje.emisor == request.user %}
+                        <div class="message-status">
+                            {% if mensaje.leido %}
+                                <i class="fas fa-check-double read"></i>
+                            {% else %}
+                                <i class="fas fa-check sent-check"></i>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-messages">
+                <div class="no-messages-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h4>¡Inicia la conversación!</h4>
+                <p>Aún no hay mensajes en este chat. Escribe algo para comenzar.</p>
+            </div>
+        {% endfor %}
+        
+        <!-- Indicador de escritura -->
+        <div class="typing-indicator" id="typing-indicator" style="display: none;">
+            <div class="typing-bubble">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="typing-text">{{ receptor.get_full_name|default:receptor.username }} está escribiendo...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de envío -->
+    <div class="chat-input-container">
+        <form method="POST" class="chat-form" id="chat-form">
+            {% csrf_token %}
+            <div class="input-wrapper">
+                <textarea 
+                    name="contenido" 
+                    id="message-input"
+                    rows="1" 
+                    placeholder="Escribe tu mensaje aquí..." 
+                    required
+                    maxlength="500"></textarea>
+                <div class="input-actions">
+                    <button type="submit" class="send-button" title="Enviar mensaje">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="char-counter">
+                <span id="char-count">0</span>/500
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chat-messages');
+    const messageInput = document.getElementById('message-input');
+    const charCount = document.getElementById('char-count');
+    const chatForm = document.getElementById('chat-form');
+    
+    // Variables para búsqueda
+    const toggleSearch = document.getElementById('toggle-search');
+    const searchBar = document.getElementById('search-bar');
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const searchPrev = document.getElementById('search-prev');
+    const searchNext = document.getElementById('search-next');
+    const closeSearch = document.getElementById('close-search');
+    
+    // Variables para notificaciones
+    const toggleNotifications = document.getElementById('toggle-notifications');
+    let notificationsEnabled = localStorage.getItem('chatNotifications') === 'true';
+    
+    // Auto-scroll al final
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Scroll inicial
+    scrollToBottom();
+    
+    // Contador de caracteres
+    messageInput.addEventListener('input', function() {
+        const length = this.value.length;
+        charCount.textContent = length;
+        
+        if (length > 450) {
+            charCount.style.color = '#e53e3e';
+        } else if (length > 400) {
+            charCount.style.color = '#dd6b20';
+        } else {
+            charCount.style.color = '#718096';
+        }
+        
+        // Auto-resize textarea
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    
+    // Envío con Enter (Shift+Enter para nueva línea)
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (this.value.trim()) {
+                chatForm.submit();
+            }
+        }
+    });
+    
+    // Focus automático en el input
+    messageInput.focus();
+    
+    // Scroll después de enviar
+    chatForm.addEventListener('submit', function() {
+        setTimeout(scrollToBottom, 100);
+    });
+
+    // === FUNCIONALIDAD DE BÚSQUEDA ===
+    let searchResults_array = [];
+    let currentSearchIndex = -1;
+
+    // Toggle búsqueda
+    toggleSearch.addEventListener('click', function() {
+        const isVisible = searchBar.style.display !== 'none';
+        searchBar.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            searchInput.focus();
+        } else {
+            clearSearchHighlights();
+        }
+    });
+
+    // Cerrar búsqueda
+    closeSearch.addEventListener('click', function() {
+        searchBar.style.display = 'none';
+        clearSearchHighlights();
+    });
+
+    // Buscar mensajes
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim().toLowerCase();
+        if (query.length < 2) {
+            clearSearchHighlights();
+            searchResults.textContent = '';
+            return;
+        }
+        
+        searchInMessages(query);
+    });
+
+    function searchInMessages(query) {
+        clearSearchHighlights();
+        searchResults_array = [];
+        
+        const messages = chatMessages.querySelectorAll('.message-content');
+        messages.forEach((message, index) => {
+            const text = message.textContent.toLowerCase();
+            if (text.includes(query)) {
+                searchResults_array.push({element: message, index: index});
+                highlightText(message, query);
+            }
+        });
+        
+        updateSearchResults();
+        if (searchResults_array.length > 0) {
+            currentSearchIndex = 0;
+            scrollToSearchResult(0);
+        }
+    }
+
+    function highlightText(element, query) {
+        const text = element.innerHTML;
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+        element.innerHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
+    }
+
+    function clearSearchHighlights() {
+        const highlights = chatMessages.querySelectorAll('.search-highlight');
+        highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+            parent.normalize();
+        });
+        
+        // Remover clases de resultado activo
+        const activeResults = chatMessages.querySelectorAll('.search-result-active');
+        activeResults.forEach(el => el.classList.remove('search-result-active'));
+    }
+
+    function updateSearchResults() {
+        const count = searchResults_array.length;
+        if (count === 0) {
+            searchResults.textContent = 'No se encontraron resultados';
+        } else {
+            searchResults.textContent = `${currentSearchIndex + 1} de ${count} resultados`;
+        }
+    }
+
+    function scrollToSearchResult(index) {
+        if (index >= 0 && index < searchResults_array.length) {
+            // Remover highlight previo
+            const prevActive = chatMessages.querySelector('.search-result-active');
+            if (prevActive) prevActive.classList.remove('search-result-active');
+            
+            // Agregar highlight actual
+            const result = searchResults_array[index];
+            result.element.closest('.message-wrapper').classList.add('search-result-active');
+            result.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Navegación de resultados
+    searchNext.addEventListener('click', function() {
+        if (searchResults_array.length > 0) {
+            currentSearchIndex = (currentSearchIndex + 1) % searchResults_array.length;
+            scrollToSearchResult(currentSearchIndex);
+            updateSearchResults();
+        }
+    });
+
+    searchPrev.addEventListener('click', function() {
+        if (searchResults_array.length > 0) {
+            currentSearchIndex = currentSearchIndex <= 0 ? searchResults_array.length - 1 : currentSearchIndex - 1;
+            scrollToSearchResult(currentSearchIndex);
+            updateSearchResults();
+        }
+    });
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // === FUNCIONALIDAD DE NOTIFICACIONES ===
+    
+    // Actualizar icono de notificaciones
+    function updateNotificationIcon() {
+        const icon = toggleNotifications.querySelector('i');
+        if (notificationsEnabled) {
+            icon.className = 'fas fa-bell';
+            toggleNotifications.title = 'Desactivar notificaciones';
+            toggleNotifications.classList.add('notifications-enabled');
+        } else {
+            icon.className = 'fas fa-bell-slash';
+            toggleNotifications.title = 'Activar notificaciones';
+            toggleNotifications.classList.remove('notifications-enabled');
+        }
+    }
+
+    // Toggle notificaciones
+    toggleNotifications.addEventListener('click', function() {
+        if (notificationsEnabled) {
+            notificationsEnabled = false;
+            localStorage.setItem('chatNotifications', 'false');
+        } else {
+            // Solicitar permiso para notificaciones
+            if ("Notification" in window) {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === "granted") {
+                        notificationsEnabled = true;
+                        localStorage.setItem('chatNotifications', 'true');
+                        showNotification('Notificaciones activadas', 'Recibirás notificaciones de nuevos mensajes');
+                    }
+                });
+            }
+        }
+        updateNotificationIcon();
+    });
+
+    function showNotification(title, body) {
+        if (notificationsEnabled && "Notification" in window && Notification.permission === "granted") {
+            // Solo mostrar si la ventana no está enfocada
+            if (document.hidden) {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: '/static/images/logo.png', // Asegúrate de tener un icono
+                    tag: 'chat-message'
+                });
+                
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+                
+                // Auto-cerrar después de 5 segundos
+                setTimeout(() => notification.close(), 5000);
+            }
+        }
+    }
+
+    // Inicializar estado de notificaciones
+    updateNotificationIcon();
+
+    // Simular notificación para nuevos mensajes (en una implementación real, esto vendría del WebSocket)
+    // Esta es solo una demostración
+    chatForm.addEventListener('submit', function() {
+        // Simular recepción de respuesta después de un tiempo (solo para demo)
+        setTimeout(() => {
+            // En una implementación real, esto se activaría cuando llegue un mensaje real
+            // showNotification('Nuevo mensaje', 'Has recibido un nuevo mensaje en el chat');
+        }, 3000);
+    });
+
+    // === AUTO-REFRESH PARA NUEVOS MENSAJES ===
+    // Esto simula una funcionalidad de tiempo real
+    // En una implementación real, usarías WebSockets o Server-Sent Events
+    
+    let lastMessageCount = document.querySelectorAll('.message-wrapper').length;
+    
+    function checkForNewMessages() {
+        // Solo verificar si la página está visible
+        if (!document.hidden) {
+            // En una implementación real, harías una petición AJAX aquí
+            // fetch('/api/chat/{{ receptor.id }}/messages/').then(...)
+        }
+    }
+    
+    // Verificar nuevos mensajes cada 30 segundos cuando la ventana está activa
+    const refreshInterval = setInterval(checkForNewMessages, 30000);
+    
+    // Pausar refresh cuando la ventana no está visible
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            // Ventana no visible - podríamos aumentar el intervalo o pausarlo
+        } else {
+            // Ventana visible - verificar inmediatamente
+            checkForNewMessages();
+        }
+    });
+    
+    // Limpiar interval al salir de la página
+    window.addEventListener('beforeunload', function() {
+        clearInterval(refreshInterval);
+    });
+
+    // === REACCIONES RÁPIDAS ===
+    
+    // Mostrar/ocultar reacciones al hacer hover
+    const messageWrappers = document.querySelectorAll('.message-wrapper');
+    messageWrappers.forEach(wrapper => {
+        const reactions = wrapper.querySelector('.message-reactions');
+        
+        wrapper.addEventListener('mouseenter', function() {
+            reactions.style.display = 'flex';
+        });
+        
+        wrapper.addEventListener('mouseleave', function() {
+            reactions.style.display = 'none';
+        });
+    });
+    
+    // Manejar clics en reacciones
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('reaction-btn')) {
+            const reaction = e.target.getAttribute('data-reaction');
+            const messageWrapper = e.target.closest('.message-wrapper');
+            
+            // Agregar animación de reacción
+            const reactionElement = document.createElement('div');
+            reactionElement.className = 'floating-reaction';
+            reactionElement.textContent = reaction;
+            reactionElement.style.position = 'absolute';
+            reactionElement.style.fontSize = '1.5rem';
+            reactionElement.style.pointerEvents = 'none';
+            reactionElement.style.animation = 'float-reaction 1.5s ease-out forwards';
+            
+            // Posicionar la reacción
+            const rect = e.target.getBoundingClientRect();
+            reactionElement.style.left = rect.left + 'px';
+            reactionElement.style.top = rect.top + 'px';
+            reactionElement.style.zIndex = '1000';
+            
+            document.body.appendChild(reactionElement);
+            
+            // Remover después de la animación
+            setTimeout(() => {
+                reactionElement.remove();
+            }, 1500);
+            
+            // Aquí podrías enviar la reacción al servidor
+            console.log('Reacción enviada:', reaction);
+        }
+    });
+
+    // === INDICADOR DE ESCRITURA ===
+    
+    const typingIndicator = document.getElementById('typing-indicator');
+    let typingTimer;
+    let isTyping = false;
+    
+    // Simular indicador cuando el usuario está escribiendo
+    messageInput.addEventListener('input', function() {
+        if (!isTyping) {
+            // En una implementación real, enviarías un evento de "empezó a escribir"
+            showTypingIndicator();
+            isTyping = true;
+        }
+        
+        // Resetear timer
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+            // En una implementación real, enviarías un evento de "dejó de escribir"
+            hideTypingIndicator();
+            isTyping = false;
+        }, 2000);
+    });
+    
+    function showTypingIndicator() {
+        // Esta función simula que el otro usuario está escribiendo
+        // En una implementación real, esto se activaría por WebSocket
+        setTimeout(() => {
+            if (Math.random() > 0.7) { // 30% de probabilidad de mostrar
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+                
+                // Ocultar después de 2-4 segundos
+                setTimeout(hideTypingIndicator, 2000 + Math.random() * 2000);
+            }
+        }, 1000 + Math.random() * 2000);
+    }
+    
+    function hideTypingIndicator() {
+        typingIndicator.style.display = 'none';
+    }
+});
+</script>
 {% endblock %}

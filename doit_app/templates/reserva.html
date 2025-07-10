@@ -101,7 +101,21 @@
                     {% endif %}
                 </small>
             {% endif %}
-            <input type="text" id="calendario-reserva-experto" name="{{ form.Fecha.name }}" class="form-control" value="{{ form.Fecha.value|default:'' }}" readonly />
+            
+            <!-- Campo de fecha mejorado con placeholder y estilos -->
+            <div class="fecha-input-container">
+                <input type="text" 
+                       id="calendario-reserva-experto" 
+                       name="{{ form.Fecha.name }}" 
+                       class="form-control fecha-reserva" 
+                       value="{{ form.Fecha.value|default:'' }}" 
+                       placeholder="📅 Haz clic aquí para abrir el calendario y seleccionar la fecha"
+                       readonly />
+                <div class="fecha-helper-text">
+                    <i class="fas fa-hand-pointer"></i> 
+                    <span>Selecciona la fecha haciendo clic en el campo de arriba</span>
+                </div>
+            </div>
             <div id="mensaje-dia-no-disponible" class="alert alert-warning" style="display:none; margin-top:10px;">
                 {% if experto_seleccionado %}
                     Ese día no está disponible para {{ experto_seleccionado.get_full_name }} (puede tener un servicio en curso o estar marcado como no disponible), por favor selecciona otro día.
@@ -117,6 +131,9 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     var diasNoDisponibles = {{ dias_no_disponibles|safe }};
                     var mensaje = document.getElementById('mensaje-dia-no-disponible');
+                    var helperText = document.querySelector('.fecha-helper-text span');
+                    var fechaInput = document.getElementById('calendario-reserva-experto');
+                    
                     flatpickr("#calendario-reserva-experto", {
                         dateFormat: 'Y-m-d',
                         locale: 'es',
@@ -131,6 +148,21 @@
                                     mensaje.style.display = 'none';
                                 }, 4000);
                                 instance.clear();
+                                // Restaurar texto helper
+                                if (helperText) {
+                                    helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
+                                }
+                            } else if (selectedDates.length > 0) {
+                                // Fecha válida seleccionada
+                                if (helperText) {
+                                    var fechaFormateada = selectedDates[0].toLocaleDateString('es-ES', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    });
+                                    helperText.innerHTML = '✓ Fecha seleccionada: ' + fechaFormateada;
+                                }
                             }
                         },
                         onValueUpdate: function(selectedDates, dateStr, instance) {
@@ -141,6 +173,22 @@
                                     mensaje.style.display = 'none';
                                 }, 4000);
                                 instance.clear();
+                                // Restaurar texto helper
+                                if (helperText) {
+                                    helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
+                                }
+                            }
+                        },
+                        onOpen: function(selectedDates, dateStr, instance) {
+                            // Cambiar texto cuando se abre el calendario
+                            if (helperText && selectedDates.length === 0) {
+                                helperText.innerHTML = '📅 Selecciona un día disponible del calendario';
+                            }
+                        },
+                        onClose: function(selectedDates, dateStr, instance) {
+                            // Restaurar texto si no se seleccionó nada
+                            if (helperText && selectedDates.length === 0) {
+                                helperText.innerHTML = 'Selecciona la fecha haciendo clic en el campo de arriba';
                             }
                         }
                     });
