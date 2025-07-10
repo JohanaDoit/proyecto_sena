@@ -392,3 +392,57 @@ class Disponibilidad(models.Model):
 
     def __str__(self):
         return f"{self.experto.username} - {self.fecha} de {self.hora_inicio} a {self.hora_fin} ({self.idEstado.Nombre})"
+
+
+class PQR(models.Model):
+    TIPO_CHOICES = [
+        ('peticion', 'Petición'),
+        ('queja', 'Queja'),
+        ('reclamo', 'Reclamo'),
+        ('sugerencia', 'Sugerencia'),
+    ]
+    
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        verbose_name="Usuario que envía el PQR"
+    )
+    tipo = models.CharField(
+        max_length=20, 
+        choices=TIPO_CHOICES, 
+        verbose_name="Tipo de PQR"
+    )
+    asunto = models.CharField(
+        max_length=200, 
+        verbose_name="Asunto"
+    )
+    descripcion = models.TextField(
+        verbose_name="Descripción detallada"
+    )
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="Fecha de creación"
+    )
+    respondido = models.BooleanField(
+        default=False, 
+        verbose_name="¿Ha sido respondido?"
+    )
+    fecha_respuesta = models.DateTimeField(
+        null=True, 
+        blank=True, 
+        verbose_name="Fecha de respuesta"
+    )
+    respuesta = models.TextField(
+        null=True, 
+        blank=True, 
+        verbose_name="Respuesta del administrador"
+    )
+    
+    class Meta:
+        verbose_name = "PQR"
+        verbose_name_plural = "PQRs"
+        ordering = ['-fecha_creacion']
+        app_label = "doit_app"
+    
+    def __str__(self):
+        return f"PQR #{self.id} - {self.tipo.upper()} - {self.usuario.username} - {self.asunto[:30]}"

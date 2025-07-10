@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.pqr-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.pqr-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.pqr-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.pqr-header p {
+    margin: 10px 0 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.pqr-form {
+    padding: 40px;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 5px;
+}
+
+.tipo-info {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.tipo-info h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.tipo-info ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #6c757d;
+}
+
+.tipo-info li {
+    margin-bottom: 4px;
+}
+
+.btn-enviar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+}
+
+.btn-enviar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-enviar:active {
+    transform: translateY(0);
+}
+
+.btn-volver {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 20px;
+    transition: background 0.2s ease;
+}
+
+.btn-volver:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+.character-count {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-align: right;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .pqr-container {
+        margin: 15px;
+    }
+    
+    .pqr-form {
+        padding: 25px;
+    }
+    
+    .pqr-header {
+        padding: 25px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pqr-container">
+    <div class="pqr-header">
+        <h1><i class="fas fa-envelope"></i> {{ titulo }}</h1>
+        <p>Envía tus peticiones, quejas, reclamos o sugerencias. Te responderemos a la brevedad.</p>
+    </div>
+    
+    <div class="pqr-form">
+        {% if user.tipo_usuario == 'cliente' %}
+            <a href="{% url 'principal' %}" class="btn-volver">
+                <i class="fas fa-arrow-left"></i> Volver al inicio
+            </a>
+        {% else %}
+            <a href="{% url 'dashboard_experto' %}" class="btn-volver">
+                <i class="fas fa-arrow-left"></i> Volver al dashboard
+            </a>
+        {% endif %}
+        
+        <form method="post" id="pqr-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}
+                    <div class="invalid-feedback">{{ form.tipo.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="tipo-info" id="tipo-info" style="display: none;">
+                <h6 id="tipo-titulo"></h6>
+                <ul id="tipo-descripcion"></ul>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.asunto.id_for_label }}">{{ form.asunto.label }}</label>
+                {{ form.asunto }}
+                <div class="character-count">
+                    <span id="asunto-count">0</span>/200 caracteres
+                </div>
+                {% if form.asunto.errors %}
+                    <div class="invalid-feedback">{{ form.asunto.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                {{ form.descripcion }}
+                <div class="character-count">
+                    <span id="descripcion-count">0</span> caracteres (mínimo 20)
+                </div>
+                {% if form.descripcion.errors %}
+                    <div class="invalid-feedback">{{ form.descripcion.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn-enviar">
+                <i class="fas fa-paper-plane"></i> Enviar PQR
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoSelect = document.getElementById('id_tipo');
+    const tipoInfo = document.getElementById('tipo-info');
+    const tipoTitulo = document.getElementById('tipo-titulo');
+    const tipoDescripcion = document.getElementById('tipo-descripcion');
+    const asuntoInput = document.getElementById('id_asunto');
+    const descripcionInput = document.getElementById('id_descripcion');
+    const asuntoCount = document.getElementById('asunto-count');
+    const descripcionCount = document.getElementById('descripcion-count');
+    
+    const tiposInfo = {
+        'peticion': {
+            titulo: 'Petición',
+            descripcion: [
+                'Solicitud de información',
+                'Solicitud de nuevas funcionalidades',
+                'Consultas sobre servicios',
+                'Solicitudes generales'
+            ]
+        },
+        'queja': {
+            titulo: 'Queja',
+            descripcion: [
+                'Inconformidad con un servicio',
+                'Problemas en la atención recibida',
+                'Mal funcionamiento de la plataforma',
+                'Experiencia negativa'
+            ]
+        },
+        'reclamo': {
+            titulo: 'Reclamo',
+            descripcion: [
+                'Exigir el cumplimiento de derechos',
+                'Cobros indebidos',
+                'Incumplimiento de compromisos',
+                'Resolución de conflictos'
+            ]
+        },
+        'sugerencia': {
+            titulo: 'Sugerencia',
+            descripcion: [
+                'Ideas de mejora',
+                'Propuestas de nuevas funciones',
+                'Recomendaciones generales',
+                'Retroalimentación constructiva'
+            ]
+        }
+    };
+    
+    // Mostrar información del tipo seleccionado
+    tipoSelect.addEventListener('change', function() {
+        const tipo = this.value;
+        if (tipo && tiposInfo[tipo]) {
+            tipoTitulo.textContent = tiposInfo[tipo].titulo;
+            tipoDescripcion.innerHTML = '';
+            tiposInfo[tipo].descripcion.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                tipoDescripcion.appendChild(li);
+            });
+            tipoInfo.style.display = 'block';
+        } else {
+            tipoInfo.style.display = 'none';
+        }
+    });
+    
+    // Contador de caracteres para asunto
+    asuntoInput.addEventListener('input', function() {
+        const length = this.value.length;
+        asuntoCount.textContent = length;
+        if (length > 200) {
+            asuntoCount.style.color = '#dc3545';
+        } else {
+            asuntoCount.style.color = '#6c757d';
+        }
+    });
+    
+    // Contador de caracteres para descripción
+    descripcionInput.addEventListener('input', function() {
+        const length = this.value.length;
+        descripcionCount.textContent = length;
+        if (length < 20) {
+            descripcionCount.style.color = '#dc3545';
+        } else {
+            descripcionCount.style.color = '#28a745';
+        }
+    });
+    
+    // Trigger inicial
+    if (tipoSelect.value) {
+        tipoSelect.dispatchEvent(new Event('change'));
+    }
+    
+    if (asuntoInput.value) {
+        asuntoInput.dispatchEvent(new Event('input'));
+    }
+    
+    if (descripcionInput.value) {
+        descripcionInput.dispatchEvent(new Event('input'));
+    }
+});
+</script>
+{% endblock %}

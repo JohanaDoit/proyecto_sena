@@ -152,6 +152,42 @@ body {
     color: #fff;
 }
 
+/* Estilo para elementos de navegación deshabilitados */
+#sidebar ul.list-unstyled li .nav-disabled {
+    display: block;
+    color: #7c8ca0;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    margin: 2px 8px;
+    font-style: italic;
+    background: rgba(124, 140, 160, 0.1);
+}
+
+#sidebar ul.list-unstyled li .nav-disabled i {
+    margin-right: 10px;
+    font-size: 1.18em;
+}
+
+/* Estilos especiales para enlaces de PQR */
+#sidebar ul.list-unstyled li a[href*="pqr"] {
+    background: rgba(102, 126, 234, 0.08);
+    border-left: 3px solid #667eea;
+}
+
+#sidebar ul.list-unstyled li a[href*="pqr"]:hover {
+    background: #667eea;
+    border-left: 3px solid #5a67d8;
+}
+
+#sidebar ul.list-unstyled li a[href*="pqr"] i {
+    color: #667eea;
+}
+
+#sidebar ul.list-unstyled li a[href*="pqr"]:hover i {
+    color: #fff;
+}
+
 
 /* HEADER FIJO STYLES */
 header {

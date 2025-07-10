@@ -55,5 +55,8 @@ urlpatterns += [
     path('ajax/busc_experto_sugerencias/', views.busc_experto_sugerencias, name='busc_experto_sugerencias'),
     # --- AJAX para expertos por especialidad ---
     path('ajax/expertos_por_especialidad/', views.expertos_por_especialidad, name='expertos_por_especialidad'),
+    # --- PQR ---
+    path('pqr/', views.pqr_view, name='pqr'),
+    path('mis-pqrs/', views.mis_pqrs, name='mis_pqrs'),
 ]
 
