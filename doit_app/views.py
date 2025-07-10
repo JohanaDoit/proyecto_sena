@@ -455,11 +455,12 @@ def principal(request):
     
     # === BUSCAR OTROS SERVICIOS FINALIZADOS PENDIENTES DE CALIFICAR ===
     if not servicio_para_calificar:
-        # Buscar el servicio más reciente finalizado que no haya sido calificado
+        # Buscar servicios finalizados sin calificar y donde NO se haya descartado la notificación
         servicios_sin_calificar = Reserva.objects.filter(
             idUsuario=request.user,
             servicio_finalizado=True,
-            idEstado__Nombre='Finalizado'
+            idEstado__Nombre='Finalizado',
+            notificacion_calificar_descartada=False  # NUEVO: Solo mostrar si no se descartó
         ).exclude(
             id__in=Calificaciones.objects.filter(
                 calificado_por=request.user,
@@ -759,7 +760,7 @@ def cancelar_reserva(request, reserva_id):
         
         # 🔥 NUEVO: Resetear campos de servicio para evitar confusión en la UI
         reserva.servicio_iniciado = False
-        reserva.servicio_finalizado = True  # Marcar como finalizado para que no aparezca en curso
+        reserva.servicio_finalizado = False  # NO marcar como finalizado si se cancela
         
         reserva.save()
 
@@ -789,13 +790,72 @@ def cancelar_reserva(request, reserva_id):
 @user_passes_test(is_cliente, login_url=reverse_lazy('login'))
 def mis_reservas_cliente(request):
     from doit_app.models import Calificaciones, Notificacion
-    reservas = Reserva.objects.filter(idUsuario=request.user).order_by('-creado_en')
+    
+    # Obtener parámetros de filtrado
+    orden = request.GET.get('orden', 'fecha_desc')  # Por defecto: fecha descendente
+    estado_filtro = request.GET.get('estado', 'todos')
+    
+    # Base queryset
+    reservas = Reserva.objects.filter(idUsuario=request.user)
+    
+    # Filtrar por estado si se especifica
+    if estado_filtro != 'todos':
+        if estado_filtro == 'pendiente':
+            reservas = reservas.filter(idEstado__Nombre='Pendiente')
+        elif estado_filtro == 'en_proceso':
+            reservas = reservas.filter(servicio_iniciado=True, servicio_finalizado=False)
+        elif estado_filtro == 'finalizado':
+            reservas = reservas.filter(idEstado__Nombre='Finalizado')
+        elif estado_filtro == 'cancelado':
+            reservas = reservas.filter(idEstado__Nombre='Cancelado')
+    
+    # Aplicar ordenamiento
+    if orden == 'fecha_asc':
+        reservas = reservas.order_by('creado_en')
+    elif orden == 'fecha_desc':
+        reservas = reservas.order_by('-creado_en')
+    elif orden == 'estado':
+        reservas = reservas.order_by('idEstado__Nombre', '-creado_en')
+    elif orden == 'calificacion_desc':
+        # Ordenar por calificación (si existe), luego por fecha
+        reservas = reservas.annotate(
+            tiene_calificacion=Exists(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    calificado_por=request.user,
+                    tipo='cliente_a_experto'
+                )
+            )
+        ).order_by('-tiene_calificacion', '-creado_en')
+    elif orden == 'calificacion_asc':
+        reservas = reservas.annotate(
+            tiene_calificacion=Exists(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    calificado_por=request.user,
+                    tipo='cliente_a_experto'
+                )
+            )
+        ).order_by('tiene_calificacion', '-creado_en')
+    else:
+        reservas = reservas.order_by('-creado_en')
+    
     # Anexar si ya fue calificado por el cliente
     for reserva in reservas:
-        calif = Calificaciones.objects.filter(reserva=reserva, calificado_por=request.user, tipo='cliente_a_experto').first()
+        # Buscar calificación existente del cliente hacia el experto
+        calif = Calificaciones.objects.filter(
+            reserva=reserva, 
+            calificado_por=request.user, 
+            tipo='cliente_a_experto'
+        ).first()
         reserva.calificacion_cliente = calif
 
-    return render(request, 'cliente/mis_reservas.html', {'reservas': reservas})
+    context = {
+        'reservas': reservas,
+        'orden_actual': orden,
+        'estado_actual': estado_filtro,
+    }
+    return render(request, 'cliente/mis_reservas.html', context)
 
 
 
@@ -992,10 +1052,63 @@ def rechazar_reserva_experto(request, reserva_id):
 @user_passes_test(is_experto, login_url=reverse_lazy('login'))
 def historial_experto(request):
     from doit_app.models import Calificaciones
+    
+    # Obtener parámetros de filtrado
+    orden = request.GET.get('orden', 'fecha_desc')  # Por defecto: fecha descendente
+    
+    # Base queryset - solo servicios finalizados
     reservas_finalizadas = Reserva.objects.filter(
         experto_asignado=request.user,
         servicio_finalizado=True
-    ).order_by('-Fecha', '-Hora')
+    )
+    
+    # Aplicar ordenamiento
+    if orden == 'fecha_asc':
+        reservas_finalizadas = reservas_finalizadas.order_by('Fecha', 'Hora')
+    elif orden == 'fecha_desc':
+        reservas_finalizadas = reservas_finalizadas.order_by('-Fecha', '-Hora')
+    elif orden == 'calificacion_recibida_desc':
+        # Ordenar por calificación recibida del cliente (mayor a menor)
+        reservas_finalizadas = reservas_finalizadas.annotate(
+            calificacion_valor=models.Subquery(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    tipo='cliente_a_experto'
+                ).values('puntuacion')[:1]
+            )
+        ).order_by('-calificacion_valor', '-Fecha')
+    elif orden == 'calificacion_recibida_asc':
+        # Ordenar por calificación recibida del cliente (menor a mayor)
+        reservas_finalizadas = reservas_finalizadas.annotate(
+            calificacion_valor=models.Subquery(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    tipo='cliente_a_experto'
+                ).values('puntuacion')[:1]
+            )
+        ).order_by('calificacion_valor', '-Fecha')
+    elif orden == 'calificacion_dada_desc':
+        # Ordenar por calificación dada al cliente (mayor a menor)
+        reservas_finalizadas = reservas_finalizadas.annotate(
+            calificacion_dada_valor=models.Subquery(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    tipo='experto_a_cliente'
+                ).values('puntuacion')[:1]
+            )
+        ).order_by('-calificacion_dada_valor', '-Fecha')
+    elif orden == 'calificacion_dada_asc':
+        # Ordenar por calificación dada al cliente (menor a mayor)
+        reservas_finalizadas = reservas_finalizadas.annotate(
+            calificacion_dada_valor=models.Subquery(
+                Calificaciones.objects.filter(
+                    reserva=OuterRef('pk'),
+                    tipo='experto_a_cliente'
+                ).values('puntuacion')[:1]
+            )
+        ).order_by('calificacion_dada_valor', '-Fecha')
+    else:
+        reservas_finalizadas = reservas_finalizadas.order_by('-Fecha', '-Hora')
     
     # Obtener calificaciones recibidas y realizadas para cada reserva
     historial = []
@@ -1008,9 +1121,11 @@ def historial_experto(request):
             'calif_experto': calif_experto
         })
     
-    return render(request, 'experto/historial_experto.html', {
-        'historial': historial
-    })
+    context = {
+        'historial': historial,
+        'orden_actual': orden,
+    }
+    return render(request, 'experto/historial_experto.html', context)
 
 
 @login_required
@@ -1285,16 +1400,31 @@ def marcar_notificacion_leida(request):
     if reserva_id:
         try:
             # Buscar la notificación específica de calificación para esta reserva
-            notificacion = Notificacion.objects.filter(
+            notificaciones = Notificacion.objects.filter(
                 usuario=request.user,
                 url=f'/calificar_reserva/{reserva_id}/',
                 leida=False
-            ).first()
+            )
             
-            if notificacion:
-                notificacion.leida = True
-                notificacion.save()
-                return JsonResponse({'status': 'success'})
+            # Marcar la reserva como descartada para que no vuelva a aparecer
+            try:
+                reserva = Reserva.objects.get(id=reserva_id, idUsuario=request.user)
+                reserva.notificacion_calificar_descartada = True
+                reserva.save()
+            except Reserva.DoesNotExist:
+                pass
+            
+            if notificaciones.exists():
+                # Marcar todas las notificaciones coincidentes como leídas
+                notificaciones.update(leida=True)
+                return JsonResponse({
+                    'status': 'success', 
+                    'message': f'Notificación descartada correctamente'
+                })
+            else:
+                # Aunque no haya notificación, ya marcamos la reserva como descartada
+                return JsonResponse({'status': 'success', 'message': 'Notificación descartada correctamente'})
+                    
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)})
     
