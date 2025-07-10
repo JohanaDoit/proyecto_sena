@@ -640,41 +640,149 @@ footer {
     font-weight: 500;
 }
 
-/* Notificación de calificar servicio - versión simple */
-#notificacion-calificar {
+/* Notificación de calificar - diseño completamente desde cero */
+.calificar-notificacion {
     max-width: 600px;
-    margin: 0 auto;
-    transition: all 0.3s ease;
-    border: 1px solid #dee2e6 !important;
-    border-left: 4px solid #17a2b8 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-#notificacion-calificar:hover {
+    margin: 20px auto;
+    background: #ffffff;
+    border: 1px solid #e0e6ed;
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#notificacion-calificar .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+.calificar-notificacion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.calificar-contenido {
+    display: flex;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 16px;
+    position: relative;
+}
+
+.calificar-icono {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.calificar-texto {
+    flex: 1;
+    margin-right: 40px;
+}
+
+.calificar-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.calificar-descripcion {
+    font-size: 14px;
+    color: #4a5568;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.calificar-acciones {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.calificar-btn-primary {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 500;
-    padding: 0.375rem 1rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s ease;
+    border: none;
+    cursor: pointer;
 }
 
-#notificacion-calificar .btn-link:hover {
-    color: #6c757d !important;
-    text-decoration: underline !important;
+.calificar-btn-primary:hover {
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
 }
 
-/* Responsive para notificación simple */
+.calificar-btn-secondary {
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calificar-btn-secondary:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.calificar-cerrar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #9ca3af;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.calificar-cerrar:hover {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    #notificacion-calificar {
-        margin: 0 1rem;
+    .calificar-notificacion {
+        margin: 16px;
+        max-width: none;
     }
     
-    #notificacion-calificar .d-flex.gap-2 {
+    .calificar-contenido {
+        padding: 16px;
         flex-direction: column;
-        align-items: flex-start !important;
-        gap: 0.5rem !important;
+        gap: 12px;
+    }
+    
+    .calificar-texto {
+        margin-right: 0;
+    }
+    
+    .calificar-acciones {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .calificar-btn-primary,
+    .calificar-btn-secondary {
+        width: 100%;
+        text-align: center;
+        padding: 12px 20px;
     }
 }

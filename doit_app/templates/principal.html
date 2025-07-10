@@ -260,42 +260,32 @@
 
 <!-- Notificación para calificar servicio finalizado -->
 {% if servicio_para_calificar and puede_calificar %}
-<div class="alert d-flex align-items-center mt-3 p-3 rounded" 
-     style="background: #f8f9fa; color: #495057;" 
-     id="notificacion-calificar">
-    
-    <div class="me-3">
-        <span style="font-size: 1.8rem;">⭐</span>
-    </div>
-    
-    <div class="flex-grow-1">
-        <h6 class="mb-1 fw-bold text-dark">
-            Servicio "{{ servicio_para_calificar.idServicios.NombreServicio }}" completado
-        </h6>
-        <p class="mb-2 text-muted small">
-            {{ servicio_para_calificar.experto_asignado.get_full_name }} finalizó tu servicio. 
-            ¿Qué tal fue tu experiencia?
-        </p>
-        
-        <div class="d-flex gap-2 align-items-center">
-            <a href="{% url 'calificar_reserva' servicio_para_calificar.id %}" 
-               class="btn btn-primary btn-sm">
+<div class="calificar-notificacion" id="notificacion-calificar">
+    <div class="calificar-contenido">
+        <div class="calificar-icono">⭐</div>
+        <div class="calificar-texto">
+            <div class="calificar-titulo">Servicio "{{ servicio_para_calificar.idServicios.NombreServicio }}" completado</div>
+            <div class="calificar-descripcion">
+                {{ servicio_para_calificar.experto_asignado.get_full_name }} finalizó tu servicio. 
+                ¿Qué tal fue tu experiencia?
+            </div>
+        </div>
+        <div class="calificar-acciones">
+            <a href="{% url 'calificar_reserva' servicio_para_calificar.id %}" class="calificar-btn-primary">
                 Calificar
             </a>
-            
             <button type="button" 
-                    class="btn btn-link btn-sm text-muted p-0" 
-                    onclick="recordarMasTarde({{ servicio_para_calificar.id }})"
-                    style="text-decoration: none; font-size: 0.85rem;">
+                    class="calificar-btn-secondary" 
+                    onclick="recordarMasTarde({{ servicio_para_calificar.id }})">
                 Más tarde
             </button>
         </div>
+        <button type="button" 
+                class="calificar-cerrar" 
+                onclick="ocultarNotificacionCalificar()">
+            ×
+        </button>
     </div>
-    
-    <button type="button" 
-            class="btn-close" 
-            onclick="ocultarNotificacionCalificar()"
-            style="font-size: 0.9rem;"></button>
 </div>
 {% endif %}
 
