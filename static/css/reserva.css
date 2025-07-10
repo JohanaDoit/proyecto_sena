@@ -211,9 +211,6 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
     }
 }
 
-
-
-
 /* estilos de seleccionar la hora */
 
 .hora-select {
@@ -243,3 +240,111 @@ textarea.form-control { /* Asegúrate de que esto se aplique a textareas con la 
 }
 
 /* termina seleccion de hora */
+
+/* Estilos para el campo de fecha mejorado */
+.fecha-input-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.fecha-reserva {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 15px 20px !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    color: #4a5568 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    position: relative;
+}
+
+.fecha-reserva:hover {
+    border-color: #667eea !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15) !important;
+    transform: translateY(-1px);
+}
+
+.fecha-reserva:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 12px rgba(102, 126, 234, 0.15) !important;
+    transform: translateY(-1px);
+}
+
+.fecha-reserva::placeholder {
+    color: #718096 !important;
+    font-style: italic;
+}
+
+.fecha-helper-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-top: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    animation: pulse-gentle 2s infinite;
+}
+
+.fecha-helper-text i {
+    margin-right: 8px;
+    animation: bounce-gentle 1.5s infinite;
+}
+
+/* Animaciones sutiles */
+@keyframes pulse-gentle {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+}
+
+@keyframes bounce-gentle {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+/* Estilos para cuando se selecciona una fecha */
+.fecha-reserva:not(:placeholder-shown) {
+    background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%) !important;
+    border-color: #48bb78 !important;
+    color: #2d3748 !important;
+    font-weight: 600 !important;
+}
+
+.fecha-reserva:not(:placeholder-shown) + .fecha-helper-text {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    animation: none;
+}
+
+.fecha-reserva:not(:placeholder-shown) + .fecha-helper-text span::before {
+    content: "✓ ";
+}
+
+.fecha-reserva:not(:placeholder-shown) + .fecha-helper-text span::after {
+    content: " - ¡Fecha seleccionada!";
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .fecha-reserva {
+        font-size: 1rem !important;
+        padding: 12px 15px !important;
+    }
+    
+    .fecha-helper-text {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
