@@ -518,8 +518,17 @@ def principal(request):
 @login_required
 @user_passes_test(is_cliente, login_url=reverse_lazy('login')) 
 def reserva(request):
+    from doit_app.models import CustomUser  # ✅ Import al principio
+    
     servicio_id = request.GET.get('servicio_id') or request.session.get('servicio_id')
     experto_id = request.GET.get('experto_id')  # ✅ Capturar experto desde la URL
+
+    # Si viene un experto pero no un servicio, intentar usar el primer servicio del experto
+    if experto_id and not servicio_id:
+        experto = CustomUser.objects.filter(pk=experto_id).first()
+        if experto and experto.especialidad.exists():
+            servicio_id = experto.especialidad.first().id
+            request.session['servicio_id'] = servicio_id
 
     if not servicio_id:
         messages.error(request, "⚠️ Servicio no seleccionado. Por favor, elige un servicio.")
@@ -527,8 +536,6 @@ def reserva(request):
 
     servicio = get_object_or_404(Servicios, id=servicio_id)
     request.session['servicio_id'] = servicio_id
-
-    from doit_app.models import CustomUser  # ✅ Import necesario
 
     experto_seleccionado = None  # ✅ nuevo
 
@@ -698,6 +705,7 @@ def reserva(request):
     return render(request, 'reserva.html', {
         'form': form,
         'servicio': servicio,
+        'servicio_seleccionado': servicio,  # ✅ Para mostrar en el template
         'experto_id': experto_id,
         'dias_no_disponibles': dias_no_disponibles,
         'experto_seleccionado': experto_seleccionado,  # ✅ NUEVO: pasa al template

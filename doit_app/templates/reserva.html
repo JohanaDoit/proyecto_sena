@@ -23,7 +23,12 @@
 
     {% if servicio_seleccionado %}
         <div class="alert alert-info">
-            Estás solicitando el servicio: <strong>{{ servicio_seleccionado.NombreServicio }}</strong>
+            {% if experto_seleccionado %}
+                Vas a solicitar el servicio: <strong>{{ servicio_seleccionado.NombreServicio }}</strong> 
+                al experto <strong>{{ experto_seleccionado.get_full_name }}</strong>
+            {% else %}
+                Estás solicitando el servicio: <strong>{{ servicio_seleccionado.NombreServicio }}</strong>
+            {% endif %}
             <input type="hidden" name="servicio_id" value="{{ servicio_seleccionado.id }}">
         </div>
     {% endif %}
